@@ -95,9 +95,14 @@ export const preloadFonts = (): Plugin => {
         // importing `@akli-dev/ui/fonts.css`, which is worth flagging: the
         // preload silently does nothing otherwise. `this.warn` surfaces as a
         // normal Rollup/Vite build warning rather than a raw console log.
+        // Second most likely cause: GEIST_SANS_NAME_PATTERN stopped matching
+        // because the shipped font file was renamed (e.g. a Geist version
+        // bump) — mentioned explicitly so a future maintainer debugging this
+        // warning doesn't only chase the "forgot to import" theory.
         this.warn(
           '@akli-dev/ui/vite-plugin: preloadFonts() could not find the Geist Sans font asset in this build\'s output. ' +
-            "Did you forget to import '@akli-dev/ui/fonts.css'? No preload link will be injected.",
+            "Did you forget to import '@akli-dev/ui/fonts.css'? If it is imported, the shipped font filename may have " +
+            'changed and no longer matches this plugin\'s GEIST_SANS_NAME_PATTERN. No preload link will be injected.',
         )
       }
     },

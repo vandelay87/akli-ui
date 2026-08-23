@@ -1,7 +1,11 @@
-/* Design tokens — warm editorial "paper" system.
-   Source of truth: docs/design/paper/design_system/tokens/.
-   Two layers: semantic --color-* (light on :root, dark under
-   [data-theme="dark"]) plus short working aliases.
+/* Design tokens — warm editorial "paper" system, ported from
+   personal-website's src/styles/tokens.css (source of truth:
+   docs/design/paper/design_system/tokens/, in that repo — not present
+   here). Semantic --color-* tokens: light on :root, dark under
+   [data-theme="dark"]. personal-website's own copy also carries a "short
+   working aliases" layer on top of these (--bg, --accent, etc.) used only
+   by its docs/design/ static HTML prototypes, which don't exist in this
+   package — omitted here as dead weight with no runtime consumer.
    Fonts are self-hosted (see src/styles/fonts.css, imported before this
    file) — Geist + JetBrains Mono woff2, plus a metric-matched 'Geist
    Fallback' face that holds layout during the font-display: swap flash. */
@@ -115,27 +119,6 @@
   --color-success-on-tint: #1a754d;   /* ~4.7–4.96:1 depending on consumer backdrop */
   --color-warning-on-tint: #8c5a08;   /* ~4.85–4.96:1 depending on consumer backdrop */
 
-  /* ── Short working aliases (used across pages + UI kits) ──── */
-  --bg:         var(--color-bg);
-  --surf:       var(--color-surface);
-  --field:      var(--color-field);
-  --hover:      var(--color-hover);
-  --text:       var(--color-text-strong);
-  --subtle:     var(--color-text);
-  --muted:      var(--color-text-muted);
-  --faint:      var(--color-text-faint);
-  --line:       var(--color-border);
-  --btn-border: var(--color-border-strong);
-  --accent:     var(--color-primary);
-  --btn-bg:     var(--color-btn-bg);
-  --btn-fg:     var(--color-btn-fg);
-  --green:      var(--color-success);
-  --green-bg:   var(--color-success-bg);
-  --amber:      var(--color-warning);
-  --amber-bg:   var(--color-warning-bg);
-  --danger:     var(--color-error);
-  --danger-bg:  var(--color-error-bg);
-
   /* ── Spacing scale (4px base) ─────────────────────────────── */
   --space-1:  0.25rem;  /* 4px  */
   --space-2:  0.5rem;   /* 8px  */
@@ -245,7 +228,10 @@
   --color-primary:       #6BA0FF;
   --color-on-primary:    #11151F;
   --color-link:          #6BA0FF;
-  --color-on-accent-fixed: #fff;
+  /* --color-on-accent-fixed intentionally not redeclared here: it's fixed
+     white "regardless of theme" per its :root definition/comment above, so
+     this dark block correctly inherits that value via the cascade instead
+     of repeating it. */
 
   --color-btn-bg:        #F3F0E8;
   --color-btn-fg:        #141310;
