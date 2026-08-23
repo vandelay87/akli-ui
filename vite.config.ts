@@ -121,6 +121,12 @@ export default defineConfig({
         index: 'src/index.ts',
         tokens: 'src/styles/tokens.css',
         fonts: 'src/styles/fonts.css',
+        // Node-side entry: consumed from a *consuming app's* own
+        // vite.config.ts (via `@akli-dev/ui/vite-plugin`), never imported
+        // from src/index.ts or any component, so it shares this build's
+        // config (target/format) without pulling in any React/DOM code —
+        // its own import graph is just the `Plugin` type from `vite`.
+        'vite-plugin': 'src/vite-plugin.ts',
       },
       formats: ['es'],
       fileName: '[name]',
