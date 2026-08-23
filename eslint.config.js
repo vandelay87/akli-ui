@@ -11,23 +11,13 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import globals from 'globals'
 
 export default [
-  { ignores: ['dist', 'coverage/**'] },
+  { ignores: ['dist', 'coverage'] },
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
     languageOptions: {
       ecmaVersion: 'latest',
       globals: {
         ...globals.browser,
-        vi: 'readonly',
-        // Vitest globals
-        describe: 'readonly',
-        it: 'readonly',
-        expect: 'readonly',
-        beforeEach: 'readonly',
-        afterEach: 'readonly',
-        beforeAll: 'readonly',
-        afterAll: 'readonly',
-        test: 'readonly',
       },
       parserOptions: {
         ecmaFeatures: { jsx: true },
@@ -98,6 +88,11 @@ export default [
   },
   {
     files: ['**/*.test.{ts,tsx}'],
+    languageOptions: {
+      globals: {
+        ...globals.vitest,
+      },
+    },
     rules: {
       '@typescript-eslint/no-unused-vars': [
         'error',
