@@ -8,6 +8,9 @@
     "jsx": "react-jsx",
     "strict": true,
     "noEmit": true,
+    "paths": {
+      "@components/*": ["./src/components/*"]
+    },
     "types": ["vite/client"],
     "resolveJsonModule": true,
     "esModuleInterop": true,

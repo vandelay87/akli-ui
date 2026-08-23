@@ -16,6 +16,28 @@
   "bugs": {
     "url": "https://github.com/vandelay87/akli-ui/issues"
   },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./vite-plugin": {
+      "types": "./dist/vite-plugin.d.ts",
+      "import": "./dist/vite-plugin.js"
+    },
+    "./index.css": "./dist/index.css",
+    "./tokens.css": "./dist/tokens.css",
+    "./fonts.css": "./dist/fonts.css",
+    "./package.json": "./package.json"
+  },
+  "sideEffects": [
+    "*.css"
+  ],
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
@@ -25,10 +47,23 @@
     "test:coverage": "vitest run --coverage",
     "format": "prettier --write . && eslint --fix ."
   },
+  "peerDependencies": {
+    "react": "^19",
+    "react-dom": "^19",
+    "vite": "^8"
+  },
+  "peerDependenciesMeta": {
+    "vite": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
     "@typescript-eslint/eslint-plugin": "^8.67.0",
     "@typescript-eslint/parser": "^8.67.0",
+    "@vitejs/plugin-react": "^6.0.5",
     "@vitest/coverage-v8": "^4.1.11",
     "@vitest/eslint-plugin": "^1.6.27",
     "eslint": "^10.8.1",
@@ -41,7 +76,10 @@
     "globals": "^17.11.0",
     "jsdom": "^30.0.1",
     "prettier": "^3.9.6",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
     "typescript": "^5.9.3",
+    "unplugin-dts": "^1.0.3",
     "vite": "^8.2.1",
     "vitest": "^4.1.11"
   }

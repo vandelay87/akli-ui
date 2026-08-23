@@ -1,0 +1,279 @@
+/* Design tokens — warm editorial "paper" system, ported from
+   personal-website's src/styles/tokens.css (source of truth:
+   docs/design/paper/design_system/tokens/, in that repo — not present
+   here). Semantic --color-* tokens: light on :root, dark under
+   [data-theme="dark"]. personal-website's own copy also carries a "short
+   working aliases" layer on top of these (--bg, --accent, etc.) used only
+   by its docs/design/ static HTML prototypes, which don't exist in this
+   package — omitted here as dead weight with no runtime consumer.
+   Fonts are self-hosted (see src/styles/fonts.css, imported before this
+   file) — Geist + JetBrains Mono woff2, plus a metric-matched 'Geist
+   Fallback' face that holds layout during the font-display: swap flash. */
+
+:root {
+  color-scheme: light;
+
+  /* ── Typography ───────────────────────────────────────────── */
+  --font-sans: 'Geist', 'Geist Fallback', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Font sizes */
+  --font-size-xs:      0.6875rem; /* 11px — mono eyebrows, tags */
+  --font-size-sm:      0.8125rem; /* 13px — meta, labels */
+  --font-size-sm-plus: 0.875rem;  /* 14px — nav links, CTA buttons, card sub-text */
+  --font-size-base:    0.9375rem; /* 15px — UI text, inputs */
+  --font-size-md:   1rem;      /* 16px — list body */
+  --font-size-lg:   1.125rem;  /* 18px — long-form body */
+  --font-size-xl:   1.3125rem; /* 21px — lead/intro */
+  --font-size-2xl:  1.5rem;    /* 24px */
+  --font-size-3xl:  1.8125rem; /* 29px — card/section titles */
+  --font-size-4xl:  2.875rem;  /* 46px — page titles */
+  --font-size-5xl:  3.5rem;    /* 56px — hero */
+
+  /* Fluid display sizes (hero / page titles) */
+  --font-display-hero:  clamp(40px, 7vw, 56px);
+  --font-display-title: clamp(32px, 5.6vw, 46px);
+  --font-display-h2:    clamp(23px, 3.2vw, 27px);
+
+  /* Weights — Geist */
+  --font-weight-normal:   400;
+  --font-weight-medium:   500;
+  --font-weight-semibold: 600;
+  --font-weight-bold:     700;
+
+  /* Line heights */
+  --line-height-tight:   1.08;  /* display headings */
+  --line-height-snug:    1.25;  /* section headings */
+  --line-height-normal:  1.5;   /* UI text */
+  --line-height-relaxed: 1.65;  /* body */
+  --line-height-loose:   1.75;  /* long-form article body */
+
+  /* Letter spacing */
+  --tracking-tight:   -0.03em;  /* hero / page titles */
+  --tracking-snug:    -0.02em;  /* section + card titles */
+  --tracking-normal:  0;
+  --tracking-eyebrow: 0.16em;   /* mono uppercase eyebrows */
+  --tracking-meta:    0.04em;   /* mono meta lines */
+
+  /* ── Colors — light ───────────────────────────────────────── */
+
+  /* Surfaces */
+  --color-bg:            #FBFAF7;   /* page background — warm off-white paper */
+  --color-surface:       #F4F1EA;   /* cards, chips, inset panels */
+  --color-field:         #FFFFFF;   /* form inputs */
+  --color-hover:         rgba(0,0,0,0.022); /* subtle row/cell hover wash */
+
+  /* Text — a 4-step hierarchy (strong → faint) */
+  --color-text-strong:   #1C1A16;   /* headings, primary text */
+  --color-text:          #3A3631;   /* long-form body */
+  --color-text-muted:    #6F6961;   /* secondary text, nav, meta */
+  /* WCAG AA override: the design's faint #9A938A is ~2.9:1 on paper
+     (fails AA). Darkened to #767066 (~4.5:1) for eyebrow/caption/meta. */
+  --color-text-faint:    #767066;   /* eyebrows, captions, placeholders */
+  /* WCAG AA override: --color-text-faint (#767066) is tuned against
+     --color-bg only (see its own comment above) — reused against
+     --color-surface it's ~4.35:1 (fails). Darkened for that specific
+     pairing (issue #274). */
+  --color-text-faint-on-surface: #706A60;   /* ~4.75:1 on --color-surface */
+  /* --color-text-faint already passes 4.5:1 against --color-field in light
+     mode (~4.91:1) — this token exists so consumers on --color-field can
+     reference one semantic name across both themes without knowing which
+     theme needs correction (dark mode does, see below). */
+  --color-text-faint-on-field: var(--color-text-faint);
+
+  /* Borders */
+  --color-border:        #ECE6DA;   /* hairlines, dividers, card edges */
+  --color-border-strong: #E0DACE;   /* button outlines, interactive borders */
+
+  /* Brand / accent */
+  --color-primary:       #1F66E0;   /* links, focus, active filter, accents */
+  --color-on-primary:    #FFFFFF;
+  --color-link:          #1F66E0;
+  /* Fixed white, not --color-on-primary (which flips to dark text in dark
+     mode) — the design hardcodes #fff on small accent-filled glyphs (a
+     checkmark tick, an active tag chip) regardless of theme. Consolidates
+     what were 3 identical component-local #fff literals (Tag's .active,
+     RecipeIngredients' checked checkbox tick, RecipeEditor's checklist
+     tick), each previously cross-referencing the other two in comments,
+     into one shared token — same pattern as --color-success-on-tint above. */
+  --color-on-accent-fixed: #fff;
+
+  /* Inverted button (primary CTA) */
+  --color-btn-bg:        #1C1A16;
+  --color-btn-fg:        #FBFAF7;
+
+  /* Semantic status */
+  --color-success:       #1F8A5B;
+  --color-success-bg:    rgba(31,138,91,0.10);
+  --color-warning:       #A66E0A;
+  --color-warning-bg:    rgba(194,129,12,0.12);
+  --color-error:         #C0392B;
+  --color-error-bg:      rgba(192,57,43,0.07);
+  /* WCAG AA override: --color-success/--color-warning on their own tint
+     backgrounds (pills, toasts, callouts, hover states) fall short of
+     4.5:1 in light mode — darkened for that specific "status text on its
+     own tint" pairing. Consolidates what were 5 identical component-local
+     overrides (StatusBadge, Toast, RecipeList, Callout ×2 — issues #267
+     and #272) into one shared token. Dark mode never needed the
+     correction, so it just resolves to the existing token there. */
+  --color-success-on-tint: #1a754d;   /* ~4.7–4.96:1 depending on consumer backdrop */
+  --color-warning-on-tint: #8c5a08;   /* ~4.85–4.96:1 depending on consumer backdrop */
+
+  /* ── Spacing scale (4px base) ─────────────────────────────── */
+  --space-1:  0.25rem;  /* 4px  */
+  --space-2:  0.5rem;   /* 8px  */
+  --space-3:  0.75rem;  /* 12px */
+  --space-4:  1rem;     /* 16px */
+  --space-5:  1.25rem;  /* 20px */
+  --space-6:  1.5rem;   /* 24px */
+  --space-8:  2rem;     /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+  --space-20: 5rem;     /* 80px */
+  --space-24: 6rem;     /* 96px */
+
+  /* ── Border radius — soft, rounded ────────────────────────── */
+  --radius-sm:   6px;   /* chips, small controls */
+  --radius:      8px;   /* small buttons/action chips — between sm and md */
+  --radius-md:   10px;  /* inputs, buttons */
+  --radius-lg:   12px;  /* code panels, callouts */
+  --radius-xl:   16px;  /* cards, panels, dialogs */
+  --radius-2xl:  18px;  /* modals */
+  --radius-full: 999px; /* pills, avatars, toggle */
+
+  /* ── Border widths ────────────────────────────────────────── */
+  --border-width:       1px;   /* default hairline */
+  --border-width-thick: 1.5px; /* checkboxes, emphasis */
+
+  /* ── Shadows — soft elevation, no hard offsets ────────────── */
+  --shadow-sm:  0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md:  0 4px 14px rgba(0,0,0,0.08);
+  --shadow-lg:  0 12px 30px rgba(0,0,0,0.16);
+  --shadow-xl:  0 24px 60px rgba(0,0,0,0.28); /* dialogs */
+
+  /* ── Focus ring ───────────────────────────────────────────── */
+  --ring: 0 0 0 3px color-mix(in srgb, var(--color-primary) 15%, transparent); /* form fields only, see .fieldFocusRing */
+  /* Decomposed into width/style/color (not just a shorthand literal) so a
+     consumer that needs just one part — e.g. index.css's scroll-margin
+     calc(), which has to clear the outline's rendered width but can't
+     decompose a shorthand inside calc() — can reference it directly
+     instead of repeating a literal that could drift out of sync. */
+  --focus-ring-outline-width: 2px;
+  --focus-ring-outline-style: solid;
+  --focus-ring-outline-color: var(--color-primary);
+  --focus-ring-outline: var(--focus-ring-outline-width) var(--focus-ring-outline-style) var(--focus-ring-outline-color); /* general interactive elements, see .focusRing */
+  --focus-ring-outline-offset: 3px;
+
+  /* ── Layout ───────────────────────────────────────────────── */
+  /* Pre-JS/no-JS fallback for scroll-margin-block-start consumers (PageShell,
+     AdminLayout) — Header.tsx's ResizeObserver overwrites this with the
+     real rendered height (single- or wrapped-row) on mount. */
+  --header-height: var(--space-16);
+  --max-w-site:    1080px; /* shell / header / footer width */
+  --max-w-reading: 720px;  /* index + hero reading column */
+  --max-w-article: 680px;  /* long-form article column */
+  --max-w-prose:   54ch;   /* hero paragraph measure */
+  --max-w-prose-narrow: 46ch; /* short paragraph measure (in-progress notes, kitchen intro) */
+  --max-w-sm:      24rem;  /* compact component box — dialogs, cards, toasts */
+
+  /* Grid auto-fit minmax tiers (Grid component's minWidth prop) */
+  --grid-min-sm: 220px;
+  --grid-min-md: 320px;
+
+  /* ── Z-index ──────────────────────────────────────────────── */
+  --z-header:  20;
+  --z-overlay: 60;
+  --z-toast:   80;
+
+  /* ── Motion ───────────────────────────────────────────────── */
+  --duration-fast: 180ms;
+  --duration-base: 250ms;
+  --easing-default: ease;
+
+  /* ── Breakpoints (reference — use in @media queries) ──────── */
+  /* sm:  640px  */
+  /* md:  768px  */
+  /* lg:  1024px */
+}
+
+/* ── Dark mode overrides ────────────────────────────────────── */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-bg:            #141310;
+  --color-surface:       #1C1A15;
+  --color-field:         #1B1914;
+  --color-hover:         rgba(255,255,255,0.04);
+
+  --color-text-strong:   #F3F0E8;
+  --color-text:          #CFC9BD;
+  --color-text-muted:    #A6A093;
+  /* WCAG AA override: spec's dark faint #6E685E is only ~3.4:1 on #141310
+     (fails AA — the PRD flagged this value for a manual check). Raised the
+     lightness to #877F73 (~4.7:1) to pass. */
+  --color-text-faint:    #877F73;
+  /* WCAG AA override: --color-text-faint (#877F73) reused against
+     --color-surface is ~4.40:1 (fails). Lightened for that pairing
+     (issue #274). */
+  --color-text-faint-on-surface: #8C8478;   /* ~4.71:1 on --color-surface */
+  /* --color-text-faint fails 4.5:1 against --color-field in dark mode too
+     (~4.44:1, previously unflagged — narrowly under threshold). Lightened
+     for that specific pairing. */
+  --color-text-faint-on-field: #898276;     /* ~4.61:1 on --color-field */
+
+  --color-border:        #2A2823;
+  --color-border-strong: #36342C;
+
+  --color-primary:       #6BA0FF;
+  --color-on-primary:    #11151F;
+  --color-link:          #6BA0FF;
+  /* --color-on-accent-fixed intentionally not redeclared here: it's fixed
+     white "regardless of theme" per its :root definition/comment above, so
+     this dark block correctly inherits that value via the cascade instead
+     of repeating it. */
+
+  --color-btn-bg:        #F3F0E8;
+  --color-btn-fg:        #141310;
+
+  --color-success:       #62C08D;
+  --color-success-bg:    rgba(98,192,141,0.12);
+  --color-warning:       #E0A93B;
+  --color-warning-bg:    rgba(224,169,59,0.14);
+  --color-error:         #E8786B;
+  --color-error-bg:      rgba(232,120,107,0.12);
+  --color-success-on-tint: var(--color-success);
+  --color-warning-on-tint: var(--color-warning);
+}
+
+/* ── Utilities ──────────────────────────────────────────────────
+   .sr-only moved here from personal-website's global reset
+   (src/index.css) — Button's loading state renders a
+   `<span className="sr-only">Loading</span>` and this package has
+   no separate global-reset/index.css file, so tokens.css (the one
+   plain global stylesheet in this extraction) is its new home. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* body base rule also moved here from personal-website's global reset
+   (src/index.css) — nothing else in this package establishes the base
+   document styles the design tokens are meant to drive, so without this
+   rule --font-sans (and the metric-matched 'Geist Fallback' face it
+   pulls in) is never actually applied by anything in the shipped
+   package. */
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: var(--line-height-normal);
+}
