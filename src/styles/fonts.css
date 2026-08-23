@@ -1,0 +1,81 @@
+/* Self-hosted webfonts — Geist (sans) + JetBrains Mono (mono).
+   Latin subset, weights actually used by the design system only.
+   OFL.txt (SIL Open Font License) ships alongside in ../assets/fonts/. */
+
+/* ── Geist (sans) ─────────────────────────────────────────── */
+
+/* Geist ships as a single variable-font file covering the whole weight
+   axis — vendored from the same file Google Fonts itself serves
+   (fonts.gstatic.com/s/geist/v5/gyByhwUxId8gMEwcGFWNOITd.woff2), which
+   also declares four separate weight-pinned @font-face blocks all
+   pointing at that one file rather than four distinct static files.
+   Mirrored here: each block below pins a specific instance from the
+   same physical file (the browser resolves the correct weight from the
+   variable axis per the declared font-weight), so there's one download
+   shared across all four instead of four separate ~29KB requests for
+   identical bytes under different filenames. */
+@font-face {
+  font-family: 'Geist';
+  src: url('../assets/fonts/geist-sans-latin-variable.woff2?no-inline') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist';
+  src: url('../assets/fonts/geist-sans-latin-variable.woff2?no-inline') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist';
+  src: url('../assets/fonts/geist-sans-latin-variable.woff2?no-inline') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist';
+  src: url('../assets/fonts/geist-sans-latin-variable.woff2?no-inline') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── JetBrains Mono ───────────────────────────────────────── */
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('../assets/fonts/jetbrains-mono-latin-400-normal.woff2?no-inline') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('../assets/fonts/jetbrains-mono-latin-500-normal.woff2?no-inline') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── Metric-matched fallback (FOUT/CLS mitigation) ───────────
+   Re-shapes local Arial to Geist Regular's box model so the `swap`
+   flash holds layout (CLS ~0). Inserted into --font-sans between
+   'Geist' and the system stack (src/styles/tokens.css). Values
+   computed from the shipped Geist 400 woff2 vs. Arial's published
+   metrics via @capsizecss (the technique next/font's local fallback
+   generation uses) — not guessed round numbers. */
+@font-face {
+  font-family: 'Geist Fallback';
+  src: local('Arial'), local('Helvetica'), local('Helvetica Neue');
+  ascent-override: 86.71%;
+  descent-override: 20.73%;
+  line-gap-override: 9.43%;
+  size-adjust: 106.1%;
+}
