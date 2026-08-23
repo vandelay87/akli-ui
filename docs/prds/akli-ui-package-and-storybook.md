@@ -14,6 +14,7 @@ Header, Footer, and other generic UI primitives exist only inside `personal-webs
 
 - Generic UI components and design tokens are extracted into a versioned, publishable package (`@akli-dev/ui`) consumable by any akli.dev app
 - Storybook provides an interactive, browsable catalog of every exported component/variant, deployed publicly at `storybook.akli.dev`
+- Storybook ships a proper favicon/manifest icon set — not Storybook's own default favicon — matching the fix already applied to `personal-website` (#384), `pokedex` (#50), and `sand-box` (#11) for Google Search's circular-crop clipping of favicons in search result snippets
 - Publishing to npm is automated via CI — no manual `npm publish` steps
 - The package stays slim: only what personal-website already needs today, no speculative abstraction (e.g. `react-router-dom` is accepted as a peer dependency for `Header`/`Footer` rather than building a router-agnostic abstraction layer)
 - The package works in a plain Vite + React 19 app with no personal-website-specific wiring beyond importing a global tokens stylesheet once
@@ -56,6 +57,7 @@ Left in `personal-website` (domain-specific, not part of this extraction): `Reci
 - Autodocs (`tags: ['autodocs']`) generates a props table + description per component from TSDoc comments (existing components like `Header` already have `@default` JSDoc comments that autodocs will pick up)
 - `addon-a11y` runs axe checks live in the Storybook UI, complementing (not replacing) `vitest-axe` component tests
 - Deployed as a static build to `storybook.akli.dev` (its own dedicated bucket and CloudFront distribution, per the `akli-infrastructure` companion PRD); discovery (a new card on `personal-website`'s Apps page) is owned by the `personal-website` companion PRD, not this one
+- Ships its own distinct favicon/icon set (see Favicon & manifest below) — a new Storybook-specific design, not a reuse of `personal-website`'s "a" mark, matching how `pokedex` and `sand-box` each got their own app-specific icon rather than the base site's branding
 
 ### States
 
@@ -117,6 +119,16 @@ Packaging itself (ESM + tree-shaking + CSS Modules) introduces no inherent overh
 - This deploy step is only useful in production once the companion `akli-infrastructure` PRD's `StorybookBucket`/`StorybookDeployRole`/`StorybookSiteStack` land.
 - No secret values are recorded in this PRD or committed to any repo
 
+### Favicon & manifest
+
+Storybook must not ship with its default favicon — it needs the same real icon set every other akli.dev app has, including the fix already applied to `personal-website` (#384), `pokedex` (#50), and `sand-box` (#11): Google Search crops favicons into a circle in search-result snippets, and the original icon set(s) clipped the logo when cropped that way. The replacement set (already proven across all three existing apps) is the baseline to match here, not a from-scratch design:
+
+- Icon set: `favicon.ico`, `favicon-16x16.png`, `favicon-32x32.png`, `favicon-48x48.png`, `apple-touch-icon.png` (180×180), `android-chrome-192x192.png`, `android-chrome-512x512.png` — same file set and sizes as the other three apps
+- **Storybook gets its own distinct icon design**, not a reuse of `personal-website`'s "a" mark — matching how `pokedex` and `sand-box` each shipped an app-specific icon rather than the base site's branding. Source artwork must be provided by the user before this can ship (same prerequisite pattern as the Apps-page screenshot in the `personal-website` companion PRD) — not owned by whoever implements this PRD.
+- Wired into Storybook the same way `index.html` does it for the other apps: `<link rel="icon">` (multiple sizes), `<link rel="apple-touch-icon">`, `<link rel="manifest">` — but Storybook doesn't hand-author its own `index.html`, so this goes through `.storybook/manager-head.html` (injected into the Storybook manager UI's `<head>`) and `staticDirs` in `.storybook/main.ts` pointing at wherever the icon files live in this repo, so they're copied into `storybook-static/` on build and deployed alongside the rest of the static output
+- `site.webmanifest`: same shape as the other three apps (`icons` array with `"purpose": "any maskable"` on both `android-chrome` sizes, `theme_color`, `background_color`, `display: "standalone"`), with `name`/`short_name` reflecting Storybook (e.g. `"Storybook — akli.dev"` / `"Storybook"`, matching the `"Pokédex — akli.dev"` / `"Pokédex"` pattern `pokedex` uses) rather than reusing `personal-website`'s manifest values verbatim
+- Verified the same way the existing fix was verified: the icon survives Google's circular crop without clipping — not just "a favicon exists" — spot-checked against the same reference set that already passed this for the other three apps
+
 ### CI (pull requests)
 
 - Mirrors `personal-website`'s `ci.yml` shape: lint, test (`vitest run`, including `vitest-axe` assertions), build (package + Storybook) on every PR
@@ -139,7 +151,7 @@ Packaging itself (ESM + tree-shaking + CSS Modules) introduces no inherent overh
 2. Extract components + tokens from `personal-website` into this repo (copied, not moved yet — `personal-website` keeps its own copies until its own migration lands per the companion PRD); existing non-a11y tests carried over unchanged
 3. Add `vitest-axe` coverage to each extracted component (net-new — see Accessibility below), and set up Storybook: stories for every component, `addon-a11y` (+ `@storybook/test-runner` in CI), autodocs, theme toggle
 4. Release automation: Changesets + npm publish workflow, first `0.1.0` publish to `@akli-dev/ui`
-5. Storybook deploy workflow: build + sync to `StorybookBucket` root via OIDC, gated on the `akli-infrastructure` PRD's bucket/Role/site-stack landing first
+5. Storybook deploy workflow: build + sync to `StorybookBucket` root via OIDC, gated on the `akli-infrastructure` PRD's bucket/Role/site-stack landing first; favicon/manifest icon set wired in via `manager-head.html`/`staticDirs` before this first real deploy, gated on the user providing Storybook-specific source artwork
 6. Apps page card — cross-referenced, implemented under the `personal-website` companion PRD, not owned here
 
 ## Acceptance Criteria
@@ -164,6 +176,9 @@ Packaging itself (ESM + tree-shaking + CSS Modules) introduces no inherent overh
 - [ ] On merge to `main`, Changesets automation opens/updates a "Version Packages" PR when changesets are pending, and publishes to npm once that PR merges
 - [ ] Publishing authenticates via npm Trusted Publishing (OIDC) — the publish job declares `permissions: id-token: write`, `@akli-dev/ui` has this repo/workflow registered as a Trusted Publisher on npmjs.com, and no `NPM_TOKEN` or other static npm credential exists anywhere in the repo or its GitHub secrets
 - [ ] On merge to `main`, `build-storybook` output deploys to `StorybookBucket` root via the OIDC-assumed `StorybookDeployRole` and invalidates its dedicated CloudFront distribution (contingent on the `akli-infrastructure` PRD's bucket/Role/site-stack being live); no static AWS credentials are stored in this repo
+- [ ] Storybook ships its own distinct favicon/icon set (`favicon.ico`, 16/32/48px PNGs, `apple-touch-icon.png`, `android-chrome-192x192.png`/`512x512.png`, `site.webmanifest`) — not Storybook's default favicon, and not a reuse of `personal-website`'s "a" mark
+- [ ] The icon set survives Google Search's circular crop without clipping, matching the fix already verified for `personal-website`/`pokedex`/`sand-box` (#384/#50/#11)
+- [ ] Favicon `<link>` tags and the manifest are injected into Storybook's built output via `.storybook/manager-head.html` and `staticDirs`, and are present in the deployed `storybook-static/` output at `storybook.akli.dev`
 - [ ] `npm install @akli-dev/ui` in a clean Vite + React 19 project, importing `Header` and `@akli-dev/ui/tokens.css`: `pnpm dev` and a production build both complete with no console errors/warnings, and no missing-peer-dependency errors beyond the documented `react-router-dom` requirement
 - [ ] Every `@font-face` in `fonts.css` declares `font-display: swap`; the metric-matched `'Geist Fallback'` face and its position in `tokens.css`'s `--font-sans` list survive extraction unchanged
 - [ ] Font `.woff2` and license files under `src/assets/fonts/` are included in the package and resolve correctly (no 404s) from the built `fonts.css`
