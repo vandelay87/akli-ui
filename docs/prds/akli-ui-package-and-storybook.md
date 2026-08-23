@@ -206,5 +206,4 @@ Storybook must not ship with its default favicon — it needs the same real icon
 
 ## Open Questions
 
-- ~~Should the `@akli-dev` npm org be created now...~~ — resolved: the `@akli-dev` npm org has been created.
 - Barrel export (`@akli-dev/ui` exporting everything) vs. per-component subpath exports (`@akli-dev/ui/Header`, etc.) — resolved during the milestone-1 CSS Modules spike based on what tree-shakes cleanly (see Technical Considerations: Package build).
