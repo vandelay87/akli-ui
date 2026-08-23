@@ -277,3 +277,17 @@
   white-space: nowrap;
   border-width: 0;
 }
+
+/* body base rule also moved here from personal-website's global reset
+   (src/index.css) — nothing else in this package establishes the base
+   document styles the design tokens are meant to drive, so without this
+   rule --font-sans (and the metric-matched 'Geist Fallback' face it
+   pulls in) is never actually applied by anything in the shipped
+   package. */
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: var(--line-height-normal);
+}

@@ -19,8 +19,22 @@
 // in the same file: `@import './styles/animations.css'`.
 import './styles/animations.css'
 
-export { default as Button } from '@components/Button'
-export type { ButtonProps } from '@components/Button/Button'
-export { default as Typography } from '@components/Typography'
-export { IconPlus } from '@components/icons'
-export type { SizedIconProps } from '@components/icons'
+// Plain relative specifiers on purpose, not the `@components` alias (see
+// vite.config.ts's tsconfig `paths` / resolve.alias entries) — this is the
+// package's public barrel, and unplugin-dts's alias-rewrite pass
+// (transformAlias in unplugin-dts's bundled runtime) resolves aliased
+// specifiers here against the wrong base directory, emitting dist/index.d.ts
+// re-exports like `../../../../../src/components/Button` that point outside
+// the published dist/ tree entirely (confirmed by reading unplugin-dts's
+// source; reproduced with both the tsconfig-paths-derived alias and a
+// manually-specified `aliases` option, so it's not specific to
+// `pathsToAliases`). A literal relative import never enters that rewrite
+// path — TS's declaration emitter passes it through verbatim — and because
+// entryRoot: 'src' makes dist/ mirror src/'s structure 1:1, the untouched
+// specifier already resolves correctly post-build. `@components` remains
+// fine to use in non-exported/internal files; just don't reach for it here.
+export { default as Button } from './components/Button'
+export type { ButtonProps } from './components/Button/Button'
+export { default as Typography } from './components/Typography'
+export { IconPlus } from './components/icons'
+export type { SizedIconProps } from './components/icons'

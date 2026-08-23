@@ -118,6 +118,18 @@ export default defineConfig({
       // JS chunks in a multi-entry component library) than "ship one
       // standalone global stylesheet alongside the JS entry."
       entry: {
+        // `index`'s JS import graph pulls in every component's own
+        // `.module.css` (plus animations.css, see src/index.ts), which Vite
+        // compiles into a sibling `dist/index.css` — required reading for
+        // consumers, not just a build detail: `dist/index.css` is the
+        // *only* place component styles (e.g. Button's/Typography's actual
+        // class rules) live, so a consumer that skips importing it gets
+        // fully unstyled components even after importing `tokens.css`/
+        // `fonts.css`. It's exported at `@akli-dev/ui/index.css` in
+        // package.json's `exports` map (same flat-string shape as
+        // `./tokens.css`/`./fonts.css`) — a required third import alongside
+        // those two, in any order relative to them (only fonts.css-before-
+        // tokens.css is order-sensitive; index.css has no such dependency).
         index: 'src/index.ts',
         tokens: 'src/styles/tokens.css',
         fonts: 'src/styles/fonts.css',
