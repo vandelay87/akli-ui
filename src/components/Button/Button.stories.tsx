@@ -1,10 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
+import { IconPlus } from '../icons'
 import Button from './Button'
 
-// Throwaway/reference story: exists to prove the Storybook pipeline (build,
-// autodocs, addon-a11y, theme toggle) works end-to-end before the full
-// story-writing pass covers every component. Not the final Button coverage.
 const meta = {
   title: 'Components/Button',
   component: Button,
@@ -34,11 +32,64 @@ export const Outline: Story = {
   },
 }
 
-export const DangerTone: Story = {
+export const Danger: Story = {
+  name: 'Variant: danger',
   args: {
-    children: 'Delete',
+    children: 'Delete account',
+    variant: 'danger',
+  },
+}
+
+export const DangerTone: Story = {
+  name: 'Outline + tone="danger"',
+  args: {
+    children: 'Discard draft',
     variant: 'outline',
     tone: 'danger',
+  },
+}
+
+export const Pill: Story = {
+  name: 'Shape: pill',
+  args: {
+    children: 'Get started',
+    shape: 'pill',
+  },
+}
+
+export const Small: Story = {
+  name: 'Size: sm',
+  args: {
+    children: 'Small button',
+    size: 'sm',
+  },
+}
+
+export const Disabled: Story = {
+  args: {
+    children: 'Disabled button',
+    disabled: true,
+  },
+}
+
+export const FullWidth: Story = {
+  args: {
+    children: 'Full-width button',
+    fullWidth: true,
+  },
+}
+
+export const WithIconLeft: Story = {
+  args: {
+    children: 'Add item',
+    iconLeft: <IconPlus size={16} />,
+  },
+}
+
+export const WithIconRight: Story = {
+  args: {
+    children: 'Add item',
+    iconRight: <IconPlus size={16} />,
   },
 }
 
@@ -46,5 +97,18 @@ export const Loading: Story = {
   args: {
     children: 'Loading button',
     loading: true,
+  },
+}
+
+export const IconOnly: Story = {
+  name: 'Icon-only (with ariaLabel)',
+  // Per the Accessibility.mdx contract for Button: an icon-only Button
+  // passes the icon as `children` (not iconLeft/iconRight, which are for
+  // icons alongside separate visible text) and supplies `ariaLabel`, since
+  // the exported icon glyphs are themselves aria-hidden and contribute no
+  // accessible name on their own.
+  args: {
+    children: <IconPlus size={16} />,
+    ariaLabel: 'Add item',
   },
 }
