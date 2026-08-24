@@ -1,7 +1,7 @@
 import { render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
-import { axe } from 'vitest-axe'
+import { expectNoA11yViolations } from '../../../tests/setup'
 import Footer, { type FooterProps } from './Footer'
 
 const renderFooter = (props: FooterProps = {}) =>
@@ -57,7 +57,7 @@ describe('Footer', () => {
     it('renders with no detectable axe violations', async () => {
       const { container } = renderFooter()
 
-      expect(await axe(container)).toHaveNoViolations()
+      await expectNoA11yViolations(container)
     })
   })
 

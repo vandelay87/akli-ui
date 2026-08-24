@@ -1,7 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, beforeEach } from 'vitest'
-import { axe } from 'vitest-axe'
-import { mockMatchMedia } from '../../../tests/setup'
+import { expectNoA11yViolations, mockMatchMedia } from '../../../tests/setup'
 import ThemeToggle from './ThemeToggle'
 
 describe('ThemeToggle self-contained mount (CSR-only, no bootstrap script)', () => {
@@ -78,7 +77,7 @@ describe('ThemeToggle', () => {
   it('renders with no detectable axe violations', async () => {
     const { container } = render(<ThemeToggle />)
 
-    expect(await axe(container)).toHaveNoViolations()
+    await expectNoA11yViolations(container)
   })
 
   it('labels the button "Switch to dark mode" when the current theme is light', () => {

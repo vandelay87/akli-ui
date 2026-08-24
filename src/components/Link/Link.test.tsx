@@ -1,7 +1,7 @@
 import { render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, it, expect } from 'vitest'
-import { axe } from 'vitest-axe'
+import { expectNoA11yViolations } from '../../../tests/setup'
 import Link from './Link'
 import styles from './Link.module.css'
 
@@ -166,6 +166,6 @@ describe('Link', () => {
       </MemoryRouter>
     )
 
-    expect(await axe(container)).toHaveNoViolations()
+    await expectNoA11yViolations(container)
   })
 })

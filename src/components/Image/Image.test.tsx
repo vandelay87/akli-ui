@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { axe } from 'vitest-axe'
+import { expectNoA11yViolations } from '../../../tests/setup'
 import Image from './Image'
 
 
@@ -79,6 +79,6 @@ describe('Image', () => {
       <Image {...defaultProps} priority caption="A test image caption" />
     )
 
-    expect(await axe(container)).toHaveNoViolations()
+    await expectNoA11yViolations(container)
   })
 })

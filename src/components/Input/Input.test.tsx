@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import { axe } from 'vitest-axe'
+import { expectNoA11yViolations } from '../../../tests/setup'
 import Input from './Input'
 
 describe('Input', () => {
@@ -96,7 +96,7 @@ describe('Input', () => {
       </>
     )
 
-    expect(await axe(container)).toHaveNoViolations()
+    await expectNoA11yViolations(container)
   })
 
   it('renders the invalid state with no detectable axe violations', async () => {
@@ -114,6 +114,6 @@ describe('Input', () => {
       </>
     )
 
-    expect(await axe(container)).toHaveNoViolations()
+    await expectNoA11yViolations(container)
   })
 })

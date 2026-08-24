@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi } from 'vitest'
-import { axe } from 'vitest-axe'
+import { expectNoA11yViolations } from '../../../tests/setup'
 import Card from './Card'
 import styles from './Card.module.css'
 
@@ -60,12 +60,12 @@ describe('Card', () => {
   it('renders a default (non-interactive) card with no detectable axe violations', async () => {
     const { container } = render(<Card>Plain card content</Card>)
 
-    expect(await axe(container)).toHaveNoViolations()
+    await expectNoA11yViolations(container)
   })
 
   it('renders a clickable card with no detectable axe violations', async () => {
     const { container } = render(<Card onClick={vi.fn()}>Click me</Card>)
 
-    expect(await axe(container)).toHaveNoViolations()
+    await expectNoA11yViolations(container)
   })
 })

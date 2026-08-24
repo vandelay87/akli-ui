@@ -2,8 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import type { ReactElement } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
-import { axe } from 'vitest-axe'
-import { mockMatchMedia } from '../../../tests/setup'
+import { expectNoA11yViolations, mockMatchMedia } from '../../../tests/setup'
 import Header from './Header'
 
 const renderWithRouter = (ui: ReactElement, { route = '/' } = {}) => {
@@ -55,7 +54,7 @@ describe('Header', () => {
   it('renders the public variant with links with no detectable axe violations', async () => {
     const { container } = renderWithRouter(<Header variant="public" links={LINKS} />)
 
-    expect(await axe(container)).toHaveNoViolations()
+    await expectNoA11yViolations(container)
   })
 
   describe('public variant', () => {

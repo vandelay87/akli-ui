@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
-import { axe } from 'vitest-axe'
+import { expectNoA11yViolations } from '../../../tests/setup'
 import Callout from './Callout'
 
 describe('Callout', () => {
@@ -59,6 +59,6 @@ describe('Callout', () => {
       <Callout type="tip">Use caching for better performance.</Callout>
     )
 
-    expect(await axe(container)).toHaveNoViolations()
+    await expectNoA11yViolations(container)
   })
 })

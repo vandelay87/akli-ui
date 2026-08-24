@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { axe } from 'vitest-axe'
+import { expectNoA11yViolations } from '../../../tests/setup'
 import Button from './Button'
 
 describe('Button', () => {
@@ -88,7 +88,7 @@ describe('Button', () => {
   it('renders the default button with no detectable axe violations', async () => {
     const { container } = render(<Button onClick={mockOnClick}>Save changes</Button>)
 
-    expect(await axe(container)).toHaveNoViolations()
+    await expectNoA11yViolations(container)
   })
 
   it('renders the loading button with no detectable axe violations', async () => {
@@ -98,6 +98,6 @@ describe('Button', () => {
       </Button>
     )
 
-    expect(await axe(container)).toHaveNoViolations()
+    await expectNoA11yViolations(container)
   })
 })

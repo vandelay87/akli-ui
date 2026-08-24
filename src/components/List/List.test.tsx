@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import type { CSSProperties } from 'react'
 import { describe, it, expect } from 'vitest'
-import { axe } from 'vitest-axe'
+import { expectNoA11yViolations } from '../../../tests/setup'
 import List, { ListItem } from './List'
 
 describe('List', () => {
@@ -54,7 +54,7 @@ describe('List', () => {
       </List>
     )
 
-    expect(await axe(container)).toHaveNoViolations()
+    await expectNoA11yViolations(container)
   })
 })
 

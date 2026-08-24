@@ -66,6 +66,7 @@ const extractBlock = (css: string, selector: string): string => {
   const braceOpen = css.indexOf('{', selectorIndex)
   // None of :root's or [data-theme="dark"]'s declarations contain nested
   // braces, so the first line that is just "}" closes the block.
+  // Relies on tokens.css's convention of an unindented top-level "}" vs. indented nested braces.
   const braceClose = css.indexOf('\n}', braceOpen)
   return css.slice(braceOpen + 1, braceClose)
 }
@@ -157,83 +158,70 @@ const darkDeclarations = parseDeclarations(extractBlock(tokensCss, '[data-theme=
 // default "paper" surface (--color-text-faint's comment describes its ratio
 // as being measured "on paper", i.e. against --color-bg), making it the
 // most defensible canonical backdrop rather than an arbitrary pick.
-type DocumentedPair = {
-  name: string
-  declarations: Map<string, string>
+type PairSpec = {
+  label: string
   foreground: string
   background: string
   /** Set for tint pairs whose named background token is a translucent rgba() wash. */
   compositeBackdrop?: string
 }
 
-const documentedPairs: DocumentedPair[] = [
-  // Light mode (:root)
+type DocumentedPair = {
+  name: string
+  declarations: Map<string, string>
+  foreground: string
+  background: string
+  compositeBackdrop?: string
+}
+
+// One entry per documented pairing — independent of theme. Crossed with
+// `themes` below to produce both the light and dark test cases, so adding a
+// pair here automatically covers both themes instead of relying on someone
+// to remember to duplicate it into a second, hand-maintained list.
+const pairSpecs: PairSpec[] = [
   {
-    name: 'light: --color-text-faint on --color-bg',
-    declarations: rootDeclarations,
+    label: '--color-text-faint on --color-bg',
     foreground: 'color-text-faint',
     background: 'color-bg',
   },
   {
-    name: 'light: --color-text-faint-on-surface on --color-surface',
-    declarations: rootDeclarations,
+    label: '--color-text-faint-on-surface on --color-surface',
     foreground: 'color-text-faint-on-surface',
     background: 'color-surface',
   },
   {
-    name: 'light: --color-text-faint-on-field on --color-field',
-    declarations: rootDeclarations,
+    label: '--color-text-faint-on-field on --color-field',
     foreground: 'color-text-faint-on-field',
     background: 'color-field',
   },
   {
-    name: 'light: --color-success-on-tint on --color-success-bg (composited over --color-bg)',
-    declarations: rootDeclarations,
+    label: '--color-success-on-tint on --color-success-bg (composited over --color-bg)',
     foreground: 'color-success-on-tint',
     background: 'color-success-bg',
     compositeBackdrop: 'color-bg',
   },
   {
-    name: 'light: --color-warning-on-tint on --color-warning-bg (composited over --color-bg)',
-    declarations: rootDeclarations,
-    foreground: 'color-warning-on-tint',
-    background: 'color-warning-bg',
-    compositeBackdrop: 'color-bg',
-  },
-  // Dark mode ([data-theme="dark"])
-  {
-    name: 'dark: --color-text-faint on --color-bg',
-    declarations: darkDeclarations,
-    foreground: 'color-text-faint',
-    background: 'color-bg',
-  },
-  {
-    name: 'dark: --color-text-faint-on-surface on --color-surface',
-    declarations: darkDeclarations,
-    foreground: 'color-text-faint-on-surface',
-    background: 'color-surface',
-  },
-  {
-    name: 'dark: --color-text-faint-on-field on --color-field',
-    declarations: darkDeclarations,
-    foreground: 'color-text-faint-on-field',
-    background: 'color-field',
-  },
-  {
-    name: 'dark: --color-success-on-tint on --color-success-bg (composited over --color-bg)',
-    declarations: darkDeclarations,
-    foreground: 'color-success-on-tint',
-    background: 'color-success-bg',
-    compositeBackdrop: 'color-bg',
-  },
-  {
-    name: 'dark: --color-warning-on-tint on --color-warning-bg (composited over --color-bg)',
-    declarations: darkDeclarations,
+    label: '--color-warning-on-tint on --color-warning-bg (composited over --color-bg)',
     foreground: 'color-warning-on-tint',
     background: 'color-warning-bg',
     compositeBackdrop: 'color-bg',
   },
 ]
+
+const themes: { prefix: string; declarations: Map<string, string> }[] = [
+  { prefix: 'light', declarations: rootDeclarations },
+  { prefix: 'dark', declarations: darkDeclarations },
+]
+
+const documentedPairs: DocumentedPair[] = pairSpecs.flatMap((spec) =>
+  themes.map((theme) => ({
+    name: `${theme.prefix}: ${spec.label}`,
+    declarations: theme.declarations,
+    foreground: spec.foreground,
+    background: spec.background,
+    compositeBackdrop: spec.compositeBackdrop,
+  }))
+)
 
 describe('tokens.css contrast ratios', () => {
   it.each(documentedPairs)('$name meets the WCAG AA normal-text minimum (4.5:1)', (pair) => {

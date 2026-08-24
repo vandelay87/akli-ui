@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
-import { axe } from 'vitest-axe'
+import { expectNoA11yViolations } from '../../../tests/setup'
 import Loading from './Loading'
 
 describe('Loading', () => {
@@ -22,6 +22,6 @@ describe('Loading', () => {
   it('renders the spinner with no detectable axe violations', async () => {
     const { container } = render(<Loading />)
 
-    expect(await axe(container)).toHaveNoViolations()
+    await expectNoA11yViolations(container)
   })
 })
