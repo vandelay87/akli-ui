@@ -1,0 +1,309 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Accessibility" />
+
+# Accessibility
+
+This page states each component's accessibility usage contract: what a
+consumer must supply for the component to be accessible, what ARIA/semantics
+the component already applies automatically, and what keyboard behavior
+comes for free versus what's the consumer's responsibility.
+
+Every claim below was verified by reading the component's actual
+`.tsx` source (not assumed from convention) — file paths are given so you
+can re-check anything.
+
+## Quick reference
+
+| Component | Consumer must supply | Notable auto behavior |
+| --- | --- | --- |
+| Button | `ariaLabel` for icon-only usage | native `<button>`; `aria-busy`/disabled while `loading` |
+| Typography | correct heading order/nesting; a deliberate `as` when overriding | none — plain semantic HTML |
+| Link | `ariaLabel` for ambiguous link text; own "opens in new tab" cue if needed | icon auto-`aria-hidden`; external → `target="_blank" rel="noreferrer"` |
+| Input | an associated `<label>` (external — none is rendered internally) | `aria-invalid` from `invalid`; prefix icon auto-`aria-hidden` |
+| Card | nothing extra when relying on the `onClick` → `<button>` upgrade | real `<button type="button">` when `onClick` is set and `as` isn't overridden |
+| Callout | avoid rendering two same-`type` Callouts on one page (id collision, see below) | `role="note"` + `aria-labelledby` to the type label |
+| Grid | be aware content is wrapped as a list | renders as `<ul role="list">` / `<li role="listitem">` (via `List`) |
+| Image | a real `alt` (required by the type) | decorative placeholder/blur states auto-`aria-hidden`; load errors auto-announce (`role="alert"`) |
+| Loading | nothing | `role="status"` + `aria-live="polite"` + single, non-duplicated announcement |
+| List / ListItem | nothing | restores `role="list"`/`role="listitem"` lost to `list-style: none` |
+| Header | nothing for standard usage | nav `aria-label` and active-link `aria-current="page"` are automatic |
+| Footer | nothing for standard usage | nav `aria-labelledby` wired to a `useId()`-based unique id |
+| ThemeToggle | nothing — no `aria-label` prop even exists | self-computes an accurate, state-dependent `aria-label` |
+| icons (`iconGlyphs.tsx`, `icons.tsx`) | an accessible name if used standalone and meaningful | most (not all — see below) glyphs are `aria-hidden="true"` by default |
+
+---
+
+## Button
+
+`src/components/Button/Button.tsx`
+
+- **Labelling.** `children` is a required prop, so Button always renders
+  *some* visible content inside a `<span>`. For an icon-only button, pass
+  the icon itself as `children` (not `iconLeft`/`iconRight`, which are for
+  icons alongside separate visible text) and supply `ariaLabel` — since the
+  exported icon glyphs are themselves `aria-hidden="true"`, an icon-only
+  Button contributes no accessible name from its content and needs the
+  explicit `aria-label` the issue calls out.
+- **ARIA auto-applied.** `ariaLabel`, `ariaPressed`, and `ariaDescribedBy`
+  props map straight through to `aria-label`/`aria-pressed`/
+  `aria-describedby` on the native `<button>` — supplying them is on the
+  consumer, but wiring them once supplied is automatic. `iconLeft`/
+  `iconRight` are auto-wrapped in an `aria-hidden="true"` `<span>` — the
+  consumer never needs to hide those themselves. While `loading` is true,
+  `aria-busy="true"` is set automatically, the button is also natively
+  `disabled`, and a visually-hidden "Loading" `<span>` is added — the
+  original `children` stay in the accessibility tree (only visually hidden
+  via a `sr-only` class), so a screen reader announces the original label
+  plus "Loading", not just "Loading" alone.
+- **Keyboard.** A real `<button type={type}>` throughout every
+  `variant`/`shape`/`size` combination — Enter/Space activation and
+  `disabled` tab-order removal are native, no custom key handling exists or
+  is needed.
+
+## Typography
+
+`src/components/Typography/Typography.tsx`
+
+No ARIA of any kind — it renders plain semantic HTML. Each `variant`
+(`heading1`…`heading4`, `body`, `bodyLarge`, `label`, `caption`) maps to a
+sensible default element (`h1`…`h4`, `p`, `p`, `span`, `span`), but the
+component performs no validation of the result: it does not check for
+correct heading order/nesting, and the optional `as` prop lets a consumer
+substitute the rendered element while keeping the variant's visual style
+(e.g. `variant="heading2" as="div"` renders no heading at all, removing it
+from the page's heading outline). Both the resulting heading hierarchy and
+any semantic trade-off from overriding `as` are entirely the consumer's
+responsibility — Typography does not warn or correct for either.
+
+## Link
+
+`src/components/Link/Link.tsx`
+
+- **Labelling.** `ariaLabel`, if supplied, maps straight to `aria-label` on
+  the rendered `<a>` (react-router `<Link>` internally renders one too).
+  There's no auto-detection of ambiguous link text (e.g. repeated "Read
+  more") — supplying `ariaLabel` for that case is entirely opt-in by the
+  consumer.
+- **ARIA auto-applied.** The `icon` prop's content is always wrapped in an
+  `aria-hidden="true"` `<span>` automatically, regardless of `iconSide` —
+  the consumer never has to hide it themselves.
+- **Consumer responsibility not covered.** When `to` resolves as external
+  (`isExternalHref`), Link automatically adds `target="_blank"
+  rel="noreferrer"`, but adds no visual or accessible "opens in a new tab"
+  indicator. If that matters for your users, add it yourself (visually
+  hidden text in `children`, or fold it into `ariaLabel`).
+- **Keyboard.** Renders a native `<a>` (react-router `Link` or a plain
+  anchor for external hrefs) either way — native focus/activation, nothing
+  custom.
+
+## Input
+
+`src/components/Input/Input.tsx`
+
+- **Labelling — consumer must supply, nothing is rendered internally.**
+  `InputProps` has no `label` prop at all. Input renders only the `<input>`
+  (plus optional `prefixIcon`/`suffix` wrapper spans) — associating a
+  `<label>` is entirely external to this component. Wire it yourself,
+  either with a real `<label htmlFor={id}>` pointing at the `id` you pass
+  in, or with the `ariaLabel` prop (maps to `aria-label` on the `<input>`)
+  when a visible label isn't appropriate.
+- **ARIA auto-applied.** `invalid` automatically sets `aria-invalid="true"`
+  on the `<input>` — no separate prop needed. `ariaDescribedBy` (e.g.
+  pointing at an error message's id) maps straight to
+  `aria-describedby`. `prefixIcon` is auto-wrapped in an
+  `aria-hidden="true"` `<span>`, matching the assumption that a leading
+  icon (e.g. a search glyph) is decorative. `suffix`, by contrast, is
+  **not** auto-hidden — verified in the source, the wrapper span around
+  `suffix` carries no `aria-hidden` — because a suffix is more often
+  interactive (e.g. a clear button) than purely decorative; if your
+  `suffix` content actually is decorative, hide it yourself.
+- **Keyboard.** Standard native `<input>` behavior throughout (`required`,
+  `autoComplete`, `onKeyDown` all pass straight through) — nothing custom.
+
+## Card
+
+`src/components/Card/Card.tsx`
+
+- **Keyboard — real button semantics for free.** `const Component = as ??
+  (onClick ? 'button' : 'div')`: when `onClick` is set and `as` is not
+  explicitly overridden, Card renders a genuine `<button type="button">`
+  (not a `<div>` with a click handler and an ARIA role bolted on) — Enter/
+  Space activation, correct tab order, and disabled/focus semantics are
+  all native. It also automatically applies `interactions.focusRing`
+  (a `:focus-visible` treatment) and an `asButton` style class in that
+  case.
+- **Consumer responsibility.** `as` always wins over the `onClick` fallback
+  — if you pass both `as="a"` (or any non-button element) *and* `onClick`,
+  Card will **not** upgrade it to a button, and you take on full
+  responsibility for that element's accessible interactivity (e.g. a
+  non-`<a href>` element with a click handler needs its own `role`,
+  `tabIndex`, and key handling, none of which Card adds for you).
+- **Labelling / ARIA.** None applied automatically beyond the button
+  upgrade above — Card has no `aria-label` or similar prop; label the
+  clickable Card via its visible `children` content.
+
+## Callout
+
+`src/components/Callout/Callout.tsx`
+
+- **ARIA auto-applied.** `role="note"` and `aria-labelledby` are always set
+  automatically, pointing at the type indicator ("Tip"/"Warning"/"Info").
+  The decorative emoji is `aria-hidden="true"` automatically.
+- **A real, verified gap to know about.** The `aria-labelledby` target id is
+  a static template literal, `` `callout-${type}` `` — **not** generated
+  with React's `useId()` (contrast this with `Footer`, below, which does
+  use `useId()` for an analogous case). Two `Callout`s of the *same*
+  `type` rendered on the same page will produce duplicate DOM ids; per
+  HTML, duplicate ids are invalid, and `aria-labelledby` resolution in
+  that situation is undefined/browser-dependent, so a second same-type
+  Callout's announced label is not reliably correct. If you need more than
+  one `Callout` of the same `type` on a single page, be aware of this
+  before relying on the label being announced correctly for every
+  instance.
+- **Keyboard.** None — Callout is static, non-interactive content.
+
+## Grid
+
+`src/components/Grid/Grid.tsx`
+
+Grid has no ARIA of its own; it composes `List`/`ListItem` internally
+(`Array.isArray(children) ? children.map(...) : children`, each wrapped in
+`ListItem`), so every Grid is always rendered as `<ul role="list">` with
+each cell as `<li role="listitem">` — see List's contract below for why
+that role exists. This is automatic and has no opt-out (`Grid` has no `as`
+prop). The one thing worth knowing: because this is fixed, Grid should be
+reached for when its content is genuinely list-like — a screen reader will
+announce it as a list of N items regardless of what you put in it.
+
+## Image
+
+`src/components/Image/Image.tsx`
+
+- **Labelling — required by the type system.** `alt: string` is a required
+  prop (not optional), so every `Image` usage is forced to supply
+  alt text at compile time. There is no auto-generated fallback — an
+  empty string (`alt=""`) is valid for genuinely decorative use, but
+  Image will not infer that for you.
+- **ARIA auto-applied.** The loading placeholder overlay (both the blur
+  variant's tiny preview `<img alt="" aria-hidden="true">` and the
+  generic SVG placeholder) is `aria-hidden="true"` automatically — never
+  announced. On load failure, the error state automatically gets
+  `role="alert" aria-live="polite"`, so a failed image is announced to
+  screen reader users without any consumer action. The optional `caption`
+  prop renders inside a semantic `<figure>`/`<figcaption>` pairing — no
+  ARIA needed since native HTML already associates them.
+- **Keyboard.** None — Image renders static, non-interactive content.
+
+## Loading
+
+`src/components/Loading/Loading.tsx`
+
+`role="status"` and `aria-live="polite"` are always applied to the
+wrapping `<span>`, together with `aria-label={label}` (default `label` is
+`'Loading…'`). Both the visible label text and the spinner are themselves
+marked `aria-hidden="true"`, so a screen reader hears the `aria-label`
+exactly once rather than double-announcing the visible text plus the ARIA
+label. No meaningful accessibility contract beyond this — pass a more
+specific `label` (e.g. `"Loading recipes…"`) if the generic default isn't
+informative enough in context; no other consumer action is required.
+
+## List / ListItem
+
+`src/components/List/List.tsx`
+
+`role="list"` (on `List`'s `<ul>`) and `role="listitem"` (on each
+`ListItem`'s `<li>`) are always applied — per the source comment, this
+exists specifically to counter a real Safari/VoiceOver behavior where
+`list-style: none` (commonly applied by callers via `className`) strips
+the *implicit* list semantics browsers normally infer from `<ul>`/`<li>`.
+In both components the `role` prop is spread last, so a consumer's own
+passed-through props can never accidentally override it. No consumer
+action needed — just use `List`/`ListItem` instead of raw `<ul>`/`<li>`
+and correct list semantics are guaranteed regardless of styling.
+
+## Header
+
+`src/components/Header/Header.tsx`
+
+- **ARIA auto-applied.** The nav's `aria-label` is computed automatically
+  from `variant` ("Main navigation" for `public`/`logged-out`, "Admin
+  navigation" for `admin`) — no consumer prop for this. The active link
+  (matched against the current router pathname via `isLinkActive`) gets
+  `aria-current="page"` automatically, updating as navigation happens.
+- **Labelling.** The brand/wordmark and nav links are plain visible text
+  rendered via react-router `Link`s — no separate accessible-name
+  handling needed since the visible text *is* the accessible name. The
+  admin "Log out" `Button` has visible text as its label, so it doesn't
+  need (and doesn't get) an `ariaLabel`. `ThemeToggle` is rendered inside
+  Header and supplies its own label — see below.
+- **Keyboard.** Everything here is a native `<a>` (react-router `Link`) or
+  native `<button>` (the logout `Button`, `ThemeToggle`) — nothing custom.
+
+## Footer
+
+`src/components/Footer/Footer.tsx`
+
+- **ARIA auto-applied.** In the `public` variant, the social-links `<nav>`
+  gets `aria-labelledby` wired to a visible "Find me elsewhere" label,
+  using an id from React's `useId()` — correctly unique per `Footer`
+  instance (this is the pattern `Callout`, above, does *not* use, and
+  which the id-collision caveat there specifically doesn't apply to
+  here). Social links render through `Link`, so external ones
+  automatically get `target="_blank" rel="noreferrer"` per Link's own
+  contract above.
+- **Labelling.** All content is plain visible text (brand, "Signed in as
+  {email}", social link names) — no ARIA labelling gap to fill.
+- **Keyboard.** All interactive content is `Link`'s native `<a>` — nothing
+  custom.
+
+## ThemeToggle
+
+`src/components/ThemeToggle/ThemeToggle.tsx`
+
+**Correction to the generic "icon-only buttons need an explicit
+`aria-label`" pattern: ThemeToggle already handles this itself, and there
+is no prop to override it** — `ThemeToggleProps` doesn't exist; the
+component takes no props at all. Its `aria-label` is computed internally
+every render from current state — `isDark ? 'Switch to light mode' :
+'Switch to dark mode'` — so it always accurately describes the *action*
+the click performs, not just the current state, and updates automatically
+as the theme changes. The sun/moon glyph is in an `aria-hidden="true"`
+`<span>`, so it never leaks into the accessible name. It renders a native
+`<button type="button">`, so Enter/Space activation is free. No consumer
+action of any kind is required for ThemeToggle's accessibility.
+
+## Icon set
+
+`src/components/icons/iconGlyphs.tsx` (17 pre-built JSX icon elements) and
+`src/components/icons/icons.tsx` (3 sized icon components: `IconPlus`,
+`IconPreview`, `IconAlertCircle`).
+
+- **Most, but not all, glyphs are decorative by default.** In
+  `iconGlyphs.tsx`, 14 of the 17 exported icons carry `aria-hidden="true"`
+  directly on their `<svg>` (`iconChevronUp`, `iconChevronDown`,
+  `iconRemove`, `iconEdit`, `iconPublish`, `iconWarning`, `iconDelete`,
+  `iconRetry`, `iconLock`, `iconInvite`, `iconUnpublish`, `iconDocument`,
+  `iconViewPublic`, `iconNotFound`). **Three do not:** `iconUploadCloud`,
+  `iconAddImage`, and `iconReplace` have no `aria-hidden` and no
+  accessible name of their own (no `<title>`, no `aria-label`) — used
+  standalone, they're exposed to the accessibility tree as unnamed
+  graphics. In `icons.tsx`, `IconPlus` and `IconPreview` always carry
+  `aria-hidden="true"` (no prop to change it); `IconAlertCircle` takes an
+  optional `ariaHidden` prop (`aria-hidden={ariaHidden || undefined}`) and
+  is **not hidden by default** — a consumer must explicitly pass
+  `ariaHidden` to suppress it.
+- **Consumer responsibility.** For any of the icons above that aren't
+  `aria-hidden` by default (`iconUploadCloud`, `iconAddImage`,
+  `iconReplace`, and `IconAlertCircle` unless `ariaHidden` is passed): if
+  you use one standalone and it's purely decorative, wrap it in your own
+  `aria-hidden="true"` container; if it conveys meaning on its own (e.g.
+  a lone alert icon with no adjacent text), give it an accessible name via
+  a wrapping element (e.g. a `<span role="img" aria-label="…">` or an
+  `aria-label` on the interactive element it sits in).
+- **This library's own components already handle it for you.** Any icon
+  passed into `Button`'s `iconLeft`/`iconRight`, `Link`'s `icon`, or
+  `Input`'s `prefixIcon` is re-wrapped in an `aria-hidden="true"` `<span>`
+  by that parent component regardless of the icon's own `aria-hidden`
+  state — the gap above only matters when an icon is rendered on its own,
+  outside of those slots.

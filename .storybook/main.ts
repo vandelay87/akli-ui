@@ -3,8 +3,18 @@ import type { StorybookConfig } from '@storybook/react-vite'
 // Story files live co-located with their component, matching this repo's
 // existing Component.tsx / Component.test.tsx / Component.module.css
 // convention: src/components/<Name>/<Name>.stories.tsx.
+//
+// Accessibility.mdx is a standalone (not component-attached) docs page —
+// it isn't about one component, so it doesn't belong co-located under
+// src/components/. It lives in .storybook/ instead, alongside this file,
+// to make clear it's Storybook-only documentation rather than package
+// source (unlike src/, .storybook/ is never part of the published
+// dist/ — see package.json's "files" and vite.config.ts's explicit
+// build.lib entry map, neither of which glob .storybook/ or pick up
+// .mdx files). The first glob below only matches *.stories.@(ts|tsx),
+// so it wouldn't pick this file up on its own — hence the second entry.
 const config: StorybookConfig = {
-  stories: ['../src/components/**/*.stories.@(ts|tsx)'],
+  stories: ['../src/components/**/*.stories.@(ts|tsx)', '../.storybook/*.mdx'],
   addons: [
     // Controls, actions, viewport, backgrounds, and the interactions
     // debugger all now ship in Storybook 10's `storybook` core package
