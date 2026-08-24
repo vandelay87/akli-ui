@@ -1,4 +1,4 @@
-import type { FC, ReactNode } from 'react'
+import { useId, type FC, type ReactNode } from 'react'
 
 import styles from './Callout.module.css'
 
@@ -14,11 +14,13 @@ const indicators: Record<CalloutProps['type'], { emoji: string; label: string }>
 }
 
 const Callout: FC<CalloutProps> = ({ type, children }) => {
+  const labelId = useId()
+
   return (
-    <div className={`${styles.callout} ${styles[type]}`} role="note" aria-labelledby={`callout-${type}`}>
+    <div className={`${styles.callout} ${styles[type]}`} role="note" aria-labelledby={labelId}>
       <div className={styles.header}>
         <span className={styles.emoji} aria-hidden="true">{indicators[type].emoji}</span>
-        <div id={`callout-${type}`} className={styles.label}>{indicators[type].label}</div>
+        <div id={labelId} className={styles.label}>{indicators[type].label}</div>
       </div>
       <div>{children}</div>
     </div>

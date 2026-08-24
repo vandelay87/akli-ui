@@ -158,20 +158,42 @@ const darkDeclarations = parseDeclarations(extractBlock(tokensCss, '[data-theme=
 // default "paper" surface (--color-text-faint's comment describes its ratio
 // as being measured "on paper", i.e. against --color-bg), making it the
 // most defensible canonical backdrop rather than an arbitrary pick.
+//
+// --color-primary-on-tint has no such translucent --color-primary-bg token
+// to fall back on (--color-primary's only tint consumer is Callout's
+// `.info`) — its pair instead uses `colorMix` to reproduce `.info`'s actual
+// background formula (color-mix(in srgb, var(--color-primary) 6%,
+// var(--color-surface))) directly, so it's checked against its real
+// consumer rather than an approximated backdrop.
+type ColorMixBackground = {
+  /** Token mixed in as the color-mix() foreground percentage, e.g. 'color-primary'. */
+  source: string
+  /** The color-mix() percentage for `source` (0-100). */
+  percent: number
+  /** Token mixed in as the color-mix() base/remainder, e.g. 'color-surface'. */
+  into: string
+}
+
 type PairSpec = {
   label: string
   foreground: string
-  background: string
+  /** Named background token — omit when `colorMix` describes the background instead. */
+  background?: string
   /** Set for tint pairs whose named background token is a translucent rgba() wash. */
   compositeBackdrop?: string
+  /** Set for pairs whose actual background is a CSS color-mix() of two other
+      tokens (e.g. Callout's `.info` background), rather than a single named
+      solid or rgba() token. */
+  colorMix?: ColorMixBackground
 }
 
 type DocumentedPair = {
   name: string
   declarations: Map<string, string>
   foreground: string
-  background: string
+  background?: string
   compositeBackdrop?: string
+  colorMix?: ColorMixBackground
 }
 
 // One entry per documented pairing — independent of theme. Crossed with
@@ -206,6 +228,16 @@ const pairSpecs: PairSpec[] = [
     background: 'color-warning-bg',
     compositeBackdrop: 'color-bg',
   },
+  {
+    // Unlike --color-success-on-tint/--color-warning-on-tint above, there is
+    // no standalone --color-primary-bg rgba() wash token (--color-primary's
+    // only tint consumer is Callout's `.info`) — so this pair is checked
+    // against the actual color-mix() formula `.info` uses, via `colorMix`,
+    // rather than an approximated composited rgba backdrop.
+    label: '--color-primary-on-tint on .info background (color-mix(--color-primary 6%, --color-surface))',
+    foreground: 'color-primary-on-tint',
+    colorMix: { source: 'color-primary', percent: 6, into: 'color-surface' },
+  },
 ]
 
 const themes: { prefix: string; declarations: Map<string, string> }[] = [
@@ -220,18 +252,37 @@ const documentedPairs: DocumentedPair[] = pairSpecs.flatMap((spec) =>
     foreground: spec.foreground,
     background: spec.background,
     compositeBackdrop: spec.compositeBackdrop,
+    colorMix: spec.colorMix,
   }))
 )
+
+// Mirrors `color-mix(in srgb, var(source) percent%, var(into))` for the
+// subset of tokens.css/component consumers that mix two opaque tokens
+// directly rather than layering a translucent -bg token over a backdrop.
+const mixOpaqueColors = (source: Rgb, percent: number, into: Rgb): Rgb => {
+  const p = percent / 100
+  return {
+    r: source.r * p + into.r * (1 - p),
+    g: source.g * p + into.g * (1 - p),
+    b: source.b * p + into.b * (1 - p),
+  }
+}
 
 describe('tokens.css contrast ratios', () => {
   it.each(documentedPairs)('$name meets the WCAG AA normal-text minimum (4.5:1)', (pair) => {
     const fg = resolveOpaqueColor(pair.declarations, pair.foreground)
-    const bg = pair.compositeBackdrop
-      ? compositeOver(
-          resolveTranslucentColor(pair.declarations, pair.background),
-          resolveOpaqueColor(pair.declarations, pair.compositeBackdrop)
+    const bg = pair.colorMix
+      ? mixOpaqueColors(
+          resolveOpaqueColor(pair.declarations, pair.colorMix.source),
+          pair.colorMix.percent,
+          resolveOpaqueColor(pair.declarations, pair.colorMix.into)
         )
-      : resolveOpaqueColor(pair.declarations, pair.background)
+      : pair.compositeBackdrop
+        ? compositeOver(
+            resolveTranslucentColor(pair.declarations, pair.background!),
+            resolveOpaqueColor(pair.declarations, pair.compositeBackdrop)
+          )
+        : resolveOpaqueColor(pair.declarations, pair.background!)
 
     const ratio = contrastRatio(fg, bg)
 

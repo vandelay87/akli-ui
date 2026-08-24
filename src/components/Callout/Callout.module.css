@@ -82,6 +82,13 @@
   background: color-mix(in srgb, var(--color-primary) 6%, var(--color-surface));
 }
 
+/* WCAG AA override (found via this package's own Storybook a11y CI gate):
+   same pattern as `.tip .label`/`.warning .label` above but for
+   --color-primary — this 6% tint computes to ~4.26:1 (fails AA, axe-core
+   measured 4.26:1 against the required 4.5:1). Uses the shared
+   --color-primary-on-tint token, same derivation as the success/warning
+   tokens above, for consistency — it already resolves correctly per
+   theme. */
 .info .label {
-  color: var(--color-primary);
+  color: var(--color-primary-on-tint);
 }
