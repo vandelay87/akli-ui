@@ -1,0 +1,132 @@
+.figure {
+  margin: 0;
+}
+
+.container {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+/* ── Placeholder overlay ─────────────────────────────────── */
+.placeholderOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity var(--duration-base) var(--easing-default);
+  opacity: 1;
+}
+
+.placeholderOverlayBlur {
+  backdrop-filter: blur(4px); /* sm blur */
+}
+
+/* ── Blur placeholder image ──────────────────────────────── */
+.blurImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(4px);
+  transform: scale(1.1);
+}
+
+/* ── Shimmer placeholder ─────────────────────────────────── */
+.pulsePlaceholder {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.pulsePlaceholder::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 25%,
+    rgb(255 255 255 / 0.15) 50%,
+    transparent 75%
+  );
+  animation: global(shimmer) 2s ease-in-out infinite;
+}
+
+[data-theme="dark"] .pulsePlaceholder::after {
+  background: linear-gradient(
+    90deg,
+    transparent 25%,
+    rgb(255 255 255 / 0.06) 50%,
+    transparent 75%
+  );
+}
+
+/* ── Empty placeholder (icon centered) ───────────────────── */
+.emptyPlaceholder {
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emptyPlaceholder svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--color-text-muted);
+}
+
+/* ── Error overlay ───────────────────────────────────────── */
+.errorOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-surface);
+}
+
+.errorIcon {
+  width: 3rem;
+  height: 3rem;
+  color: var(--color-text-muted);
+  margin-inline: auto;
+  margin-block-end: var(--space-2);
+}
+
+.errorContent {
+  text-align: center;
+}
+
+.errorText {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* ── Main image ──────────────────────────────────────────── */
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+
+.loaded {
+  opacity: 1;
+}
+
+/* ── Caption ────────────────────────────────────────────── */
+.caption {
+  padding: var(--space-3) 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-align: center;
+  font-style: italic;
+}
+

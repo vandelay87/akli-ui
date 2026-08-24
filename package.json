@@ -50,6 +50,7 @@
   "peerDependencies": {
     "react": "^19",
     "react-dom": "^19",
+    "react-router-dom": "^7",
     "vite": "^8"
   },
   "peerDependenciesMeta": {
@@ -59,6 +60,9 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^14.6.5",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@typescript-eslint/eslint-plugin": "^8.67.0",
@@ -78,6 +82,7 @@
     "prettier": "^3.9.6",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "react-router-dom": "^7.18.2",
     "typescript": "^5.9.3",
     "unplugin-dts": "^1.0.3",
     "vite": "^8.2.1",
