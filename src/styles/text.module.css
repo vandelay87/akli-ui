@@ -1,0 +1,140 @@
+/* Shared text-treatment composables — CSS Modules port of small text
+   styles repeated verbatim across page `.module.css` files. Mirrors the
+   `composes: x from '../../styles/interactions.module.css'` pattern used
+   for interaction utilities (see interactions.module.css) — consuming
+   files `composes` from here (relative path from a page two levels down
+   in src/pages/<Name>/) rather than duplicating the declarations.
+
+   Same lazy-chunk-duplication caveat as interactions.module.css: when a
+   new consumer is one of two or more independently `lazy()`-loaded
+   chunks with no eager common ancestor, `composes` here duplicates this
+   file's rules per chunk instead of sharing them — import this file
+   directly as a JS module and compose classNames in JS instead. See
+   interactions.module.css's own header comment for the full rationale. */
+
+/* These rules are wrapped in a low-priority @layer so a consumer's plain
+   (unlayered) className always wins over them, regardless of source/bundle
+   order or matching specificity — per the CSS Cascade spec, any unlayered
+   rule beats any layered rule. Same mechanism as Typography.module.css and
+   Link.module.css (#263); applied here to fix the identical non-
+   deterministic-specificity bug for these shared text composables (#292).
+   Replaces the old per-callsite descendant-selector trick (`.parent
+   .child`) formerly needed to out-specificity these vs a bare override. */
+@layer component-defaults {
+  /* Mono, uppercase, tracked, faint — section/hero kicker text. Pair with
+     `Typography` (e.g. `variant="caption" as="p"` or `as="h2"` for an
+     eyebrow that doubles as the section heading). */
+  .eyebrow {
+    font-family: var(--font-mono);
+    /* 12px: matches Apps'/Blog's own hero eyebrow exactly; --font-size-xs
+       (11px) is a token tuned for other mono-eyebrow contexts (Tag,
+       Toast, StatusBadge, etc.), not this one. */
+    font-size: 12px;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--color-text-faint);
+    /* 22px: matches Apps'/Blog's own hero eyebrow margin exactly; was
+       --space-5 (20px), 2px short. */
+    margin: 0 0 22px;
+  }
+
+  /* Page hero/heading/lead — shared layout for the top-of-page intro block
+     used by top-level page components (e.g. Blog, Apps). Bottom padding is
+     a custom property, not a fixed value — Apps' and Blog's own hero
+     sections want slightly different fluid values there
+     (clamp(40px,6vw,60px) vs clamp(36px,5vw,52px)), set via each page's
+     own `.hero` overriding `--page-hero-pad-end`. The fallback keeps this
+     composable usable on its own if a future page composes it without
+     setting one. */
+  .pageHero {
+    max-width: var(--max-w-reading);
+    margin-inline: auto;
+    padding-block: clamp(64px, 11vw, 108px) var(--page-hero-pad-end, var(--space-6));
+    padding-inline: var(--space-6);
+  }
+
+  .pageHeading {
+    font-size: var(--font-display-hero);
+    line-height: var(--line-height-tight);
+    letter-spacing: var(--tracking-tight);
+    /* 22px: matches Apps'/Blog's own hero heading margin exactly; no
+       spacing token lands on it. */
+    margin: 0 0 22px;
+  }
+
+  .pageLead {
+    /* Fluid, matching Apps'/Blog's own hero lead exactly — distinct from
+       Typography's shared bodyLarge variant (18px fixed), which this
+       previously relied on with no override. */
+    font-size: clamp(17px, 2.6vw, 19px);
+    max-width: var(--max-w-prose);
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  /* Mono, muted, small — "no results" empty-state message text, matching
+     the design's noResults message exactly. Distinct from Typography's
+     shared bodyLarge variant (sans-serif, full-contrast text), which pages
+     previously relied on with no override. Margin is each consumer's own —
+     Blog's and Recipes' empty states each want a slightly different
+     value. */
+  .emptyStateMessage {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  /* Mono, tracked, faint meta text — used for byline/count-row style labels
+     (e.g. post date/reading time, item counts). */
+  .metaText {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    letter-spacing: var(--tracking-meta);
+    color: var(--color-text-faint);
+  }
+
+  /* Mono, bordered chip "look" — shared by BlogPost's and RecipeDetailView's
+     own tag-link chips (both otherwise hand-wrote the same declarations).
+     Pair with `composes: focusRing chipHover from interactions.module.css`
+     for the interactive hover/focus behavior; each consumer still sets its
+     own padding (Blog and Recipe use slightly different design literals). */
+  .tagChipBase {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    letter-spacing: var(--tracking-meta);
+    color: var(--color-text-muted);
+    background: var(--color-surface);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+  }
+
+  /* Semibold, slightly-larger-than-body text CTA — shared by Home's
+     "All" row-section link, Apps' "Read the blog" link, and Blog's
+     "Show all posts" link. Each still sets its own color/cursor/border
+     as needed (Apps' Link component already tones its own color). */
+  .ctaText {
+    font-size: var(--font-size-sm-plus);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  /* Divider line filling a flex row's remaining width — Apps' and
+     Blog's own countRow both need this trailing rule after a count
+     label (and, on Blog, an optional active-tag name + clear button). */
+  .dividerFill::after {
+    content: '';
+    flex: 1;
+    height: var(--border-width);
+    background: var(--color-border);
+  }
+
+  /* 12px/0.02em — the title-bar label size used by both FileTree's
+     `.title` and CodeBlock's `.filenameHeader`, matching the design's
+     `.code-head` exactly. Neither metaText's font-size (13px) nor
+     --tracking-meta (0.04em) land on this specific size. */
+  .codeHeaderLabel {
+    font-size: 12px;
+    letter-spacing: 0.02em;
+  }
+}
