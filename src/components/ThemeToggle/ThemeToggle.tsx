@@ -12,6 +12,18 @@ const resolveInitialTheme = (): Theme => {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
+/**
+ * Self-contained by default: on mount, if `<html>` has no `data-theme`
+ * attribute yet, it derives the theme from `localStorage` (falling back to
+ * `prefers-color-scheme`) and sets `data-theme` itself. No setup required
+ * for a plain CSR app.
+ *
+ * SSR consumers who want to avoid a flash of the wrong theme on first paint
+ * can optionally set `data-theme` on `<html>` themselves, before hydration,
+ * via their own inline bootstrap script. If present, ThemeToggle detects
+ * and respects it instead of re-deriving from `localStorage`/
+ * `prefers-color-scheme`. This is an opt-in optimization, not a requirement.
+ */
 const ThemeToggle = () => {
   const [theme, setTheme] = useState<Theme>('light')
 
