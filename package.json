@@ -86,6 +86,7 @@
     "typescript": "^5.9.3",
     "unplugin-dts": "^1.0.3",
     "vite": "^8.2.1",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.11",
+    "vitest-axe": "^0.1.0"
   }
 }

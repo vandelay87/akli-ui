@@ -1,5 +1,13 @@
 import '@testing-library/jest-dom'
-import { vi } from 'vitest'
+import { expect, vi } from 'vitest'
+import * as matchers from 'vitest-axe/matchers'
+
+// Register vitest-axe's `toHaveNoViolations` matcher project-wide. Note: axe
+// cannot evaluate `color-contrast` under jsdom (no real layout/rendering), so
+// that rule is inherently unreliable in this environment — a separate,
+// explicit contrast-ratio check (added elsewhere as part of this issue)
+// covers what this matcher can't.
+expect.extend(matchers)
 
 // jsdom does not implement IntersectionObserver. Image.tsx's lazy-loading
 // effect (`new IntersectionObserver(...)`) throws under jsdom without this,
