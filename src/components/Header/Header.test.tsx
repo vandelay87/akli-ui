@@ -2,6 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import type { ReactElement } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
+import { mockMatchMedia } from '../../../tests/setup'
 import Header from './Header'
 
 const renderWithRouter = (ui: ReactElement, { route = '/' } = {}) => {
@@ -27,16 +28,7 @@ const LINKS = [
 beforeEach(() => {
   localStorage.clear()
   document.documentElement.removeAttribute('data-theme')
-  window.matchMedia = vi.fn().mockImplementation((query: string) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  }))
+  mockMatchMedia(false)
 })
 
 describe('Header', () => {

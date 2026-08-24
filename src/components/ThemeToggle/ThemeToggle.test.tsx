@@ -1,34 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { mockMatchMedia } from '../../../tests/setup'
 import ThemeToggle from './ThemeToggle'
-
-// jsdom does not implement `window.matchMedia` (confirmed empirically: a
-// throwaway assertion of `typeof window.matchMedia` under this project's
-// jsdom environment returns 'undefined', not 'function') — unlike the
-// project's global IntersectionObserver mock (tests/setup.ts), this can't be
-// a single fixed-behavior global default, since different test cases here
-// need different `matches` results for the same mocked API. So it's
-// constructed per test instead. Shaped like the real MediaQueryList
-// (`matches`, `media`) plus every listener-registration method (both the
-// modern EventTarget-style `addEventListener`/`removeEventListener` and the
-// legacy `addListener`/`removeListener`) as no-op vi.fn()s, defensively:
-// the real implementation may register a change listener to react to a live
-// OS theme-preference switch (issue #5 has ThemeToggle "read...
-// prefers-color-scheme", and a real-world component doing that plausibly
-// also listens for changes to it), and a mock missing whichever method it
-// calls would throw instead of the test failing on an assertion.
-const mockMatchMedia = (matches: boolean) => {
-  window.matchMedia = vi.fn().mockImplementation((query: string) => ({
-    matches,
-    media: query,
-    onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  }))
-}
 
 describe('ThemeToggle self-contained mount (CSR-only, no bootstrap script)', () => {
   beforeEach(() => {

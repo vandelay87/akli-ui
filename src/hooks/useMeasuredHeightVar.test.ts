@@ -1,30 +1,15 @@
 import { act, renderHook } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { MockResizeObserver } from '../../tests/setup'
 import { useMeasuredHeightVar } from './useMeasuredHeightVar'
 
-// The shared MockResizeObserver in tests/setup.ts fires its callback exactly
-// once, synchronously, from `observe()` — it can't simulate a second resize.
-// This local mock captures the callback so tests can fire it repeatedly with
-// controlled entries.
-class ControllableResizeObserver {
-  static instances: ControllableResizeObserver[] = []
-  callback: ResizeObserverCallback
-  observe = vi.fn()
-  unobserve = vi.fn()
-  disconnect = vi.fn()
-
-  constructor(callback: ResizeObserverCallback) {
-    this.callback = callback
-    ControllableResizeObserver.instances.push(this)
-  }
-
-  fire(entry: Partial<ResizeObserverEntry>) {
-    this.callback([entry as ResizeObserverEntry], this as unknown as ResizeObserver)
-  }
-}
-
-const originalResizeObserver = window.ResizeObserver
+// The shared MockResizeObserver (tests/setup.ts, registered globally on
+// window.ResizeObserver) auto-fires its callback once from `observe()` but
+// also tracks every constructed instance and exposes `fire(entry)`, so this
+// file drives it directly instead of shadowing window.ResizeObserver with a
+// separate local mock — the dedup/caching test below needs to fire the same
+// observer instance repeatedly with custom entries, which `fire` supports.
 
 const makeEntry = (blockSize: number, element: Element): Partial<ResizeObserverEntry> => ({
   target: element,
@@ -32,12 +17,10 @@ const makeEntry = (blockSize: number, element: Element): Partial<ResizeObserverE
 })
 
 beforeEach(() => {
-  ControllableResizeObserver.instances = []
-  window.ResizeObserver = ControllableResizeObserver as unknown as typeof ResizeObserver
+  MockResizeObserver.instances = []
 })
 
 afterEach(() => {
-  window.ResizeObserver = originalResizeObserver
   document.documentElement.style.removeProperty('--test-height')
   vi.restoreAllMocks()
 })
@@ -49,7 +32,7 @@ describe('useMeasuredHeightVar', () => {
 
     renderHook(() => useMeasuredHeightVar(ref, '--test-height'))
 
-    const [observer] = ControllableResizeObserver.instances
+    const [observer] = MockResizeObserver.instances
     act(() => {
       observer.fire(makeEntry(48, element))
     })
@@ -63,7 +46,7 @@ describe('useMeasuredHeightVar', () => {
 
     renderHook(() => useMeasuredHeightVar(ref, '--test-height'))
 
-    const [observer] = ControllableResizeObserver.instances
+    const [observer] = MockResizeObserver.instances
     const setPropertySpy = vi.spyOn(document.documentElement.style, 'setProperty')
 
     act(() => {
@@ -88,7 +71,7 @@ describe('useMeasuredHeightVar', () => {
     const ref = { current: element }
 
     const { unmount } = renderHook(() => useMeasuredHeightVar(ref, '--test-height'))
-    const [observer] = ControllableResizeObserver.instances
+    const [observer] = MockResizeObserver.instances
 
     unmount()
 
@@ -100,6 +83,6 @@ describe('useMeasuredHeightVar', () => {
 
     renderHook(() => useMeasuredHeightVar(ref, '--test-height'))
 
-    expect(ControllableResizeObserver.instances).toHaveLength(0)
+    expect(MockResizeObserver.instances).toHaveLength(0)
   })
 })

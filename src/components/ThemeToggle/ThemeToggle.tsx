@@ -6,10 +6,18 @@ type Theme = 'light' | 'dark'
 const isTheme = (value: string | null): value is Theme => value === 'light' || value === 'dark'
 
 const resolveInitialTheme = (): Theme => {
-  const stored = localStorage.getItem('theme')
-  if (isTheme(stored)) return stored
+  // localStorage/matchMedia access can throw in privacy-restricted contexts
+  // (Safari private mode, storage-blocked iframes, strict tracking
+  // protection). Fall back to 'light' — matching this component's default
+  // state — rather than letting the mount crash.
+  try {
+    const stored = localStorage.getItem('theme')
+    if (isTheme(stored)) return stored
 
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  } catch {
+    return 'light'
+  }
 }
 
 /**
