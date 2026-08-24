@@ -27,7 +27,17 @@ export default defineConfig({
       // (dist/index.d.ts, dist/components/...) instead.
       entryRoot: 'src',
       include: ['src/**/*.ts', 'src/**/*.tsx'],
-      exclude: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+      // `.stories.tsx` (Storybook, co-located per-component like `.test.tsx`)
+      // matches the include glob above same as `.test.tsx` does — excluded
+      // for the same reason: neither is part of the package's public API,
+      // and without this a stray `dist/components/<Name>/<Name>.stories.d.ts`
+      // ships in every published version for every component with a story.
+      exclude: [
+        'src/**/*.test.ts',
+        'src/**/*.test.tsx',
+        'src/**/*.stories.ts',
+        'src/**/*.stories.tsx',
+      ],
     }),
   ],
   resolve: {

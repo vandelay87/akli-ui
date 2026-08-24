@@ -45,7 +45,9 @@
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
-    "format": "prettier --write . && eslint --fix ."
+    "format": "prettier --write . && eslint --fix .",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "peerDependencies": {
     "react": "^19",
@@ -60,6 +62,9 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@storybook/addon-a11y": "10.5.10",
+    "@storybook/addon-docs": "10.5.10",
+    "@storybook/react-vite": "10.5.10",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^14.6.5",
@@ -83,6 +88,7 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.2",
+    "storybook": "10.5.10",
     "typescript": "^5.9.3",
     "unplugin-dts": "^1.0.3",
     "vite": "^8.2.1",

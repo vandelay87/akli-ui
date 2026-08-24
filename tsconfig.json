@@ -18,6 +18,12 @@
     "skipLibCheck": true,
     "isolatedModules": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts", "tests/**/*.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "vite.config.ts",
+    "tests/**/*.ts",
+    ".storybook/**/*.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }
