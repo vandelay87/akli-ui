@@ -1,6 +1,43 @@
+import { readFileSync } from 'node:fs'
 import react from '@vitejs/plugin-react'
 import dts from 'unplugin-dts/vite'
+import type { Plugin } from 'vite'
 import { defineConfig } from 'vitest/config'
+
+// The two bundled font families' SIL Open Font License text files. Neither
+// is reachable via any import in the module graph (nothing `url()`s or
+// imports a .txt file), so the normal Vite/Rollup asset-discovery path that
+// feeds `assetFileNames` above never sees them — without this plugin,
+// `dist/assets/*.woff2` ships but the license text redistribution requires
+// alongside it silently doesn't (see issue #17). `generateBundle` +
+// `this.emitFile` is the direct route for injecting a build output file
+// that isn't discovered via imports; the small-custom-plugin shape mirrors
+// this repo's existing precedent (src/vite-plugin.ts's `preloadFonts()`).
+//
+// Passing `fileName` (an exact, final path) rather than `name` (which asks
+// Rollup to pick a name via the `assetFileNames` pattern above, hashing it)
+// is what gives a stable, unhashed filename and bypasses that function
+// entirely — confirmed by inspecting build output below. License text
+// doesn't need cache-busting, and a stable name is easier to find than a
+// hashed one. Placed under `assets/`, alongside the font binaries they
+// license, matching "license travels with the thing it licenses."
+const FONT_LICENSE_FILES = [
+  'src/assets/fonts/geist-OFL.txt',
+  'src/assets/fonts/jetbrains-mono-OFL.txt',
+]
+
+const copyFontLicenses = (): Plugin => ({
+  name: 'akli-ui:copy-font-licenses',
+  generateBundle() {
+    for (const relativePath of FONT_LICENSE_FILES) {
+      this.emitFile({
+        type: 'asset',
+        fileName: `assets/${relativePath.split('/').pop()}`,
+        source: readFileSync(new URL(relativePath, import.meta.url)),
+      })
+    }
+  },
+})
 
 export default defineConfig({
   // Vite's default `base: '/'` root-anchors any non-inlined asset URL
@@ -15,6 +52,7 @@ export default defineConfig({
   base: './',
   plugins: [
     react(),
+    copyFontLicenses(),
     dts({
       tsconfigPath: './tsconfig.json',
       // Default entryRoot is the longest common ancestor of every file the
