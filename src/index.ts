@@ -19,9 +19,9 @@
 // in the same file: `@import './styles/animations.css'`.
 import './styles/animations.css'
 
-// Plain relative specifiers on purpose, not the `@components` alias (see
-// vite.config.ts's tsconfig `paths` / resolve.alias entries) — this is the
-// package's public barrel, and unplugin-dts's alias-rewrite pass
+// Plain relative specifiers on purpose, not the `@components`/`@hooks`
+// aliases (see vite.config.ts's tsconfig `paths` / resolve.alias entries) —
+// this is the package's public barrel, and unplugin-dts's alias-rewrite pass
 // (transformAlias in unplugin-dts's bundled runtime) resolves aliased
 // specifiers here against the wrong base directory, emitting dist/index.d.ts
 // re-exports like `../../../../../src/components/Button` that point outside
@@ -31,8 +31,12 @@ import './styles/animations.css'
 // `pathsToAliases`). A literal relative import never enters that rewrite
 // path — TS's declaration emitter passes it through verbatim — and because
 // entryRoot: 'src' makes dist/ mirror src/'s structure 1:1, the untouched
-// specifier already resolves correctly post-build. `@components` remains
-// fine to use in non-exported/internal files; just don't reach for it here.
+// specifier already resolves correctly post-build. Both aliases remain fine
+// to use in non-exported/internal files (e.g. Grid.tsx's `@components/List`,
+// Image.tsx's `@hooks/usePreloadImage`) — confirmed empirically (built and
+// inspected dist/) that files reached only via this barrel's re-export, not
+// unplugin-dts's own entries, aren't subject to the same rewrite bug. Just
+// don't reach for either alias in this file specifically.
 export { default as Button } from './components/Button'
 export type { ButtonProps } from './components/Button/Button'
 export { default as Typography } from './components/Typography'

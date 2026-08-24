@@ -9,7 +9,8 @@
     "strict": true,
     "noEmit": true,
     "paths": {
-      "@components/*": ["./src/components/*"]
+      "@components/*": ["./src/components/*"],
+      "@hooks/*": ["./src/hooks/*"]
     },
     "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"],
     "resolveJsonModule": true,

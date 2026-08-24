@@ -1,5 +1,5 @@
+import { usePreloadImage } from '@hooks/usePreloadImage'
 import { useState, useEffect, useRef, FC, ImgHTMLAttributes } from 'react'
-import { usePreloadImage } from '../../hooks/usePreloadImage'
 import styles from './Image.module.css'
 
 const generateBlurDataURL = (baseSrc: string) =>
