@@ -1,5 +1,5 @@
+import List, { ListItem } from '@components/List'
 import { CSSProperties, FC, ReactNode } from 'react'
-import List, { ListItem } from '../List'
 import styles from './Grid.module.css'
 
 interface GridProps {

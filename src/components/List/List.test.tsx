@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import type { CSSProperties } from 'react'
+import { describe, it, expect } from 'vitest'
 import List, { ListItem } from './List'
 
 describe('List', () => {

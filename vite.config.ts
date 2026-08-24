@@ -196,11 +196,13 @@ export default defineConfig({
     }
   })(),
   test: {
-    // Matches personal-website's vite.config.ts: several ported test files
-    // (Link, Card, Grid, Loading, List) rely on describe/it/expect/vi as
-    // globals without importing them from 'vitest'. Porting those files
-    // unchanged (per issue #4's "carry over existing tests unchanged")
-    // requires globals: true rather than adding imports to each file.
+    // Required, not just a convenience for test files that skip importing
+    // describe/it/expect/vi: @testing-library/jest-dom's side-effect import
+    // (tests/setup.ts) registers its matchers against the global `expect`,
+    // which only exists with globals: true — without it, jest-dom's own
+    // import throws `ReferenceError: expect is not defined` before any test
+    // file even runs, regardless of what that file itself imports.
+    // Confirmed empirically; matches personal-website's own vite.config.ts.
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
