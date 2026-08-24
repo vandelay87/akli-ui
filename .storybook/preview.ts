@@ -59,6 +59,17 @@ const preview: Preview = {
         date: /Date$/i,
       },
     },
+    // 'error' makes addon-a11y's automated axe-core checks fail the story
+    // (not just flag it in the interactive UI panel). @storybook/test-runner
+    // 0.24.4 reads this same parameter natively — its injected page script
+    // checks `story.parameters.a11y.test === 'error'` and rejects the test
+    // with the violation report when true (see
+    // node_modules/@storybook/test-runner/dist/setup-page-script.js) — no
+    // separate test-runner hook/config file is needed. Default is 'todo'
+    // (violations only logged, never fail).
+    a11y: {
+      test: 'error',
+    },
   },
 }
 

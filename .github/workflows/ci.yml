@@ -40,3 +40,15 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Build Storybook
+        run: pnpm build-storybook
+
+      - name: Storybook accessibility tests
+        run: |
+          pnpm exec http-server storybook-static --port 6006 --silent &
+          pnpm exec wait-on tcp:127.0.0.1:6006 --timeout 60000
+          pnpm test-storybook --maxWorkers=2
