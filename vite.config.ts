@@ -196,6 +196,13 @@ export default defineConfig({
     }
   })(),
   test: {
+    // Matches personal-website's vite.config.ts: several ported test files
+    // (Link, Card, Grid, Loading, List) rely on describe/it/expect/vi as
+    // globals without importing them from 'vitest'. Porting those files
+    // unchanged (per issue #4's "carry over existing tests unchanged")
+    // requires globals: true rather than adding imports to each file.
+    globals: true,
     environment: 'jsdom',
+    setupFiles: ['./tests/setup.ts'],
   },
 })
