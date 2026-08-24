@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
+import { axe } from 'vitest-axe'
 import Callout from './Callout'
 
 describe('Callout', () => {
@@ -51,5 +52,13 @@ describe('Callout', () => {
     render(<Callout type="tip">Accessible callout.</Callout>)
 
     expect(screen.getByRole('note')).toBeInTheDocument()
+  })
+
+  it('renders the tip variant with no detectable axe violations', async () => {
+    const { container } = render(
+      <Callout type="tip">Use caching for better performance.</Callout>
+    )
+
+    expect(await axe(container)).toHaveNoViolations()
   })
 })

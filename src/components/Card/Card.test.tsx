@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi } from 'vitest'
+import { axe } from 'vitest-axe'
 import Card from './Card'
 import styles from './Card.module.css'
 
@@ -54,5 +55,17 @@ describe('Card', () => {
     render(<Card hover>Hoverable content</Card>)
 
     expect(screen.getByText('Hoverable content')).toHaveClass(styles.hover)
+  })
+
+  it('renders a default (non-interactive) card with no detectable axe violations', async () => {
+    const { container } = render(<Card>Plain card content</Card>)
+
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('renders a clickable card with no detectable axe violations', async () => {
+    const { container } = render(<Card onClick={vi.fn()}>Click me</Card>)
+
+    expect(await axe(container)).toHaveNoViolations()
   })
 })

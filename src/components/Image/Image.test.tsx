@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { axe } from 'vitest-axe'
 import Image from './Image'
 
 
@@ -71,5 +72,13 @@ describe('Image', () => {
 
     const img = screen.getByAltText('Test Image')
     expect(img.style.objectFit).toBe('contain')
+  })
+
+  it('renders a priority image with no detectable axe violations', async () => {
+    const { container } = render(
+      <Image {...defaultProps} priority caption="A test image caption" />
+    )
+
+    expect(await axe(container)).toHaveNoViolations()
   })
 })

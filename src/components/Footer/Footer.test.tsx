@@ -1,6 +1,7 @@
 import { render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
+import { axe } from 'vitest-axe'
 import Footer, { type FooterProps } from './Footer'
 
 const renderFooter = (props: FooterProps = {}) =>
@@ -51,6 +52,12 @@ describe('Footer', () => {
 
       expect(screen.queryByText('akli.dev admin')).not.toBeInTheDocument()
       expect(screen.queryByText(/signed in as/i)).not.toBeInTheDocument()
+    })
+
+    it('renders with no detectable axe violations', async () => {
+      const { container } = renderFooter()
+
+      expect(await axe(container)).toHaveNoViolations()
     })
   })
 

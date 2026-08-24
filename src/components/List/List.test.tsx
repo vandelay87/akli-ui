@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import type { CSSProperties } from 'react'
 import { describe, it, expect } from 'vitest'
+import { axe } from 'vitest-axe'
 import List, { ListItem } from './List'
 
 describe('List', () => {
@@ -43,6 +44,17 @@ describe('List', () => {
     render(<List role="presentation">Content</List>)
 
     expect(screen.getByRole('list')).toBeInTheDocument()
+  })
+
+  it('renders a list with items and no detectable axe violations', async () => {
+    const { container } = render(
+      <List>
+        <ListItem>First item</ListItem>
+        <ListItem>Second item</ListItem>
+      </List>
+    )
+
+    expect(await axe(container)).toHaveNoViolations()
   })
 })
 

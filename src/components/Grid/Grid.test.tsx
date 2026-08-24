@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
+import { axe } from 'vitest-axe'
 import Grid from './Grid'
 
 describe('Grid', () => {
@@ -116,5 +117,17 @@ describe('Grid', () => {
     expect(list.className).toContain('custom-spacing')
     expect(list.className).toContain('grid')
     expect(list.className).toContain('cols3')
+  })
+
+  it('renders a multi-item grid with no detectable axe violations', async () => {
+    const { container } = render(
+      <Grid columns={3}>
+        <div>Item 1</div>
+        <div>Item 2</div>
+        <div>Item 3</div>
+      </Grid>
+    )
+
+    expect(await axe(container)).toHaveNoViolations()
   })
 })

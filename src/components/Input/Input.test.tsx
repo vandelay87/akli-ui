@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
+import { axe } from 'vitest-axe'
 import Input from './Input'
 
 describe('Input', () => {
@@ -85,5 +86,34 @@ describe('Input', () => {
     )
 
     expect(screen.getByLabelText('Username')).toBeInTheDocument()
+  })
+
+  it('renders a labeled input with no detectable axe violations', async () => {
+    const { container } = render(
+      <>
+        <label htmlFor="email">Email</label>
+        <Input id="email" value="" onChange={vi.fn()} />
+      </>
+    )
+
+    expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('renders the invalid state with no detectable axe violations', async () => {
+    const { container } = render(
+      <>
+        <label htmlFor="email-invalid">Email</label>
+        <Input
+          id="email-invalid"
+          value="not-an-email"
+          invalid
+          ariaDescribedBy="email-invalid-hint"
+          onChange={vi.fn()}
+        />
+        <span id="email-invalid-hint">Enter a valid email address</span>
+      </>
+    )
+
+    expect(await axe(container)).toHaveNoViolations()
   })
 })
