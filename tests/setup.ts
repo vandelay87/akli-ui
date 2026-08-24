@@ -28,3 +28,22 @@ export class MockIntersectionObserver {
 }
 
 window.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver
+
+// jsdom does not implement ResizeObserver either. useMeasuredHeightVar
+// (`new ResizeObserver(...)`, used by Header) throws under jsdom without
+// this, same situation as IntersectionObserver above. Ported (trimmed) from
+// personal-website's tests/setup.ts, which registers this globally for the
+// same reason.
+export class MockResizeObserver {
+  observe: ReturnType<typeof vi.fn>
+  unobserve = vi.fn()
+  disconnect = vi.fn()
+
+  constructor(callback: ResizeObserverCallback) {
+    this.observe = vi.fn((element: Element) => {
+      callback([{ target: element } as ResizeObserverEntry], {} as ResizeObserver)
+    })
+  }
+}
+
+window.ResizeObserver = MockResizeObserver as unknown as typeof ResizeObserver
