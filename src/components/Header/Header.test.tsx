@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import type { ReactElement } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
-import { mockMatchMedia } from '../../../tests/setup'
+import { expectNoA11yViolations, mockMatchMedia } from '../../../tests/setup'
 import Header from './Header'
 
 const renderWithRouter = (ui: ReactElement, { route = '/' } = {}) => {
@@ -49,6 +49,12 @@ describe('Header', () => {
       expect(screen.getByRole('button', { name: /switch to (dark|light) mode/i })).toBeInTheDocument()
       unmount()
     })
+  })
+
+  it('renders the public variant with links with no detectable axe violations', async () => {
+    const { container } = renderWithRouter(<Header variant="public" links={LINKS} />)
+
+    await expectNoA11yViolations(container)
   })
 
   describe('public variant', () => {

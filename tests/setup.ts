@@ -1,5 +1,28 @@
 import '@testing-library/jest-dom'
-import { vi } from 'vitest'
+import { expect, vi } from 'vitest'
+import { configureAxe } from 'vitest-axe'
+import * as matchers from 'vitest-axe/matchers'
+
+// Register vitest-axe's `toHaveNoViolations` matcher project-wide. Note: axe
+// cannot evaluate `color-contrast` under jsdom (no real layout/rendering), so
+// that rule is inherently unreliable in this environment — a separate,
+// explicit contrast-ratio check (added elsewhere as part of this issue)
+// covers what this matcher can't.
+expect.extend(matchers)
+
+// Shared axe runner, pre-configured once (via vitest-axe's `configureAxe`)
+// rather than passed per-call, with `color-contrast` disabled for the same
+// reason noted above: every component test that asserts "no axe violations"
+// would otherwise pay for a rule that can't produce a meaningful result
+// under jsdom.
+const axe = configureAxe({ rules: { 'color-contrast': { enabled: false } } })
+
+// Shared assertion for "renders with no detectable axe violations", used
+// across every component test file so the axe configuration (and the
+// color-contrast exclusion above) lives in exactly one place.
+export const expectNoA11yViolations = async (container: Element): Promise<void> => {
+  expect(await axe(container)).toHaveNoViolations()
+}
 
 // jsdom does not implement IntersectionObserver. Image.tsx's lazy-loading
 // effect (`new IntersectionObserver(...)`) throws under jsdom without this,

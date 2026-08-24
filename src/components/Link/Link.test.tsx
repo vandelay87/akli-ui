@@ -1,6 +1,7 @@
 import { render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, it, expect } from 'vitest'
+import { expectNoA11yViolations } from '../../../tests/setup'
 import Link from './Link'
 import styles from './Link.module.css'
 
@@ -154,5 +155,17 @@ describe('Link', () => {
     // the icon's own wrapper must not carry it (or the rule can never match).
     expect(linkElement).toHaveClass(styles.nudgeLeft)
     expect(icon.parentElement).not.toHaveClass(styles.nudgeLeft)
+  })
+
+  it('renders an internal link with no detectable axe violations', async () => {
+    const { container } = render(
+      <MemoryRouter>
+        <Link to="/apps" icon={<span aria-hidden="true">{'→'}</span>}>
+          View apps
+        </Link>
+      </MemoryRouter>
+    )
+
+    await expectNoA11yViolations(container)
   })
 })
