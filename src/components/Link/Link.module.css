@@ -1,0 +1,173 @@
+/* Link component styles */
+
+/* Base `.link` rule (+ :hover + reduced-motion reset) lives in a low-
+   priority @layer so a consumer's plain (unlayered) className always wins
+   over it, regardless of source/bundle order or matching specificity — see
+   issue #263 (same mechanism as Typography.module.css). Modifier/utility
+   classes below (tone/underline/icon/nudge) stay unlayered — those are
+   selected via Link's own props, not something a raw className collides
+   with. */
+@layer component-defaults {
+  .link {
+    composes: focusRing from '../../styles/interactions.module.css';
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--color-link);
+    font-weight: inherit;
+    text-decoration: none;
+    width: fit-content;
+    border-radius: var(--radius-sm);
+    transition: color var(--duration-fast) var(--easing-default);
+  }
+
+  /* Button/pill shapes several admin pages independently hand-rolled on top
+     of plain Link — border/bg, radius, hover color-swap, transition, all
+     re-derived per file (issue #270). Centralized here so consumers only
+     need to override their own size/spacing deltas via `composes:`. */
+  .ghost,
+  .solid {
+    font-weight: var(--font-weight-semibold);
+    border-radius: var(--radius-md);
+    padding: var(--space-2) var(--space-4);
+  }
+
+  .ghost {
+    color: var(--color-text);
+    border: var(--border-width) solid var(--color-border-strong);
+    transition: border-color var(--duration-fast) var(--easing-default),
+      color var(--duration-fast) var(--easing-default);
+  }
+
+  .ghost:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  .solid {
+    color: var(--color-btn-fg);
+    background: var(--color-btn-bg);
+    transition: opacity var(--duration-fast) var(--easing-default);
+  }
+
+  .solid:hover {
+    opacity: 0.9;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .link,
+    .ghost,
+    .solid {
+      transition: none;
+    }
+  }
+
+  /* Only icon-bearing links need `inline-flex`'s gap/align-items to lay
+     out the icon; plain text links (no icon, no button variant) get this
+     instead — a lower, glyph-height box, so their :focus-visible outline
+     hugs the text rather than stretching to whatever line-height happens
+     to surround them. Most noticeable for links embedded in prose
+     paragraphs (e.g. BlogPost's .prose), where inline-flex's box height
+     matched the paragraph's full line-height instead of the link's own
+     text. Kept in this layer (not alongside the unlayered tone/underline
+     classes below) so a consumer overriding display for its own reason
+     (e.g. BlogPost's `.relatedCard` wrapping full card content in
+     `display: block`) always wins deterministically, regardless of CSS
+     chunk/bundle order — the same reason `.link` itself lives here. */
+  .textOnly {
+    display: inline;
+  }
+}
+
+/* ── Tone ────────────────────────────────────────────────────── */
+
+.inherit {
+  color: inherit;
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
+
+.accent {
+  color: var(--color-primary);
+}
+
+/* Unlayered (not in @layer component-defaults) so its specificity
+   (class + :hover) actually beats the tone rules above — an unlayered
+   rule always wins over a layered one regardless of specificity, so this
+   couldn't live in the layer next to the base `.link` rule the way
+   `.ghost:hover`/`.solid:hover` do (those have no unlayered tone class to
+   compete with).
+   Excludes .ghost/.solid: those variants own their hover color entirely
+   (layered `.ghost:hover`/`.solid:hover` above) — .solid's white text is
+   meant to stay white on hover (just a slight opacity dim), and without
+   this exclusion the unlayered rule here would win regardless of layer
+   order and repaint it accent-blue instead. */
+.link:hover:not(.ghost):not(.solid) {
+  color: var(--color-primary);
+}
+
+/* ── Underline modifier ──────────────────────────────────────── */
+
+.underline {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ── Icon + nudge ────────────────────────────────────────────────
+   Ported from the shared interactions.module.css composables (itself a
+   port of _helpers.css .ds-link/.ds-link-ic) rather than duplicating the
+   transition/transform declarations locally. */
+
+.icon {
+  composes: linkIcon from '../../styles/interactions.module.css';
+}
+
+/* Reuses the "↗" glyph's own shape/weight (rather than the thinner "→"
+   glyph in most fonts) but rotated to visually point right, for CTAs
+   that want the up-right arrow's look with a rightward (not diagonal)
+   hover nudge. Self-contained rather than composing the shared
+   `linkIcon`/`nudgeRight` pair from interactions.module.css: that pair's
+   hover rule sets a bare `translateX`, which would silently clobber (or
+   be clobbered by, depending on bundle order) a rule here combining a
+   static rotation with the same translate. */
+.iconRotateRight {
+  display: inline-flex;
+  transition: transform var(--duration-base) var(--easing-default);
+  transform: rotate(45deg);
+}
+
+/* translateX listed before rotate: CSS composes transform functions
+   right-to-left against the point, so this order applies the rotation
+   first and then the translate in the outer (screen) coordinate space —
+   a clean horizontal nudge. The reverse order would translate first and
+   then rotate that offset too, dragging the hover motion diagonal. */
+.nudgeRight:hover .iconRotateRight {
+  transform: translateX(3px) rotate(45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .iconRotateRight {
+    transition: none;
+  }
+
+  /* Cancel the hover nudge itself (not just its transition), matching
+     .nudgeRight/.nudgeLeft/.nudgeUpRight's shared reduced-motion reset —
+     but keep the static rotation, since that's orientation, not motion. */
+  .nudgeRight:hover .iconRotateRight {
+    transform: rotate(45deg);
+  }
+}
+
+.nudgeRight {
+  composes: nudgeRight from '../../styles/interactions.module.css';
+}
+
+.nudgeLeft {
+  composes: nudgeLeft from '../../styles/interactions.module.css';
+}
+
+.nudgeUpRight {
+  composes: nudgeUpRight from '../../styles/interactions.module.css';
+}
