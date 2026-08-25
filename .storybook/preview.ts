@@ -1,4 +1,6 @@
 import type { Decorator, Preview } from '@storybook/react-vite'
+import { createElement } from 'react'
+import { MemoryRouter } from 'react-router-dom'
 
 // Runs against this package's *source*, not the published dist/ bundle —
 // see README.md's "Required CSS imports" for the equivalent consumer-facing
@@ -23,6 +25,26 @@ import '../src/styles/tokens.css'
 const withTheme: Decorator = (Story, context) => {
   document.documentElement.setAttribute('data-theme', context.globals.theme)
   return Story()
+}
+
+// Project-wide router context: Footer/Header/Link all render
+// react-router-dom's Link/useLocation internally, so every story needs a
+// router in scope to render at all. react-router-dom throws at runtime on a
+// nested <Router> ("You cannot render a <Router> inside another <Router>"),
+// so a story can't layer its own local MemoryRouter on top of this one —
+// instead, a story that needs a specific "current" route (Header, whose
+// aria-current="page" depends on it) sets `parameters.router.initialEntries`
+// and this decorator threads it into the single MemoryRouter instance. Most
+// stories (Footer, Link) don't care which route is current and just omit it.
+const withRouter: Decorator = (Story, context) => {
+  const initialEntries = context.parameters.router?.initialEntries as
+    | string[]
+    | undefined
+  return createElement(
+    MemoryRouter,
+    initialEntries ? { initialEntries } : null,
+    createElement(Story)
+  )
 }
 
 const preview: Preview = {
@@ -51,7 +73,7 @@ const preview: Preview = {
   initialGlobals: {
     theme: 'light',
   },
-  decorators: [withTheme],
+  decorators: [withTheme, withRouter],
   parameters: {
     controls: {
       matchers: {

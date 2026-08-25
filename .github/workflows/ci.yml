@@ -41,8 +41,52 @@ jobs:
       - name: Build
         run: pnpm build
 
+  storybook-a11y:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        # version comes from the "packageManager" field in package.json
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+          cache-dependency-path: '**/pnpm-lock.yaml'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # storybook, every @storybook/* package, @storybook/test-runner, and
+      # playwright are exact-pinned (no ^) in package.json, unlike the rest
+      # of that file's dependencies. This is deliberate: Storybook requires
+      # all @storybook/* + storybook core packages to stay in lockstep, and
+      # @storybook/test-runner's bundled Playwright driver needs to match
+      # the browser binaries installed by the standalone "playwright"
+      # devDependency below. Don't "fix" these back to caret ranges.
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
+
       - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm exec playwright install --with-deps chromium
+
+      - name: Install Playwright OS dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        # The cache above only persists ~/.cache/ms-playwright (the browser
+        # binary itself). GitHub-hosted runners are a fresh VM every run, so
+        # the apt-level OS dependencies that --with-deps installs alongside
+        # the binary are never cached and must still be installed on a
+        # cache hit, just without re-downloading the (already cached) browser.
+        run: pnpm exec playwright install-deps chromium
 
       - name: Build Storybook
         run: pnpm build-storybook

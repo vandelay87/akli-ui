@@ -43,11 +43,16 @@ const config: StorybookConfig = {
   // (unplugin-dts) — appropriate for `vite build`'s dist/ output, useless
   // for Storybook's own build (it was emitting a stray declaration-file
   // tree into storybook-static/ until this `viteFinal` filtered it back
-  // out below).
+  // out below). Exact match, not a substring/case-insensitive check:
+  // unplugin-dts registers exactly one Vite plugin under the stable,
+  // hardcoded literal name 'unplugin-dts' (verified in
+  // node_modules/unplugin-dts/dist/shared/unplugin-dts.*.mjs) — a looser
+  // match would also silently swallow any unrelated future plugin whose
+  // name happens to contain "dts".
   viteFinal: async (config) => {
     config.plugins = config.plugins?.filter((plugin) => {
       if (!plugin || !('name' in plugin)) return true
-      return !plugin.name.toLowerCase().includes('dts')
+      return plugin.name !== 'unplugin-dts'
     })
     return config
   },

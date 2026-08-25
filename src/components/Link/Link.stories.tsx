@@ -1,22 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { MemoryRouter } from 'react-router-dom'
 
 import { iconViewPublic } from '../icons'
 import Link from './Link'
 
 // Link renders a react-router-dom <RouterLink> for internal `to` values, so
-// every story needs a router context — MemoryRouter mirrors Link.test.tsx's
-// own rendering setup.
+// every story needs a router context, provided by the project-wide
+// MemoryRouter decorator in .storybook/preview.ts (mirrors Link.test.tsx's
+// own rendering setup).
 const meta = {
   title: 'Components/Link',
   component: Link,
-  decorators: [
-    (Story) => (
-      <MemoryRouter>
-        <Story />
-      </MemoryRouter>
-    ),
-  ],
   parameters: {
     layout: 'centered',
   },

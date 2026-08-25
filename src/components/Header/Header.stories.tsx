@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { MemoryRouter } from 'react-router-dom'
 
 import Header from './Header'
 
@@ -15,21 +14,22 @@ const ADMIN_LINKS = [
 ]
 
 // Header renders react-router-dom's Link/useLocation internally, so every
-// story needs a router context to render at all — matches the
-// renderWithRouter helper in Header.test.tsx.
+// story needs a router context to render at all — provided by the
+// project-wide MemoryRouter decorator in .storybook/preview.ts. Unlike
+// Footer/Link, Header sets aria-current="page" off the active route, so its
+// stories need a specific initialEntries rather than the decorator's
+// no-particular-route default — passed via `parameters.router` (see
+// .storybook/preview.ts's withRouter decorator), not a second local
+// MemoryRouter (react-router-dom throws on nested <Router>s).
 const meta = {
   title: 'Components/Header',
   component: Header,
   parameters: {
     layout: 'fullscreen',
+    router: {
+      initialEntries: ['/recipes'],
+    },
   },
-  decorators: [
-    (Story) => (
-      <MemoryRouter initialEntries={['/recipes']}>
-        <Story />
-      </MemoryRouter>
-    ),
-  ],
 } satisfies Meta<typeof Header>
 
 export default meta

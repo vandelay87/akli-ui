@@ -1,23 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { MemoryRouter } from 'react-router-dom'
 
 import Footer from './Footer'
 
 // Footer renders Link (react-router-dom's Link internally for non-external
-// hrefs), so it needs a router context to render at all.
+// hrefs), so it needs a router context to render at all — provided by the
+// project-wide MemoryRouter decorator in .storybook/preview.ts.
 const meta = {
   title: 'Components/Footer',
   component: Footer,
   parameters: {
     layout: 'fullscreen',
   },
-  decorators: [
-    (Story) => (
-      <MemoryRouter>
-        <Story />
-      </MemoryRouter>
-    ),
-  ],
 } satisfies Meta<typeof Footer>
 
 export default meta
