@@ -77,7 +77,9 @@ const ThemeToggle = () => {
       onClick={handleClick}
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
     >
-      <span aria-hidden="true">{isDark ? '☀' : '☾'}</span>
+      <span className={styles.glyph} aria-hidden="true">
+        {isDark ? '☀' : '☾'}
+      </span>
     </button>
   )
 }
