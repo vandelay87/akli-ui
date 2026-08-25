@@ -257,6 +257,26 @@
   --color-primary-on-tint: var(--color-primary);
 }
 
+/* box-sizing reset also moved here from personal-website's global reset
+   (src/index.css) — missed in the original extraction (only .sr-only and
+   the body rule below were ported). Without it, any field-chrome element
+   that sets `width: 100%` plus its own padding/border (Input/Textarea/
+   TagInput's shared `.field` — see formField.module.css) renders wider
+   than its positioned-ancestor wrapper by exactly that padding+border,
+   since content-box (the default) adds them on top of the 100% instead of
+   including them in it. Concretely: Input's `suffix` slot is positioned
+   absolute against `.wrapper`, correctly flush with *its* edge — but the
+   input's own visible right edge extended 54px past the wrapper's edge
+   (12px content padding + 40px suffix-reserved padding + 2px border),
+   making the suffix button look like it was floating inside the field
+   instead of pinned to it. Extended to ::before/::after since the
+   universal selector alone doesn't reach pseudo-elements. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 /* ── Utilities ──────────────────────────────────────────────────
    .sr-only moved here from personal-website's global reset
    (src/index.css) — Button's loading state renders a

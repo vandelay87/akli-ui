@@ -82,8 +82,30 @@ export const WithSuffix: Story = {
   args: {
     value: 'chocolate cake',
     ariaLabel: 'Search',
+    // `suffix` is a bring-your-own-styled slot — Input applies no button
+    // reset of its own (mirrors `prefixIcon`, also unstyled). A bare
+    // native <button> here would show browser-default chrome (border,
+    // grey background, box padding), which is misleading as a usage
+    // example. This inline reset matches the real shipped pattern
+    // (personal-website's RecipeSearch.module.css `.clearButton`):
+    // transparent, borderless, circular, sized to sit inside the field.
     suffix: (
-      <button type="button" aria-label="Clear search">
+      <button
+        type="button"
+        aria-label="Clear search"
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: 26,
+          height: 26,
+          border: 'none',
+          borderRadius: 'var(--radius-full)',
+          background: 'transparent',
+          color: 'var(--color-text-muted)',
+          cursor: 'pointer',
+        }}
+      >
         {iconRemove}
       </button>
     ),
