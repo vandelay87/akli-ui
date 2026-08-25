@@ -121,6 +121,19 @@
   align-items: center;
 }
 
+/* Wraps `children` (button text, or the icon itself for icon-only usage
+   per Accessibility.mdx's contract). Without this, a bare inline SVG
+   passed as children sits on its line box's text baseline, which reserves
+   descender space below it that isn't mirrored above — the icon reads as
+   shifted toward the top of the button. inline-flex + centered items is a
+   no-op for the plain-text case (already matches its own line-height) but
+   fixes the icon-only case the same way .icon already does for
+   iconLeft/iconRight. */
+.label {
+  display: inline-flex;
+  align-items: center;
+}
+
 .spinner {
   /* Size/border/color are a legitimate delta (must inherit the button's own
      text color across variants) — but the rotation itself reuses the

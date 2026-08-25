@@ -78,7 +78,7 @@ const Button = ({
           {iconLeft}
         </span>
       )}
-      <span className={loading ? 'sr-only' : undefined}>{children}</span>
+      <span className={loading ? 'sr-only' : styles.label}>{children}</span>
       {iconRight && !loading && (
         <span className={styles.icon} aria-hidden="true">
           {iconRight}
