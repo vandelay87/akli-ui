@@ -200,7 +200,7 @@ announce it as a list of N items regardless of what you put in it.
 `src/components/Loading/Loading.tsx`
 
 `role="status"` and `aria-live="polite"` are always applied to the
-wrapping `<span>`, together with `aria-label={label}` (default `label` is
+wrapping `<span>`, together with `` `aria-label={label}` `` (default `label` is
 `'Loading…'`). Both the visible label text and the spinner are themselves
 marked `aria-hidden="true"`, so a screen reader hears the `aria-label`
 exactly once rather than double-announcing the visible text plus the ARIA
@@ -253,7 +253,7 @@ and correct list semantics are guaranteed regardless of styling.
   automatically get `target="_blank" rel="noreferrer"` per Link's own
   contract above.
 - **Labelling.** All content is plain visible text (brand, "Signed in as
-  {email}", social link names) — no ARIA labelling gap to fill.
+  `{email}`", social link names) — no ARIA labelling gap to fill.
 - **Keyboard.** All interactive content is `Link`'s native `<a>` — nothing
   custom.
 
