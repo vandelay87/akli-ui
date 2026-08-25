@@ -147,8 +147,20 @@
   transform: translateX(3px) rotate(45deg);
 }
 
+/* Mirrors .iconRotateRight for the opposite direction. */
+.iconRotateLeft {
+  display: inline-flex;
+  transition: transform var(--duration-base) var(--easing-default);
+  transform: rotate(-135deg);
+}
+
+.nudgeLeft:hover .iconRotateLeft {
+  transform: translateX(-3px) rotate(-135deg);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .iconRotateRight {
+  .iconRotateRight,
+  .iconRotateLeft {
     transition: none;
   }
 
@@ -157,6 +169,10 @@
      but keep the static rotation, since that's orientation, not motion. */
   .nudgeRight:hover .iconRotateRight {
     transform: rotate(45deg);
+  }
+
+  .nudgeLeft:hover .iconRotateLeft {
+    transform: rotate(-135deg);
   }
 }
 

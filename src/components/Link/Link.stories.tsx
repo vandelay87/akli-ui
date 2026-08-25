@@ -62,6 +62,7 @@ export const WithIcon: Story = {
     to: '/changelog',
     children: 'See what changed',
     icon: iconViewPublic,
+    nudge: 'up-right',
   },
 }
 
@@ -72,6 +73,7 @@ export const IconLeft: Story = {
     icon: iconViewPublic,
     iconSide: 'left',
     nudge: 'left',
+    rotateIcon: 'left',
   },
 }
 
@@ -91,5 +93,6 @@ export const SolidButton: Story = {
     children: 'Get started',
     variant: 'solid',
     icon: iconViewPublic,
+    rotateIcon: 'right',
   },
 }
