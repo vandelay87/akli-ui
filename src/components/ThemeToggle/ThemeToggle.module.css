@@ -28,14 +28,7 @@
   }
 }
 
-/* ☾/☀ (U+263E/U+2600) sit high within their own em box in the fonts this
-   package ships (Geist Sans + system fallback) — the glyph box itself is
-   already perfectly centered in .toggle (verified: symmetric space above/
-   below), it's the character's ink that's off-center within that box.
-   line-height: 1 removes the font's default leading (which doesn't fix
-   this — the asymmetry is in the glyph, not the leading) but tightens the
-   box to the glyph's own metrics, making the residual offset small and
-   consistent enough for a manual translateY to correct reliably. */
+/* Optically centers the ☾/☀ glyph — its ink sits high in its own em box. */
 .glyph {
   display: inline-block;
   line-height: 1;
