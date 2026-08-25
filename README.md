@@ -73,3 +73,20 @@ function App() {
   return <Button onClick={() => console.log('clicked')}>Click me</Button>
 }
 ```
+
+## Releasing
+
+Versioning and publishing to npm are automated with [Changesets](https://github.com/changesets/changesets). A PR that changes published package behavior (anything under `src/`, not internal-only tooling/docs) needs a changeset:
+
+```sh
+pnpm changeset
+```
+
+This prompts for a bump type (patch/minor/major) and a summary, then writes a `.changeset/<random-name>.md` file, committed as part of the PR. It's what tells the release automation this change should ship in the next version — a PR merged without one queues no release at all.
+
+From there it's hands-off:
+
+1. Merging a PR to `main` (with its changeset file included) makes the `Release` workflow open or update a "Version Packages" PR that bumps `package.json`'s version and writes the changelog from every pending changeset.
+2. Merging _that_ PR is the actual release: it triggers `npm publish` for the new version, authenticated via npm trusted publishing (OIDC) — no npm token is stored anywhere in this repo.
+
+See `.github/workflows/release.yml` and `.github/scripts/release-publish.sh` for the implementation.

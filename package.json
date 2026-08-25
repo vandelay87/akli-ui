@@ -6,7 +6,8 @@
   "license": "MIT",
   "packageManager": "pnpm@11.9.0",
   "engines": {
-    "node": ">=24"
+    "node": ">=24",
+    "npm": ">=11.5.1"
   },
   "repository": {
     "type": "git",
@@ -19,6 +20,9 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -48,7 +52,8 @@
     "format": "prettier --write . && eslint --fix .",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "test-storybook": "test-storybook"
+    "test-storybook": "test-storybook",
+    "changeset": "changeset"
   },
   "peerDependencies": {
     "react": "^19",
@@ -62,6 +67,8 @@
     }
   },
   "devDependencies": {
+    "@changesets/changelog-github": "^1.0.0",
+    "@changesets/cli": "^3.0.1",
     "@eslint/js": "^10.0.1",
     "@storybook/addon-a11y": "10.5.10",
     "@storybook/addon-docs": "10.5.10",
