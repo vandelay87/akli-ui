@@ -27,3 +27,10 @@
     transition: none;
   }
 }
+
+/* Optically centers the ☾/☀ glyph — its ink sits high in its own em box. */
+.glyph {
+  display: inline-block;
+  line-height: 1;
+  transform: translateY(1px);
+}

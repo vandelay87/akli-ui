@@ -38,15 +38,28 @@ const contrastRatio = (a: Rgb, b: Rgb): number => {
   return (lighter + 0.05) / (darker + 0.05)
 }
 
+// Linear-interpolates each channel between `a` and `b`, weighted by `weight`
+// (0-1, fraction of `a`). Shared by compositeOver (alpha-compositing a
+// translucent color over an opaque backdrop, weighted by rgba() alpha) and
+// mixOpaqueColors (CSS color-mix() of two opaque tokens, weighted by a
+// percentage) below — both are the same per-channel lerp, just with the
+// weight sourced differently.
+const mix = (a: Rgb, weight: number, b: Rgb): Rgb => ({
+  r: a.r * weight + b.r * (1 - weight),
+  g: a.g * weight + b.g * (1 - weight),
+  b: a.b * weight + b.b * (1 - weight),
+})
+
 // Alpha-composites a translucent color over an opaque backdrop (both of
 // tokens.css's tint backgrounds, --color-success-bg/--color-warning-bg, are
 // declared as rgba() washes, not solid hex, since they're meant to tint
 // whatever surface they sit on).
-const compositeOver = (fg: Rgba, backdrop: Rgb): Rgb => ({
-  r: fg.r * fg.a + backdrop.r * (1 - fg.a),
-  g: fg.g * fg.a + backdrop.g * (1 - fg.a),
-  b: fg.b * fg.a + backdrop.b * (1 - fg.a),
-})
+const compositeOver = (fg: Rgba, backdrop: Rgb): Rgb => mix(fg, fg.a, backdrop)
+
+// Mirrors `color-mix(in srgb, var(source) percent%, var(into))` for the
+// subset of tokens.css/component consumers that mix two opaque tokens
+// directly rather than layering a translucent -bg token over a backdrop.
+const mixOpaqueColors = (source: Rgb, percent: number, into: Rgb): Rgb => mix(source, percent / 100, into)
 
 // ── tokens.css parsing ──────────────────────────────────────────────────
 // Reads the real file and extracts each theme's custom-property
@@ -158,20 +171,66 @@ const darkDeclarations = parseDeclarations(extractBlock(tokensCss, '[data-theme=
 // default "paper" surface (--color-text-faint's comment describes its ratio
 // as being measured "on paper", i.e. against --color-bg), making it the
 // most defensible canonical backdrop rather than an arbitrary pick.
+//
+// --color-primary-on-tint has no such translucent --color-primary-bg token
+// to fall back on (--color-primary's only tint consumer is Callout's
+// `.info`) — its pair instead uses `colorMix` to reproduce `.info`'s actual
+// background formula (color-mix(in srgb, var(--color-primary) 6%,
+// var(--color-surface))) directly, so it's checked against its real
+// consumer rather than an approximated backdrop.
+type ColorMixBackground = {
+  /** Token mixed in as the color-mix() foreground percentage, e.g. 'color-primary'. */
+  source: string
+  /** The color-mix() percentage for `source` (0-100). */
+  percent: number
+  /** Token mixed in as the color-mix() base/remainder, e.g. 'color-surface'. */
+  into: string
+}
+
+// Discriminated union of the three mutually-exclusive ways a documented
+// pair's background can be described. Keying on `kind` (rather than three
+// independent optional fields) makes each variant's required fields
+// type-checked together, and lets resolveBackground below switch on `kind`
+// exhaustively instead of relying on non-null assertions.
+type Background =
+  // A single named opaque token, e.g. --color-bg.
+  | { kind: 'solid'; token: string }
+  // A translucent rgba() wash token (`token`) alpha-composited over an
+  // opaque `backdrop` token — used for tint pairs like --color-success-bg.
+  | { kind: 'composite'; token: string; backdrop: string }
+  // A CSS color-mix() of two opaque tokens, e.g. Callout's `.info` background.
+  | ({ kind: 'colorMix' } & ColorMixBackground)
+
 type PairSpec = {
   label: string
   foreground: string
-  background: string
-  /** Set for tint pairs whose named background token is a translucent rgba() wash. */
-  compositeBackdrop?: string
+  background: Background
 }
 
-type DocumentedPair = {
+type DocumentedPair = Omit<PairSpec, 'label'> & {
   name: string
   declarations: Map<string, string>
-  foreground: string
-  background: string
-  compositeBackdrop?: string
+}
+
+// Resolves a pair's background to a concrete opaque Rgb, per Background's
+// `kind`. Exhaustive over the union (TypeScript flags a missing case as a
+// non-returning branch), so no `!` assertions are needed anywhere here.
+const resolveBackground = (declarations: Map<string, string>, background: Background): Rgb => {
+  switch (background.kind) {
+    case 'solid':
+      return resolveOpaqueColor(declarations, background.token)
+    case 'composite':
+      return compositeOver(
+        resolveTranslucentColor(declarations, background.token),
+        resolveOpaqueColor(declarations, background.backdrop)
+      )
+    case 'colorMix':
+      return mixOpaqueColors(
+        resolveOpaqueColor(declarations, background.source),
+        background.percent,
+        resolveOpaqueColor(declarations, background.into)
+      )
+  }
 }
 
 // One entry per documented pairing — independent of theme. Crossed with
@@ -182,29 +241,37 @@ const pairSpecs: PairSpec[] = [
   {
     label: '--color-text-faint on --color-bg',
     foreground: 'color-text-faint',
-    background: 'color-bg',
+    background: { kind: 'solid', token: 'color-bg' },
   },
   {
     label: '--color-text-faint-on-surface on --color-surface',
     foreground: 'color-text-faint-on-surface',
-    background: 'color-surface',
+    background: { kind: 'solid', token: 'color-surface' },
   },
   {
     label: '--color-text-faint-on-field on --color-field',
     foreground: 'color-text-faint-on-field',
-    background: 'color-field',
+    background: { kind: 'solid', token: 'color-field' },
   },
   {
     label: '--color-success-on-tint on --color-success-bg (composited over --color-bg)',
     foreground: 'color-success-on-tint',
-    background: 'color-success-bg',
-    compositeBackdrop: 'color-bg',
+    background: { kind: 'composite', token: 'color-success-bg', backdrop: 'color-bg' },
   },
   {
     label: '--color-warning-on-tint on --color-warning-bg (composited over --color-bg)',
     foreground: 'color-warning-on-tint',
-    background: 'color-warning-bg',
-    compositeBackdrop: 'color-bg',
+    background: { kind: 'composite', token: 'color-warning-bg', backdrop: 'color-bg' },
+  },
+  {
+    // Unlike --color-success-on-tint/--color-warning-on-tint above, there is
+    // no standalone --color-primary-bg rgba() wash token (--color-primary's
+    // only tint consumer is Callout's `.info`) — so this pair is checked
+    // against the actual color-mix() formula `.info` uses, via `colorMix`,
+    // rather than an approximated composited rgba backdrop.
+    label: '--color-primary-on-tint on .info background (color-mix(--color-primary 6%, --color-surface))',
+    foreground: 'color-primary-on-tint',
+    background: { kind: 'colorMix', source: 'color-primary', percent: 6, into: 'color-surface' },
   },
 ]
 
@@ -219,19 +286,13 @@ const documentedPairs: DocumentedPair[] = pairSpecs.flatMap((spec) =>
     declarations: theme.declarations,
     foreground: spec.foreground,
     background: spec.background,
-    compositeBackdrop: spec.compositeBackdrop,
   }))
 )
 
 describe('tokens.css contrast ratios', () => {
   it.each(documentedPairs)('$name meets the WCAG AA normal-text minimum (4.5:1)', (pair) => {
     const fg = resolveOpaqueColor(pair.declarations, pair.foreground)
-    const bg = pair.compositeBackdrop
-      ? compositeOver(
-          resolveTranslucentColor(pair.declarations, pair.background),
-          resolveOpaqueColor(pair.declarations, pair.compositeBackdrop)
-        )
-      : resolveOpaqueColor(pair.declarations, pair.background)
+    const bg = resolveBackground(pair.declarations, pair.background)
 
     const ratio = contrastRatio(fg, bg)
 

@@ -121,6 +121,12 @@
   align-items: center;
 }
 
+/* Wraps `children` — centers an icon-only Button the same way .icon does
+   for iconLeft/iconRight; a no-op for plain text. */
+.label {
+  composes: icon;
+}
+
 .spinner {
   /* Size/border/color are a legitimate delta (must inherit the button's own
      text color across variants) — but the rotation itself reuses the
