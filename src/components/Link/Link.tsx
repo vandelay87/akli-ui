@@ -36,6 +36,11 @@ const NUDGE_CLASSES: Record<NonNullable<LinkProps['nudge']>, string | undefined>
   none: undefined,
 }
 
+const ROTATE_ICON_CLASSES: Record<NonNullable<LinkProps['rotateIcon']>, string> = {
+  right: styles.iconRotateRight,
+  left: styles.iconRotateLeft,
+}
+
 const Link: FC<LinkProps> = ({
   children,
   to,
@@ -73,12 +78,7 @@ const Link: FC<LinkProps> = ({
     .filter(Boolean)
     .join(' ')
 
-  const iconClassName =
-    rotateIcon === 'right'
-      ? styles.iconRotateRight
-      : rotateIcon === 'left'
-        ? styles.iconRotateLeft
-        : styles.icon
+  const iconClassName = rotateIcon ? ROTATE_ICON_CLASSES[rotateIcon] : styles.icon
 
   const content = icon ? (
     <>
