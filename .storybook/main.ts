@@ -28,25 +28,9 @@ const config: StorybookConfig = {
     name: '@storybook/react-vite',
     options: {},
   },
-  // Storybook's own favicon/manifest icon set — deliberately *not* the
-  // root-level public/ directory that vite.config.ts's default `publicDir`
-  // already copies into dist/ on `pnpm build` (see dist/assets/*-OFL.txt):
-  // putting Storybook-only assets there would ship them inside the
-  // published @akli-dev/ui npm package too. .storybook/public/ is a
-  // second, Storybook-specific static directory that only this build
-  // knows about. Resolved relative to configDir (.storybook/ itself, same
-  // base the `stories` globs above resolve against) — confirmed by reading
-  // the installed Storybook source (mapStaticDir/getDirectoryFromWorkingDir
-  // in storybook/dist/_node-chunks/chunk-QEFGZ2NZ.js and chunk-OKMX43Z2.js),
-  // not assumed from docs. A bare `'./public'` entry (no explicit `:to`
-  // target) maps the directory's contents to the site root in both dev and
-  // `build-storybook`'s storybook-static/ output (parseStaticDir defaults
-  // `to` to `/` for a directory arg) — so .storybook/public/favicon/*.png
-  // lands at storybook-static/favicon/*.png and
-  // .storybook/public/site.webmanifest lands at storybook-static/
-  // site.webmanifest, matching the paths manager-head.html links to below
-  // and the paths already hardcoded inside site.webmanifest's own icons
-  // array.
+  // Storybook's own favicon/manifest, served from the site root in
+  // storybook-static/ — kept out of the root public/ dir so these never
+  // ship inside the published @akli-dev/ui npm package.
   staticDirs: ['./public'],
   // No manual alias config here (@components/@hooks) and no `viteFinal`
   // importing vite.config.ts: @storybook/builder-vite already auto-loads

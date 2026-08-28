@@ -1,23 +1,9 @@
 <!--
-  Storybook's own favicon/manifest icon set — distinct from Storybook's
-  default favicon and from personal-website's "a" mark. Storybook doesn't
-  hand-author its own index.html (unlike a Vite app), so these tags are
-  injected into the manager UI's <head> via this file instead — confirmed
-  against the installed Storybook source (the `managerHead` preset in
-  storybook/dist/core-server/presets/common-preset.js reads
-  `<configDir>/manager-head.html` verbatim and inlines its contents), not
-  assumed from docs.
-
-  Tag shapes mirror personal-website/index.html's <link> tags exactly
-  (rel/sizes/type values); paths are adjusted for where the icon set
-  actually lands in storybook-static/ — under /favicon/, matching
-  .storybook/main.ts's staticDirs entry and the paths already hardcoded in
-  .storybook/public/site.webmanifest's own icons array. favicon.svg is
-  deliberately not shipped (see .storybook/public/ — it isn't copied here
-  either): its source has live, un-outlined Geist <text>, which the design
-  source's own readme flags as unsafe to serve until outlined, and
-  personal-website's production <head> above doesn't reference it either
-  for the exact same reason.
+  Storybook's own favicon/manifest, distinct from Storybook's default and
+  from personal-website's "a" mark. Injected here (not a hand-authored
+  index.html) since Storybook reads this file verbatim into the manager
+  UI's <head>. favicon.svg isn't shipped — its live Geist <text> needs
+  outlining before it's safe to serve, same as personal-website.
 -->
 <link rel="icon" href="/favicon/favicon.ico" sizes="any" />
 <link rel="icon" href="/favicon/favicon-16x16.png" sizes="16x16" type="image/png" />
