@@ -1,0 +1,64 @@
+name: Deploy Storybook
+
+on:
+  push:
+    branches: [main]
+
+# Unlike release.yml's npm publish, this deploy is unconditional — it isn't
+# gated behind Changesets or a version bump. Storybook reflects whatever's
+# currently in main, so it redeploys on every push here, whether or not that
+# push included a changeset. No pull_request trigger and no
+# `if: github.ref == 'refs/heads/main'` guards on the AWS steps below (unlike
+# pokedex's/sand-box's deploy.yml, which trigger on both push and
+# pull_request because those repos have no separate CI workflow): this repo
+# already gates PRs through ci.yml, so this workflow only ever runs against
+# main in the first place.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read # actions/checkout
+  id-token: write # OIDC token for aws-actions/configure-aws-credentials
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup
+
+      - name: Build Storybook
+        run: pnpm build-storybook
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: arn:aws:iam::713881813802:role/storybook-deploy
+          aws-region: eu-west-2
+
+      - name: Deploy to S3
+        run: aws s3 sync ./storybook-static s3://${{ vars.AWS_S3_BUCKET_NAME }} --delete
+
+      # `.webmanifest` isn't reliably mapped to `application/manifest+json` by
+      # `aws s3 sync`'s content-type guessing: that guess comes straight from
+      # Python's stdlib `mimetypes.guess_type` (verified by reading AWS CLI's
+      # own source, awscli/customizations/s3/utils.py's guess_content_type),
+      # which only gained a built-in `.webmanifest` mapping in a later CPython
+      # version (python/cpython#81486) — whether the runner's bundled AWS CLI
+      # picks it up depends on exactly which Python it embeds, which isn't
+      # pinned or guaranteed stable across GitHub-hosted runner image updates.
+      # A wrong guess falls back to `application/octet-stream`, which browsers
+      # reject for a Web App Manifest fetch. Overriding it explicitly after
+      # the sync removes that dependency entirely instead of relying on the
+      # runner's Python getting it right.
+      - name: Fix site.webmanifest content type
+        run: |
+          aws s3 cp ./storybook-static/site.webmanifest \
+            s3://${{ vars.AWS_S3_BUCKET_NAME }}/site.webmanifest \
+            --content-type application/manifest+json
+
+      - name: Invalidate CloudFront
+        run: aws cloudfront create-invalidation --distribution-id ${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"

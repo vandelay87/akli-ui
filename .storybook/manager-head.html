@@ -1,0 +1,27 @@
+<!--
+  Storybook's own favicon/manifest icon set — distinct from Storybook's
+  default favicon and from personal-website's "a" mark. Storybook doesn't
+  hand-author its own index.html (unlike a Vite app), so these tags are
+  injected into the manager UI's <head> via this file instead — confirmed
+  against the installed Storybook source (the `managerHead` preset in
+  storybook/dist/core-server/presets/common-preset.js reads
+  `<configDir>/manager-head.html` verbatim and inlines its contents), not
+  assumed from docs.
+
+  Tag shapes mirror personal-website/index.html's <link> tags exactly
+  (rel/sizes/type values); paths are adjusted for where the icon set
+  actually lands in storybook-static/ — under /favicon/, matching
+  .storybook/main.ts's staticDirs entry and the paths already hardcoded in
+  .storybook/public/site.webmanifest's own icons array. favicon.svg is
+  deliberately not shipped (see .storybook/public/ — it isn't copied here
+  either): its source has live, un-outlined Geist <text>, which the design
+  source's own readme flags as unsafe to serve until outlined, and
+  personal-website's production <head> above doesn't reference it either
+  for the exact same reason.
+-->
+<link rel="icon" href="/favicon/favicon.ico" sizes="any" />
+<link rel="icon" href="/favicon/favicon-16x16.png" sizes="16x16" type="image/png" />
+<link rel="icon" href="/favicon/favicon-32x32.png" sizes="32x32" type="image/png" />
+<link rel="icon" href="/favicon/favicon-48x48.png" sizes="48x48" type="image/png" />
+<link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
