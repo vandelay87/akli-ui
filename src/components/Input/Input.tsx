@@ -1,4 +1,5 @@
 import type { ChangeEvent, KeyboardEvent, ReactNode, Ref } from 'react'
+import { cx } from '../../utils/cx'
 import styles from './Input.module.css'
 
 export interface InputProps {
@@ -43,9 +44,7 @@ const Input = ({
   className: extraClassName,
   ref,
 }: InputProps) => {
-  const fieldClassName = [styles.field, invalid && styles.invalid, extraClassName]
-    .filter(Boolean)
-    .join(' ')
+  const fieldClassName = cx(styles.field, invalid && styles.invalid, extraClassName)
 
   return (
     <div className={styles.wrapper}>

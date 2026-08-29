@@ -4,6 +4,7 @@ import { useMeasuredHeightVar } from '@hooks/useMeasuredHeightVar'
 import type { FC } from 'react'
 import { useRef } from 'react'
 import { Link as RouterLink, useLocation } from 'react-router-dom'
+import { cx } from '../../utils/cx'
 import styles from './Header.module.css'
 
 export interface HeaderLink {
@@ -45,14 +46,12 @@ const Header: FC<HeaderProps> = ({
 
   useMeasuredHeightVar(headerRef, '--header-height')
 
-  const className = [
+  const className = cx(
     styles.header,
     styles.sticky,
     variant === 'admin' && styles.admin,
-    extraClassName,
-  ]
-    .filter(Boolean)
-    .join(' ')
+    extraClassName
+  )
 
   const navLabel = variant === 'admin' ? 'Admin navigation' : 'Main navigation'
 

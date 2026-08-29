@@ -1,6 +1,7 @@
 import type { CSSProperties, ElementType, MouseEvent, ReactNode } from 'react'
 
 import interactions from '../../styles/interactions.module.css'
+import { cx } from '../../utils/cx'
 import styles from './Card.module.css'
 
 export interface CardProps {
@@ -32,17 +33,15 @@ const Card = ({
 }: CardProps) => {
   const Component = as ?? (onClick ? 'button' : 'div')
 
-  const className = [
+  const className = cx(
     styles.card,
     fill && styles.fill,
     hover && styles.hover,
     hover && interactions.surfaceHover,
     Component === 'button' && styles.asButton,
     Component === 'button' && interactions.focusRing,
-    extraClassName,
-  ]
-    .filter(Boolean)
-    .join(' ')
+    extraClassName
+  )
 
   return (
     <Component

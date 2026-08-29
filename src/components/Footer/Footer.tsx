@@ -1,5 +1,6 @@
 import Link from '@components/Link'
 import { useId, type FC } from 'react'
+import { cx } from '../../utils/cx'
 import styles from './Footer.module.css'
 import { SOCIAL_LINKS } from './socialLinks'
 
@@ -12,7 +13,7 @@ export interface FooterProps {
 }
 
 const Footer: FC<FooterProps> = ({ variant = 'public', email, className: extraClassName }) => {
-  const className = [styles.footer, extraClassName].filter(Boolean).join(' ')
+  const className = cx(styles.footer, extraClassName)
   const elsewhereLabelId = useId()
 
   return (

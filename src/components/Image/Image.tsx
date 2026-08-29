@@ -1,5 +1,6 @@
 import { usePreloadImage } from '@hooks/usePreloadImage'
 import { useState, useEffect, useRef, FC, ImgHTMLAttributes } from 'react'
+import { cx } from '../../utils/cx'
 import styles from './Image.module.css'
 
 const generateBlurDataURL = (baseSrc: string) =>
@@ -111,7 +112,7 @@ const Image: FC<ImageProps> = ({
   return (
     <figure
       ref={containerRef}
-      className={`${styles.figure} ${containerClassName}`}
+      className={cx(styles.figure, containerClassName)}
       style={{
         maxWidth: maxWidth ?? undefined,
         marginInline: maxWidth ? 'auto' : '0',
@@ -125,7 +126,7 @@ const Image: FC<ImageProps> = ({
       >
       {!isLoaded && !isError && (
         <div
-          className={`${styles.placeholderOverlay} ${placeholder === 'blur' ? styles.placeholderOverlayBlur : ''}`}
+          className={cx(styles.placeholderOverlay, placeholder === 'blur' && styles.placeholderOverlayBlur)}
           aria-hidden="true"
         >
           {placeholder === 'blur' && effectiveBlurDataURL ? (
@@ -190,7 +191,7 @@ const Image: FC<ImageProps> = ({
           ref={imgRef}
           src={currentSrc}
           alt={alt}
-          className={`${styles.image} ${isLoaded ? styles.loaded : ''} ${className}`}
+          className={cx(styles.image, isLoaded && styles.loaded, className)}
           style={{
             objectFit,
             objectPosition,

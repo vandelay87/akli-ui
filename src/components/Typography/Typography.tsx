@@ -1,5 +1,6 @@
 import type { ComponentPropsWithoutRef, ElementType, FC, ReactNode } from 'react'
 
+import { cx } from '../../utils/cx'
 import styles from './Typography.module.css'
 
 type TypographyVariant =
@@ -37,9 +38,7 @@ const Typography: FC<TypographyProps> = ({
   ...rest
 }) => {
   const Component = as ?? defaultElements[variant]
-  const combinedClassName = [styles[variant], className]
-    .filter(Boolean)
-    .join(' ')
+  const combinedClassName = cx(styles[variant], className)
 
   return <Component className={combinedClassName} {...rest}>{children}</Component>
 }
