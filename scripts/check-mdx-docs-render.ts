@@ -9,6 +9,7 @@
 
 import process from 'node:process'
 import { waitForPageReady } from '@storybook/test-runner'
+import { chromium, type Page } from 'playwright'
 import {
   DOCS_RENDERED,
   SET_CURRENT_STORY,
@@ -16,7 +17,6 @@ import {
   STORY_MISSING,
   STORY_THREW_EXCEPTION,
 } from 'storybook/internal/core-events'
-import { chromium, type Page } from 'playwright'
 
 interface StorybookIndexEntry {
   id: string
@@ -177,10 +177,10 @@ const main = async () => {
   )
 
   const browser = await chromium.launch()
-  let failures: StorybookIndexEntry[] = []
+  let outcomes: { entry: StorybookIndexEntry; result: RenderResult; consoleErrors: string[] }[]
 
   try {
-    const outcomes = await Promise.all(
+    outcomes = await Promise.all(
       entries.map(async (entry) => {
         const page = await browser.newPage()
         const consoleErrors: string[] = []
@@ -197,27 +197,28 @@ const main = async () => {
         }
       })
     )
-
-    for (const { entry, result, consoleErrors } of outcomes) {
-      if (result.outcome === 'docsRendered') {
-        console.log(`  ok   ${entry.id} (${entry.importPath})`)
-      } else {
-        console.error(
-          `  FAIL ${entry.id} (${entry.importPath}) — ${result.outcome}`
-        )
-        if (result.errorMessage) console.error(`       ${result.errorMessage}`)
-        if (consoleErrors.length > 0) {
-          console.error(`       console errors during render:`)
-          consoleErrors.forEach((line) => console.error(`         ${line}`))
-        }
-      }
-    }
-    failures = outcomes
-      .filter(({ result }) => result.outcome !== 'docsRendered')
-      .map(({ entry }) => entry)
   } finally {
     await browser.close()
   }
+
+  for (const { entry, result, consoleErrors } of outcomes) {
+    if (result.outcome === 'docsRendered') {
+      console.log(`  ok   ${entry.id} (${entry.importPath})`)
+    } else {
+      console.error(
+        `  FAIL ${entry.id} (${entry.importPath}) — ${result.outcome}`
+      )
+      if (result.errorMessage) console.error(`       ${result.errorMessage}`)
+      if (consoleErrors.length > 0) {
+        console.error(`       console errors during render:`)
+        consoleErrors.forEach((line) => console.error(`         ${line}`))
+      }
+    }
+  }
+
+  const failures = outcomes
+    .filter(({ result }) => result.outcome !== 'docsRendered')
+    .map(({ entry }) => entry)
 
   if (failures.length > 0) {
     console.error(
