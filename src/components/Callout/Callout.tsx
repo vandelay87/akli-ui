@@ -1,5 +1,6 @@
 import { useId, type FC, type ReactNode } from 'react'
 
+import { cx } from '../../utils/cx'
 import styles from './Callout.module.css'
 
 export interface CalloutProps {
@@ -17,7 +18,7 @@ const Callout: FC<CalloutProps> = ({ type, children }) => {
   const labelId = useId()
 
   return (
-    <div className={`${styles.callout} ${styles[type]}`} role="note" aria-labelledby={labelId}>
+    <div className={cx(styles.callout, styles[type])} role="note" aria-labelledby={labelId}>
       <div className={styles.header}>
         <span className={styles.emoji} aria-hidden="true">{indicators[type].emoji}</span>
         <div id={labelId} className={styles.label}>{indicators[type].label}</div>
