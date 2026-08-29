@@ -1,6 +1,7 @@
 import { usePreloadImage } from '@hooks/usePreloadImage'
 import { useState, useEffect, useRef, FC, ImgHTMLAttributes } from 'react'
 import { cx } from '../../utils/cx'
+import { iconWarning } from '../icons'
 import styles from './Image.module.css'
 
 const generateBlurDataURL = (baseSrc: string) =>
@@ -165,20 +166,7 @@ const Image: FC<ImageProps> = ({
           aria-live="polite"
         >
           <div className={styles.errorContent}>
-            <svg
-              className={styles.errorIcon}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
-              />
-            </svg>
+            <div className={styles.errorIcon}>{iconWarning}</div>
             <p className={styles.errorText}>
               Failed to load image
             </p>
