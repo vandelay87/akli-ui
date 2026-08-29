@@ -66,12 +66,11 @@
   border-color: var(--color-error);
 }
 
-/* Filled variants (solid/danger) dim slightly on hover — matches the
-   design's admin ".primary-btn"/".danger-btn" hover (opacity .9); the new
-   token system has no hover-color tokens to reach for instead. */
+/* Filled variants (solid/danger) dim slightly on hover — see
+   --opacity-hover-dim in tokens.css, shared with Link's .solid. */
 .solid:hover:not(:disabled),
 .danger:hover:not(:disabled) {
-  opacity: 0.9;
+  opacity: var(--opacity-hover-dim);
 }
 
 .outline:hover:not(:disabled) {

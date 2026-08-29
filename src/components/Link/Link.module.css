@@ -50,8 +50,10 @@
     transition: opacity var(--duration-fast) var(--easing-default);
   }
 
+  /* Dims on hover — see --opacity-hover-dim in tokens.css, shared with
+     Button's .solid/.danger. */
   .solid:hover {
-    opacity: 0.9;
+    opacity: var(--opacity-hover-dim);
   }
 
   @media (prefers-reduced-motion: reduce) {

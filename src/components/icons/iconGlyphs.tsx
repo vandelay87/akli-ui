@@ -322,6 +322,23 @@ export const iconNotFound = (
   </svg>
 )
 
+// No explicit width/height — Image.module.css's `.emptyPlaceholder svg`
+// rule sizes it (same descendant-selector pattern as `.errorIcon svg` in
+// the same file), since Image is this icon's only consumer.
+export const iconImage = (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M4 16l4.586-4.586a2 2 0 0 1 2.828 0L16 16m-2-2 1.586-1.586a2 2 0 0 1 2.828 0L20 14M14 8h.01M6 20h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z" />
+  </svg>
+)
+
 // Design: docs/design/paper/pages/Admin Recipe Editor.dc.html's `.upload`
 // dropzone icon (upload-cloud, stroke-width 1.6).
 export const iconUploadCloud = (
