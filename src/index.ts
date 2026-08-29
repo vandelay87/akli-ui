@@ -80,4 +80,8 @@ export {
   iconUploadCloud,
   iconAddImage,
   iconReplace,
+  iconSun,
+  iconMoon,
+  iconArrowLeft,
+  iconArrowRight,
 } from './components/icons'

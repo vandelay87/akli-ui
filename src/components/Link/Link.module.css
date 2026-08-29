@@ -124,59 +124,6 @@
   composes: linkIcon from '../../styles/interactions.module.css';
 }
 
-/* Reuses the "↗" glyph's own shape/weight (rather than the thinner "→"
-   glyph in most fonts) but rotated to visually point right, for CTAs
-   that want the up-right arrow's look with a rightward (not diagonal)
-   hover nudge. Self-contained rather than composing the shared
-   `linkIcon`/`nudgeRight` pair from interactions.module.css: that pair's
-   hover rule sets a bare `translateX`, which would silently clobber (or
-   be clobbered by, depending on bundle order) a rule here combining a
-   static rotation with the same translate. */
-.iconRotateRight,
-.iconRotateLeft {
-  display: inline-flex;
-  transition: transform var(--duration-base) var(--easing-default);
-}
-
-.iconRotateRight {
-  transform: rotate(45deg);
-}
-
-/* translateX listed before rotate: CSS composes transform functions
-   right-to-left against the point, so this order applies the rotation
-   first and then the translate in the outer (screen) coordinate space —
-   a clean horizontal nudge. The reverse order would translate first and
-   then rotate that offset too, dragging the hover motion diagonal. */
-.nudgeRight:hover .iconRotateRight {
-  transform: translateX(3px) rotate(45deg);
-}
-
-.iconRotateLeft {
-  transform: rotate(-135deg);
-}
-
-.nudgeLeft:hover .iconRotateLeft {
-  transform: translateX(-3px) rotate(-135deg);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .iconRotateRight,
-  .iconRotateLeft {
-    transition: none;
-  }
-
-  /* Cancel the hover nudge itself (not just its transition), matching
-     .nudgeRight/.nudgeLeft/.nudgeUpRight's shared reduced-motion reset —
-     but keep the static rotation, since that's orientation, not motion. */
-  .nudgeRight:hover .iconRotateRight {
-    transform: rotate(45deg);
-  }
-
-  .nudgeLeft:hover .iconRotateLeft {
-    transform: rotate(-135deg);
-  }
-}
-
 .nudgeRight {
   composes: nudgeRight from '../../styles/interactions.module.css';
 }

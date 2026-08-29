@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { iconViewPublic } from '../icons'
+import { iconArrowLeft, iconArrowRight, iconViewPublic } from '../icons'
 import Link from './Link'
 
 // Link renders a react-router-dom <RouterLink> for internal `to` values, so
@@ -70,10 +70,9 @@ export const IconLeft: Story = {
   args: {
     to: '/archive',
     children: 'Back to archive',
-    icon: iconViewPublic,
+    icon: iconArrowLeft,
     iconSide: 'left',
     nudge: 'left',
-    rotateIcon: 'left',
   },
 }
 
@@ -92,7 +91,6 @@ export const SolidButton: Story = {
     to: '/get-started',
     children: 'Get started',
     variant: 'solid',
-    icon: iconViewPublic,
-    rotateIcon: 'right',
+    icon: iconArrowRight,
   },
 }

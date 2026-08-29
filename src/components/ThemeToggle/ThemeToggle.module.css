@@ -7,7 +7,6 @@
   justify-content: center;
   width: 32px;  /* icon-button box — no spacing token matches this exact size */
   height: 32px;
-  font-size: 13px; /* sizes the ☾/☀ glyph within the 32px box */
   color: var(--color-text-strong);
   background: transparent;
   border: var(--border-width) solid var(--color-border-strong);
@@ -28,9 +27,6 @@
   }
 }
 
-/* Optically centers the ☾/☀ glyph — its ink sits high in its own em box. */
 .glyph {
-  display: inline-block;
-  line-height: 1;
-  transform: translateY(1px);
+  display: inline-flex;
 }
