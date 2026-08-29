@@ -163,21 +163,21 @@ const darkDeclarations = parseDeclarations(extractBlock(tokensCss, '[data-theme=
 // components (they're status text and faint/caption text), so all are held
 // to the 4.5:1 normal-text minimum rather than the 3:1 large-text one.
 //
-// --color-success-on-tint/--color-warning-on-tint are documented against
-// their own translucent --color-*-bg token ("on their own tint
-// backgrounds"), not a solid color, so there's no single unambiguous hex to
-// diff against. --color-bg is used as the compositing backdrop here: it's
-// the one token tokens.css's own comments already treat as the system's
-// default "paper" surface (--color-text-faint's comment describes its ratio
-// as being measured "on paper", i.e. against --color-bg), making it the
-// most defensible canonical backdrop rather than an arbitrary pick.
-//
-// --color-primary-on-tint has no such translucent --color-primary-bg token
-// to fall back on (--color-primary's only tint consumer is Callout's
-// `.info`) — its pair instead uses `colorMix` to reproduce `.info`'s actual
-// background formula (color-mix(in srgb, var(--color-primary) 6%,
-// var(--color-surface))) directly, so it's checked against its real
-// consumer rather than an approximated backdrop.
+// --color-success-on-tint/--color-warning-on-tint/--color-primary-on-tint
+// are documented against "their own tint background", not a solid color —
+// but --color-success-bg/--color-warning-bg (translucent rgba() wash
+// tokens) and --color-primary-bg (which doesn't even exist) have no actual
+// CSS consumer anywhere in this package. Their only real consumer is
+// Callout's `.tip`/`.warning`/`.info`, whose backgrounds are built with
+// `color-mix(in srgb, var(--color-*) 6%, var(--color-surface))` directly,
+// not by compositing a -bg wash over a backdrop (issue #24 — an earlier
+// version of this file checked --color-success-on-tint/
+// --color-warning-on-tint against --color-success-bg/--color-warning-bg
+// composited over --color-bg, an approximation that passed while the real
+// Callout backdrop, color-mix'd against --color-surface, failed AA). All
+// three pairs below instead use `colorMix` to reproduce Callout's actual
+// background formula, so each is checked against its real consumer rather
+// than an approximated backdrop.
 type ColorMixBackground = {
   /** Token mixed in as the color-mix() foreground percentage, e.g. 'color-primary'. */
   source: string
@@ -254,14 +254,25 @@ const pairSpecs: PairSpec[] = [
     background: { kind: 'solid', token: 'color-field' },
   },
   {
-    label: '--color-success-on-tint on --color-success-bg (composited over --color-bg)',
+    // --color-success-bg (the rgba() wash token) has no actual CSS consumer
+    // in this package — Callout's `.tip` (the only real consumer of
+    // --color-success-on-tint) builds its background via color-mix()
+    // directly, not by layering --color-success-bg over a backdrop (issue
+    // #24). Checked against that real formula, same pattern as
+    // --color-primary-on-tint below.
+    label:
+      '--color-success-on-tint on Callout .tip background (color-mix(--color-success 6%, --color-surface))',
     foreground: 'color-success-on-tint',
-    background: { kind: 'composite', token: 'color-success-bg', backdrop: 'color-bg' },
+    background: { kind: 'colorMix', source: 'color-success', percent: 6, into: 'color-surface' },
   },
   {
-    label: '--color-warning-on-tint on --color-warning-bg (composited over --color-bg)',
+    // Same rationale as --color-success-on-tint above: --color-warning-bg
+    // has no real consumer, Callout's `.warning` uses color-mix() directly
+    // (issue #24).
+    label:
+      '--color-warning-on-tint on Callout .warning background (color-mix(--color-warning 6%, --color-surface))',
     foreground: 'color-warning-on-tint',
-    background: { kind: 'composite', token: 'color-warning-bg', backdrop: 'color-bg' },
+    background: { kind: 'colorMix', source: 'color-warning', percent: 6, into: 'color-surface' },
   },
   {
     // Unlike --color-success-on-tint/--color-warning-on-tint above, there is
