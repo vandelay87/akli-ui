@@ -1,0 +1,31 @@
+name: Setup
+description: 'Install pnpm/Node and dependencies. Caller must checkout the repo first — local composite actions need the repo on disk to resolve.'
+
+inputs:
+  registry-url:
+    description: >
+      Passed through to actions/setup-node's own `registry-url` input. Leave unset (the
+      default) for jobs that never publish — only release.yml's publish job needs this, to
+      point `npm publish` at the npm registry for trusted-publishing OIDC. Left empty,
+      actions/setup-node does not touch .npmrc at all, same as today's behavior.
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v6
+      # version comes from the "packageManager" field in package.json
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v7
+      with:
+        node-version-file: '.nvmrc'
+        cache: 'pnpm'
+        cache-dependency-path: '**/pnpm-lock.yaml'
+        registry-url: ${{ inputs.registry-url }}
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      shell: bash

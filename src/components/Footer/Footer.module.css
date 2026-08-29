@@ -1,0 +1,64 @@
+/* Footer.module.css — 1px top border, 1080px inner width per README
+   §Footer; typography/link treatment ported from pages/Home.dc.html and
+   pages/"Admin Recipes.dc.html"'s inline footer markup (the design system
+   has no standalone Footer.jsx — it's a small static block per the
+   Header.prompt.md note). */
+
+.footer {
+  border-block-start: var(--border-width) solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+/* align-items: flex-end (design doc uses center) — the "Elsewhere" column
+   is taller than the single-line "akli.dev" brand text once its link row
+   wraps, so centering left the brand floating oddly mid-height; bottom-
+   aligning grounds it against the last row of links instead. */
+.inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  max-width: var(--max-w-site);
+  margin-inline: auto;
+  padding: var(--space-6);
+}
+
+/* Design stacks the "Elsewhere" label above the link row (column), not
+   beside it — pages/Home.dc.html footer markup. */
+.elsewhere {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+/* "Elsewhere" is a visible heading-style label in the design (15px/600,
+   strong ink), not a mono eyebrow — see pages/Home.dc.html's footer markup. */
+.elsewhereLabel {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-strong);
+}
+
+.linkList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  /* Without this, links fall back to the ambient 16px body size instead
+     of the design's 14px (same fix as Header's .nav). */
+  font-size: var(--font-size-sm-plus);
+}
+
+.brand {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.adminLabel,
+.signedIn {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-faint);
+}

@@ -1,0 +1,94 @@
+.callout {
+  /* Read by BlogPost.module.css's `.prose code`'s
+     `background: var(--inline-code-bg, var(--color-surface))` —
+     inline code inside a callout needs the page background instead
+     of the shared prose default, since the callout's own background
+     is already a tinted surface color. Setting the variable here
+     (rather than a `.callout code` background rule) means .prose's
+     rule wins the cascade unconditionally and just resolves a
+     different value inside a callout — no specificity contest, no
+     `!important`, and it still works if Callout is used somewhere
+     with a differently-named local code style, as long as that
+     consumer also reads the same variable. */
+  --inline-code-bg: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: var(--space-4) 0;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text);
+}
+
+/* Icon + label as their own centered row, separate from the body content
+   below — centering the icon against the *whole* callout (icon + label +
+   however many lines of body text) made it drift away from the label
+   next to it, which is the thing it's actually meant to align with. */
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.emoji {
+  flex-shrink: 0;
+  /* Design spec is 17px; --font-size-lg (18px) is the closest token. */
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-normal);
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+}
+
+.tip {
+  border: var(--border-width) solid color-mix(in srgb, var(--color-success) 24%, var(--color-border));
+  background: color-mix(in srgb, var(--color-success) 6%, var(--color-surface));
+}
+
+/* WCAG AA override (issue #272): --color-success on this tint (6%
+   color-mix into --color-surface — an even lighter wash than
+   StatusBadge's 10% alpha pill) computes to ~3.59:1, worse than the
+   failing 3.68:1 StatusBadge (#267) case. Uses the shared
+   --color-success-on-tint token, same override color StatusBadge uses,
+   for consistency — it already resolves correctly per theme. */
+.tip .label {
+  color: var(--color-success-on-tint);
+}
+
+.warning {
+  border: var(--border-width) solid color-mix(in srgb, var(--color-warning) 24%, var(--color-border));
+  background: color-mix(in srgb, var(--color-warning) 6%, var(--color-surface));
+}
+
+/* WCAG AA override (issue #272): same pattern as `.tip .label` above but
+   for --color-warning — this 6% tint computes to ~3.58:1 (fails AA). Uses
+   the shared --color-warning-on-tint token, same override color
+   StatusBadge (#267) uses, for consistency — it already resolves
+   correctly per theme. */
+.warning .label {
+  color: var(--color-warning-on-tint);
+}
+
+.info {
+  border: var(--border-width) solid color-mix(in srgb, var(--color-primary) 24%, var(--color-border));
+  background: color-mix(in srgb, var(--color-primary) 6%, var(--color-surface));
+}
+
+/* WCAG AA override (found via this package's own Storybook a11y CI gate):
+   same pattern as `.tip .label`/`.warning .label` above but for
+   --color-primary — this 6% tint computes to ~4.26:1 (fails AA, axe-core
+   measured 4.26:1 against the required 4.5:1). Uses the shared
+   --color-primary-on-tint token, same derivation as the success/warning
+   tokens above, for consistency — it already resolves correctly per
+   theme. */
+.info .label {
+  color: var(--color-primary-on-tint);
+}

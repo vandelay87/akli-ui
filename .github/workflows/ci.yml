@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      # Regression gate for issue #3's tree-shaking spike: asserts importing a
+      # single component/icon from dist/index.js stays within its budget in
+      # .size-limit.json, so a future change that reintroduces cross-component
+      # coupling (e.g. a component eagerly importing another, or a Changesets
+      # release dropping `sideEffects`) fails CI instead of shipping silently.
+      - name: Bundle size
+        run: pnpm check:bundle-size
+
+  storybook-a11y:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+
+      # storybook, every @storybook/* package, @storybook/test-runner, and
+      # playwright are exact-pinned (no ^) in package.json, unlike the rest
+      # of that file's dependencies. This is deliberate: Storybook requires
+      # all @storybook/* + storybook core packages to stay in lockstep, and
+      # @storybook/test-runner's bundled Playwright driver needs to match
+      # the browser binaries installed by the standalone "playwright"
+      # devDependency below. Don't "fix" these back to caret ranges.
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Install Playwright OS dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        # The cache above only persists ~/.cache/ms-playwright (the browser
+        # binary itself). GitHub-hosted runners are a fresh VM every run, so
+        # the apt-level OS dependencies that --with-deps installs alongside
+        # the binary are never cached and must still be installed on a
+        # cache hit, just without re-downloading the (already cached) browser.
+        run: pnpm exec playwright install-deps chromium
+
+      - name: Build Storybook
+        run: pnpm build-storybook
+
+      # Runs the a11y gate once per theme against one build/server — see
+      # .storybook/test-runner.ts for how STORYBOOK_A11Y_THEME forces the
+      # theme global. "" is the default (light) theme.
+      - name: Storybook accessibility tests
+        run: |
+          pnpm exec http-server storybook-static --port 6006 --silent &
+          pnpm exec wait-on tcp:127.0.0.1:6006 --timeout 60000
+          for theme in "" dark; do
+            STORYBOOK_A11Y_THEME="$theme" pnpm test-storybook --maxWorkers=2
+          done
+
+      # @storybook/test-runner (above) only generates tests from
+      # .stories.@(ts|tsx) files, so a standalone MDX docs page with no
+      # backing story file (e.g. .storybook/Accessibility.mdx) is invisible
+      # to it — a render crash there ships past the a11y gate undetected
+      # (see issue #28). This reuses the http-server already running above
+      # against the same build/port.
+      - name: MDX docs render check
+        run: pnpm check:mdx-docs

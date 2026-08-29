@@ -1,0 +1,63 @@
+/* These variant rules are wrapped in a low-priority @layer so a consumer's
+   plain (unlayered) className always wins over them, regardless of source/
+   bundle order or matching specificity — per the CSS Cascade spec, any
+   unlayered rule beats any layered rule. Replaces the old per-callsite
+   descendant-selector trick (`.parent .child`) formerly needed to out-
+   specificity these vs a bare override. See issue #263. */
+@layer component-defaults {
+  .heading1 {
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-tight);
+    color: var(--color-text-strong);
+  }
+
+  .heading2 {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-tight);
+    color: var(--color-text-strong);
+  }
+
+  .heading3 {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-tight);
+    color: var(--color-text-strong);
+  }
+
+  .heading4 {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-tight);
+    color: var(--color-text-strong);
+  }
+
+  .body {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--line-height-normal);
+    color: var(--color-text);
+  }
+
+  .bodyLarge {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--line-height-relaxed);
+    color: var(--color-text);
+  }
+
+  .label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-normal);
+    color: var(--color-text);
+  }
+
+  .caption {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--line-height-normal);
+    color: var(--color-text-muted);
+  }
+}

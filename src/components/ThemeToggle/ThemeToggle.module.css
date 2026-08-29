@@ -1,0 +1,32 @@
+/* ThemeToggle component styles */
+
+.toggle {
+  composes: focusRing from '../../styles/interactions.module.css';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;  /* icon-button box — no spacing token matches this exact size */
+  height: 32px;
+  color: var(--color-text-strong);
+  background: transparent;
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--easing-default),
+              border-color var(--duration-fast) var(--easing-default);
+}
+
+/* Subtle theme-aware shade on hover — not an accent color */
+.toggle:hover {
+  background: color-mix(in srgb, var(--color-text-strong) 6%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toggle {
+    transition: none;
+  }
+}
+
+.glyph {
+  display: inline-flex;
+}

@@ -1,0 +1,109 @@
+/* Shared "state box" shape (icon-in-rounded-square + heading + muted body,
+   optionally with a bordered/padded outer box) — previously hand-rolled
+   three times (RecipeList, UserManagement, RecipePreview), each copy
+   near-identical but independently re-typed, silently drifting on any
+   future tweak. See issue #269.
+
+   Consumed by RecipeList/UserManagement/RecipePreview via a direct JS
+   import + classNames composed in JS, not via CSS Modules' `composes:
+   ... from`. A shared module reused only by independently lazy-loaded
+   consumers must be imported this way — `composes:` inlines the
+   referenced rules as literal text into each composing file at
+   CSS-transform time, so the bundler has no shared module instance to
+   dedupe and ships a full copy into every consumer's own chunk.
+
+   Split across two layers, both registered in order in `src/index.css`
+   (`@layer component-defaults, composed-overrides;`):
+
+   - `.box`/`.loading`/`.error`/`.icon`/`.iconError` live in
+     `@layer component-defaults` (same mechanism as Typography.module.css /
+     Link.module.css, issue #263) so a consumer's `composes:`-plus-local-
+     declaration override deterministically wins for whichever properties
+     it redeclares (icon size, box border/padding vary slightly per
+     consumer), without needing a descendant-selector specificity boost.
+     These classes only ever collide with their own consumers' local
+     overrides, which are always fully unlayered and so already win
+     regardless of which named layer they're up against.
+
+   - `.heading`/`.body` live in the separate, higher-priority
+     `@layer composed-overrides` instead. Unlike the classes above, these
+     two are also applied (via Typography's own `variant` prop) to
+     elements already carrying `Typography.module.css`'s `.heading2`/
+     `.body` classes — which are themselves in `@layer component-defaults`.
+     CSS merges same-named layers declared across files into one combined
+     layer, so two same-named-layer rules on the same element fall back to
+     plain stylesheet/bundle order with no priority guarantee — exactly
+     the ambiguity a named, ordered layer is meant to resolve. Giving
+     `.heading`/`.body` a shared, explicitly-higher-priority layer (named
+     generically — any other shared/composed pattern needing the same
+     guarantee over a `component-defaults` variant class can reuse it
+     rather than inventing its own one-off layer) makes them
+     deterministically beat the Typography variant regardless of
+     import/bundle order, while still losing (correctly) to any fully
+     unlayered consumer override. */
+@layer component-defaults {
+  .box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border-radius: var(--radius-xl);
+  }
+
+  /* RecipeList's and UserManagement's loading state — byte-identical
+     border/padding/gap in both source files before this extraction. */
+  .loading {
+    border: var(--border-width) solid var(--color-border);
+    padding: clamp(56px, 9vw, 92px) 24px;
+    gap: 18px;
+  }
+
+  /* RecipeList's and UserManagement's error state — byte-identical
+     border/background/padding in both source files before this
+     extraction. `--state-box-error-border` is derived once here and
+     inherited down to `.iconError` (a direct-child consumer, per each
+     page's own markup) instead of repeating the same color-mix()
+     expression twice per page — generalizes a pattern UserManagement's
+     own pre-extraction CSS had already independently discovered. */
+  .error {
+    --state-box-error-border: color-mix(in srgb, var(--color-error) 30%, var(--color-border));
+    border: var(--border-width) solid var(--state-box-error-border);
+    background: var(--color-error-bg);
+    padding: clamp(48px, 8vw, 80px) 24px;
+  }
+
+  .icon {
+    width: 52px;
+    height: 52px;
+    /* 14px: design literal — between --radius-lg (12px) and --radius-xl
+       (16px), neither an exact match. */
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .iconError {
+    background: var(--color-field);
+    border: var(--border-width) solid var(--state-box-error-border);
+    color: var(--color-error);
+  }
+}
+
+@layer composed-overrides {
+  .heading {
+    font-size: 20px;
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: -0.02em;
+    margin: 0 0 8px;
+  }
+
+  .body {
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--color-text-muted);
+    margin: 0 0 24px;
+    max-width: 38ch;
+  }
+}

@@ -1,5 +1,19 @@
-node_modules/
-dist/
-storybook-static/
+# Logs
+logs
+*.log
+pnpm-debug.log*
+
+node_modules
+dist
+storybook-static
 *.local
+coverage
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
 .DS_Store
+*.sw?
+.vite/
+.pnpm-store/

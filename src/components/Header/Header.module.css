@@ -1,0 +1,127 @@
+/* Header.module.css
+   Ports `.ds-header-sticky` from design_system/components/_helpers.css:
+   position: sticky + translucent color-mix() background + backdrop-filter
+   blur. `.header`'s solid --color-bg is the always-present base layer —
+   it *is* the fallback when color-mix()/backdrop-filter aren't supported,
+   so no separate fallback rule is needed beyond gating the translucent
+   override behind @supports. No -webkit-backdrop-filter prefix: this
+   project's conventions forbid vendor prefixes even though the design's
+   own _helpers.css includes one for older Safari. */
+
+.header {
+  z-index: var(--z-header);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  /* Transparent, not omitted: reserves the same 1px box height as the
+     visible .admin border so nothing shifts between variants. Matches
+     the design's public-page header exactly (border-bottom:1px solid
+     transparent) — only the admin list pages (Recipes/Users/Editor)
+     get a real visible line. */
+  border-block-end: var(--border-width) solid transparent;
+}
+
+.admin {
+  border-block-end-color: var(--color-border);
+}
+
+.sticky {
+  position: sticky;
+  inset-block-start: 0;
+}
+
+@supports (backdrop-filter: blur(1px)) and (color: color-mix(in srgb, red 50%, transparent)) {
+  .sticky {
+    background-color: color-mix(in srgb, var(--color-bg) 84%, transparent);
+    backdrop-filter: saturate(140%) blur(10px);
+  }
+}
+
+.inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  row-gap: var(--space-3);
+  max-width: var(--max-w-site);
+  margin-inline: auto;
+  padding: var(--space-4) var(--space-6);
+}
+
+/* Brand's left-hand group: admin groups brand+nav together here, while
+   public/logged-out render brand alone (their nav/label lives in .actions
+   instead) — grouping is variant-dependent per the page-level prototypes,
+   not the isolated component card. */
+.left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.brand {
+  composes: focusRing from '../../styles/interactions.module.css';
+  /* Explicit size/weight/tracking — without these the brand link fell
+     back to the ambient 16px body size instead of the design's 15px. */
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.01em;
+  color: var(--color-text-strong);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+}
+
+.brand:hover {
+  color: var(--color-primary);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  /* Without this, nav links fall back to the ambient 16px body size
+     instead of the design's 14px (same fix as Footer's .linkList). */
+  font-size: var(--font-size-sm-plus);
+}
+
+.navLink {
+  composes: focusRing from '../../styles/interactions.module.css';
+  color: var(--color-text-muted);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+}
+
+.navLink:hover {
+  color: var(--color-primary);
+}
+
+.navLink[aria-current='page'] {
+  color: var(--color-text-strong);
+  font-weight: var(--font-weight-medium);
+}
+
+.loggedOutLabel {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* Right-hand group: holds whichever of nav/label/admin-extras is not in
+   .left for the current variant, plus the theme toggle, so .inner always
+   ends up with exactly two direct flex children. */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.email {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* Redundant with Footer's "Signed in as {email}" line on admin pages, so it's
+   dropped rather than wrapped once the header itself needs to wrap. */
+@media (max-width: 640px) {
+  .email {
+    display: none;
+  }
+}

@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # Unlike ci.yml, never cancel a run in progress here — a cancelled run could be
+  # interrupted mid-`npm publish`, which is not safely retryable.
+  cancel-in-progress: false
+
+permissions:
+  contents: write # commit/push the "Version Packages" branch, create the release git tag
+  pull-requests: write # open/update the "Version Packages" PR
+  id-token: write # OIDC token for npm trusted publishing (publish phase only)
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # full history, needed to create/push the release git tag below
+
+      - uses: ./.github/actions/setup
+        with:
+          registry-url: 'https://registry.npmjs.org'
+
+      # See .github/scripts/release-publish.sh for why this doesn't just use
+      # changesets/action's default `changeset publish` command. Invoked as
+      # `bash <path>` (a single program + one argument) rather than an inline
+      # multi-command string, since changesets/action runs `publish-script` without
+      # guaranteed shell-operator (&&) interpretation.
+      #
+      # Bypassing `changeset publish` also means it never writes the CHANGESETS_OUTPUT
+      # file changesets/action reads to auto-create git tags/GitHub Releases — that's
+      # replicated by hand in the script instead (`changeset git-tag` +
+      # `git push --follow-tags`), so `create-github-releases`/`push-git-tags` below
+      # are turned off rather than relying on that (empty, in this setup) output.
+      # github-token goes in `with`, not `env` — changesets/action reads its own
+      # `github-token` input (defaulting to github.token), not process.env.GITHUB_TOKEN.
+      # Setting only the env var is a no-op today (both happen to be the same value)
+      # but throws if a custom token is ever added here without also updating this input.
+      - name: Create Release Pull Request or Publish
+        uses: changesets/action@v2.1.1
+        with:
+          publish-script: bash .github/scripts/release-publish.sh
+          create-github-releases: false
+          push-git-tags: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}

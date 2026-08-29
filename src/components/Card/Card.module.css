@@ -1,0 +1,34 @@
+/* Generic Card container — hairline border, optional fill + hover. */
+
+.card {
+  display: block;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-bg);
+  padding: var(--space-6);
+}
+
+.fill {
+  background-color: var(--color-surface);
+}
+
+/* `surfaceHover`/`focusRing` (interactions.module.css) are composed in
+   JS (see Card.tsx) rather than via `composes:` here — see
+   interactions.module.css's own header comment for why. */
+.hover {
+  transition: background-color var(--duration-fast) var(--easing-default);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hover {
+    transition: none;
+  }
+}
+
+.asButton {
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}

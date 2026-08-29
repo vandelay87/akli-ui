@@ -1,0 +1,145 @@
+/* Button component styles.
+   Soft box-shadow (the --shadow-* scale) is deliberately not used here —
+   the PRD reserves it for toasts/dropdowns/dialogs; buttons carry no
+   ambient elevation in the design. */
+
+.button {
+  composes: focusRing from '../../styles/interactions.module.css';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  /* Design prototype: 11/16px. --space-3/--space-4 (12/16px) is the
+     nearest token pairing. */
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-normal);
+  font-family: inherit;
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--easing-default),
+    border-color var(--duration-fast) var(--easing-default),
+    color var(--duration-fast) var(--easing-default),
+    opacity var(--duration-fast) var(--easing-default),
+    transform var(--duration-fast) var(--easing-default);
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+
+  .button:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* ── Variants ────────────────────────────────────────────────── */
+
+.solid {
+  background-color: var(--color-btn-bg);
+  color: var(--color-btn-fg);
+  border-color: var(--color-btn-bg);
+}
+
+.outline {
+  background-color: transparent;
+  color: var(--color-text);
+  font-weight: var(--font-weight-medium);
+}
+
+.danger {
+  background-color: var(--color-error);
+  color: var(--color-on-primary);
+  border-color: var(--color-error);
+}
+
+/* Filled variants (solid/danger) dim slightly on hover — see
+   --opacity-hover-dim in tokens.css, shared with Link's .solid. */
+.solid:hover:not(:disabled),
+.danger:hover:not(:disabled) {
+  opacity: var(--opacity-hover-dim);
+}
+
+.outline:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background-color: var(--color-hover);
+}
+
+/* tone="danger" only makes sense combined with variant="outline" (see the
+   prop doc comment in Button.tsx) — tints the outline variant's hover state
+   red for destructive-but-secondary actions (e.g. RecipeEditor's "Discard
+   draft"), instead of the outline variant's default accent-blue hover. */
+.outline.toneDanger:hover:not(:disabled) {
+  border-color: var(--color-error);
+  color: var(--color-error);
+  background-color: var(--color-error-bg);
+}
+
+/* ── Shape ───────────────────────────────────────────────────── */
+
+.pill {
+  border-radius: var(--radius-full);
+  /* Marketing CTA pills get a slightly larger tap target than form buttons
+     (design: 12/24px). */
+  padding: var(--space-3) var(--space-6);
+}
+
+/* ── Size ────────────────────────────────────────────────────── */
+
+.sm {
+  padding: var(--space-1) var(--space-4);
+  font-size: var(--font-size-sm);
+}
+
+/* ── Modifiers ───────────────────────────────────────────────── */
+
+.fullWidth {
+  width: 100%;
+}
+
+.loading {
+  cursor: wait;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Wraps `children` — centers an icon-only Button the same way .icon does
+   for iconLeft/iconRight; a no-op for plain text. */
+.label {
+  composes: icon;
+}
+
+.spinner {
+  /* Size/border/color are a legitimate delta (must inherit the button's own
+     text color across variants) — but the rotation itself reuses the
+     sitewide `spin` keyframe (src/styles/animations.css), which is already
+     neutered under prefers-reduced-motion at the keyframe level, instead of
+     a second identical keyframe + reduced-motion override. */
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentcolor;
+  border-right-color: transparent;
+  border-radius: var(--radius-full);
+  /* `global(...)` is required here — without it, Vite's CSS Modules
+     transform scopes the `spin` identifier to a hashed local name that has
+     no matching @keyframes, silently no-op'ing the animation (spin lives,
+     unscoped, in the plain src/styles/animations.css file). */
+  animation: global(spin) var(--duration-base) linear infinite;
+}

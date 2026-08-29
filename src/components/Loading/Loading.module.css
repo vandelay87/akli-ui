@@ -1,0 +1,30 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-12) 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.spinner {
+  composes: spinner from '../../styles/interactions.module.css';
+  display: inline-block;
+  /* Larger + a two-sided arc than the shared 24px/single-edge default —
+     this is the prominent whole-view variant, not the inline/toast one. */
+  width: 2rem;
+  height: 2rem;
+  border-width: var(--border-width-thick);
+  border-inline-end-color: var(--color-primary);
+}
+
+.label {
+  font-family: var(--font-mono);
+}
+
+/* Uses the global `spin` keyframe (src/styles/animations.css) via the
+   composed `spinner` class, which is already neutered under
+   prefers-reduced-motion at the keyframe level (rotation frozen) — no
+   local override needed. */

@@ -1,0 +1,277 @@
+/* Shared interaction-utility classes — CSS Modules port of the design
+   system's `_helpers.css` (`.ds-*`) behaviors: link icon nudge, card
+   lift+zoom, chip/tag/suggest/upload/danger-iconbtn hovers, spinner,
+   shimmer. See docs/prds/paper-redesign.md (line 71) — the `.ds-*` global
+   class contract is intentionally NOT shipped; component `.module.css`
+   files consume these via `composes: x from '../../styles/interactions.module.css';`
+   (relative path from a component two levels down in src/components/<Name>/ —
+   there is no `@/` or `@styles` alias in this project) instead.
+
+   Toast hover-reveal and theme-toggle hover are out of scope here: each
+   belongs to a component that either already has its own paper-spec
+   styling (ThemeToggle) or is a separate future rebuild issue (Toast)
+   that will port its own `_helpers.css` rule when it lands.
+
+   The focus-ring composable below (`.focusRing`) is the a11y-engineer
+   pass's addition (issue #221 AC2) — it's the canonical `:focus-visible`
+   + forced-colors + `@supports(color-mix)` pattern future component
+   rebuilds should `composes` from, same as the utilities above. There is
+   no `backdrop-filter` `@supports` fallback here: nothing in scope today
+   uses `backdrop-filter` (the sticky header's blur, and its solid-bg
+   fallback, land with the Header rebuild in issue #224) — see the note
+   above `.focusRing` for the fallback pattern to reuse when that lands.
+
+   `composes: x from` inlines this file's rules as literal text into the
+   composing file at CSS-transform time (ICSS import semantics) — there is
+   no bundler-chunk-addressable module for the composed portion, since this
+   file has no JS import of its own. That's harmless for a consumer that's
+   part of a chunk Rollup already treats as shared (an eagerly-loaded file,
+   or the sole lazy chunk that ever needs it) — one inlined copy, same as
+   any other CSS. It becomes a real bug when two or more consumers are each
+   independently `lazy()`-loaded with no eager common ancestor: every rule
+   this file contributes gets duplicated verbatim into each of those
+   separate chunks. When adding a new consumer, check whether it lands in
+   that situation; if so, don't `composes` from this file — import it
+   directly as a real JS module in the consumer's own `.tsx` and compose
+   classNames at render time instead (`import interactions from
+   '.../interactions.module.css'`, then e.g. `` `${interactions.focusRing}
+   ${styles.button}` ``), which gives Rollup a genuine shared module to
+   hoist into its own chunk. See RecipeList/RecipeEditor/UserManagement/
+   Card for the JS-import pattern, and Button/Link/Header for consumers
+   correctly left on `composes:` because they don't hit this. */
+
+/* ── Links — icon nudge ──────────────────────────────────────
+   Apply `linkIcon` to the icon element, and one direction class to the
+   link (ancestor). e.g. (path relative to a component two levels down in
+   src/components/<Name>/ — adjust for the consuming file's actual depth)
+     .link  { composes: nudgeRight from '../../styles/interactions.module.css'; }
+     .icon  { composes: linkIcon   from '../../styles/interactions.module.css'; } */
+.linkIcon {
+  display: inline-flex;
+  transition: transform var(--duration-base) var(--easing-default);
+}
+
+.nudgeRight:hover .linkIcon {
+  transform: translateX(3px);
+}
+
+.nudgeLeft:hover .linkIcon {
+  transform: translateX(-3px);
+}
+
+.nudgeUpRight:hover .linkIcon {
+  transform: translate(3px, -3px);
+}
+
+/* ── App card — lift + cover zoom (the signature hover) ──────
+   Matches docs/design/paper/pages/Apps.dc.html's `.app-card`/`.app-prev`
+   exactly (AppCard.module.css is this composable's only consumer —
+   RecipeCard has its own near-identical but not-quite-matching values
+   copied literally, since its design spec differs slightly: 4px lift,
+   not 5px). Durations/curve/shadow are a deliberate custom easing
+   distinct from the standard --duration-fast/--duration-base scale and
+   --shadow-* tokens — kept literal per the design's own spec. Apply
+   `cardLift` to the card root and `cardLiftImage` to the cover image
+   inside it. */
+.cardLift {
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 0.35s var(--easing-default),
+    border-color 0.35s var(--easing-default);
+}
+
+.cardLift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.1);
+}
+
+.cardLiftImage {
+  transition: transform 0.55s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.cardLift:hover .cardLiftImage {
+  transform: scale(1.035);
+}
+
+/* ── Surface hover wash — generic card/tag background tint ───
+   (source: _helpers.css ".ds-card-hover") */
+.surfaceHover:hover {
+  background: var(--color-hover);
+}
+
+/* ── Code panel header chrome ─────────────────────────────────
+   Not ported from _helpers.css — shared between FileTree's `.title`
+   and CodeBlock's `.toolbar`, which both need a title-bar background
+   visibly distinct from the panel's own body (matching the design's
+   separate `--code-head` vs `--code-bg`, a token pair that doesn't
+   exist in our system) plus identical padding/border-bottom. */
+.codeHeaderPanel {
+  padding: 8px 10px 8px var(--space-4);
+  border-bottom: var(--border-width) solid var(--color-border);
+  background: color-mix(in srgb, var(--color-surface) 60%, var(--color-border) 40%);
+}
+
+/* ── Chip hover — tag buttons + suggestion pills ──────────────
+   ds-tag-btn and ds-suggest are identical in _helpers.css; shared here
+   via one composable class. */
+.chipHover:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* ── Upload dropzone hover ─────────────────────────────────── */
+.uploadHover:hover {
+  border-color: var(--color-primary);
+  background: var(--color-hover);
+}
+
+/* ── Icon-button hover ─────────────────────────────────────────
+   Neutral hover for square icon-only buttons (reorder/move controls) —
+   pairs with `dangerIconButtonHover` below for the destructive icon
+   button in the same cluster (see IngredientList/StepList's move
+   up/down + remove trio, ported from the design's `.iconbtn:hover`). */
+.iconButtonHover:hover {
+  color: var(--color-text-strong);
+  border-color: var(--color-border-strong);
+  background: var(--color-hover);
+}
+
+/* ── Danger icon-button hover ──────────────────────────────── */
+.dangerIconButtonHover:hover {
+  color: var(--color-error);
+  border-color: color-mix(in srgb, var(--color-error) 40%, var(--color-border));
+}
+
+/* ── Focus ring ────────────────────────────────────────────────
+   Composable `:focus-visible` ring — apply by composing `focusRing` onto
+   the interactive element's own class (not onto a `:focus-visible` rule;
+   CSS Modules only allows `composes` on a plain single-class selector),
+   e.g. (path relative to a component two levels down in
+   src/components/<Name>/):
+     .toggle { composes: focusRing from '../../styles/interactions.module.css'; }
+   Never pair this with the element's own `outline: none` — `.focusRing`
+   already owns `outline` on :focus-visible and must be the only source
+   of it.
+
+   Matches the design's global `a:focus-visible, button:focus-visible`
+   rule exactly: a solid 2px outline, not the soft translucent
+   `--ring` box-shadow glow (that token is for form-field focus, see
+   `.ds-field:focus` in the design system, not general interactive
+   elements). A plain solid outline also needs no color-mix()/forced-
+   colors fallback — browsers substitute a system color for any
+   explicit `outline-color` in forced-colors mode natively, unlike
+   box-shadow, which is stripped there. `outline-offset` is literal (no
+   matching --space-* token, mirrors this file's other literal values). */
+.focusRing:focus-visible {
+  outline: var(--focus-ring-outline);
+  outline-offset: var(--focus-ring-outline-offset);
+}
+
+/* ── Form-field focus ring ─────────────────────────────────────
+   Composable border-tint + soft glow, matching the design system's
+   `.ds-field:focus` exactly — deliberately different from `.focusRing`
+   above (no crisp outline; general interactive elements get that, not
+   form fields). Apply the same way as `.focusRing`, e.g.:
+     .field { composes: fieldFocusRing from '../../styles/interactions.module.css'; }
+   then add the field's own border-color if it needs one beyond focus
+   (see Input.module.css's `.invalid` for a variant of this same shape).
+   Suppresses any composed `.focusRing` outline that might already sit
+   on the same element — must stay the only source of `outline` there. */
+.fieldFocusRing:focus-visible {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: var(--ring);
+}
+
+/* `--ring` uses color-mix(); without support it resolves to an invalid
+   value, silently dropping the box-shadow with no visible focus state
+   at all (outline above is suppressed). Falls back to the same solid
+   outline `.focusRing` uses. */
+@supports not (color: color-mix(in srgb, red 50%, transparent)) {
+  .fieldFocusRing:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    box-shadow: none;
+  }
+}
+
+/* The sticky header's future `backdrop-filter` blur (issue #224) needs an
+   analogous @supports(backdrop-filter) fallback with an opaque `background`
+   default — not written here since nothing in scope today uses
+   `backdrop-filter` yet (Header is still old neo-brutalist). */
+
+/* ── Spinner ───────────────────────────────────────────────── */
+.spinner {
+  /* 24px === --space-6 */
+  width: var(--space-6);
+  height: var(--space-6);
+  border-radius: var(--radius-full);
+  /* border-width doesn't match --border-width/--border-width-thick; kept
+     literal per _helpers.css spec. */
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  /* 0.7s not in the duration token scale; kept literal per _helpers.css spec.
+     `global(...)` is required — without it, Vite's CSS Modules transform
+     scopes the `spin` identifier to a hashed local name with no matching
+     @keyframes, silently no-op'ing the animation (spin lives, unscoped, in
+     the plain src/styles/animations.css file, not a .module.css). */
+  animation: global(spin) 0.7s linear infinite;
+}
+
+.spinnerSm {
+  /* 15px doesn't match a --space-* token; kept literal per _helpers.css spec. */
+  width: 15px;
+  height: 15px;
+  border-width: 2px;
+}
+
+/* ── Shimmer (processing placeholders) ────────────────────────
+   Distinct technique from the existing `shimmer` keyframe in
+   animations.css (translateX sweep of an overlay pseudo-element, used by
+   Image's blur placeholder) — this ports _helpers.css's own
+   background-position sweep on a gradient background, so it gets its own
+   keyframe (`shimmerSweep`) rather than overloading the existing one. */
+.shimmer {
+  background: linear-gradient(
+    100deg,
+    var(--color-surface) 30%,
+    var(--color-hover) 50%,
+    var(--color-surface) 70%
+  );
+  background-size: 200% 100%;
+  /* 1.3s not in the duration token scale; kept literal per _helpers.css spec.
+     `global(...)` required — see the .spinner comment above. */
+  animation: global(shimmerSweep) 1.3s linear infinite;
+}
+
+/* ── Reduced motion ────────────────────────────────────────────
+   Disables the transitions/hover-transforms defined in this file (not
+   just their timing) that `animations.css` has no way to know about.
+   `.spinner`/`.shimmer` need no entry here — their `spin`/`shimmerSweep`
+   keyframes are already neutered under reduced motion at the keyframe
+   level in `animations.css`, so re-disabling `animation` here would just
+   duplicate that same outcome through a second mechanism. */
+@media (prefers-reduced-motion: reduce) {
+  .linkIcon {
+    transition: none;
+  }
+
+  .nudgeRight:hover .linkIcon,
+  .nudgeLeft:hover .linkIcon,
+  .nudgeUpRight:hover .linkIcon {
+    transform: none;
+  }
+
+  .cardLift,
+  .cardLiftImage {
+    transition: none;
+  }
+
+  .cardLift:hover {
+    transform: none;
+  }
+
+  .cardLift:hover .cardLiftImage {
+    transform: none;
+  }
+}
