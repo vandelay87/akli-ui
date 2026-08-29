@@ -115,9 +115,15 @@
      own tint" pairing. Consolidates what were 5 identical component-local
      overrides (StatusBadge, Toast, RecipeList, Callout ×2 — issues #267
      and #272) into one shared token. Dark mode never needed the
-     correction, so it just resolves to the existing token there. */
-  --color-success-on-tint: #1a754d;   /* ~4.7–4.96:1 depending on consumer backdrop */
-  --color-warning-on-tint: #8c5a08;   /* ~4.85–4.96:1 depending on consumer backdrop */
+     correction, so it just resolves to the existing token there. Ratios
+     below are verified against Callout's real color-mix() tint
+     background, not --color-success-bg/--color-warning-bg — those still
+     back real components in personal-website (StatusBadge, Toast, the
+     admin recipe pages), just none extracted into this package yet, so
+     they have no in-package consumer to verify a composited-background
+     ratio against here (issue #24/#33; see tokens.contrast.test.ts). */
+  --color-success-on-tint: #1a754d;   /* ~4.70:1 against Callout's .tip tint (color-mix 6% into --color-surface) */
+  --color-warning-on-tint: #8c5a08;   /* ~4.86:1 against Callout's .warning tint (color-mix 6% into --color-surface) */
   /* WCAG AA override: --color-primary on Callout's Info variant tint (6%
      color-mix into --color-surface) computes to ~4.26:1, failing 4.5:1 —
      found via this package's own Storybook a11y CI gate (axe-core,
