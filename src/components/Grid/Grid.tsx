@@ -1,5 +1,6 @@
 import List, { ListItem } from '@components/List'
 import { CSSProperties, FC, ReactNode } from 'react'
+import { cx } from '../../utils/cx'
 import styles from './Grid.module.css'
 
 interface GridProps {
@@ -27,13 +28,11 @@ const Grid: FC<GridProps> = ({
   minWidth,
   className: extraClassName,
 }) => {
-  const gridClassName = [
+  const gridClassName = cx(
     styles.grid,
     minWidth ? styles.autoFit : columnClassMap[columns],
-    extraClassName,
-  ]
-    .filter(Boolean)
-    .join(' ')
+    extraClassName
+  )
 
   const gridStyle = minWidth
     ? ({ '--grid-min-width': minWidthVarMap[minWidth] } as CSSProperties)

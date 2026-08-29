@@ -1,4 +1,5 @@
 import { ReactElement, ReactNode } from 'react'
+import { cx } from '../../utils/cx'
 import styles from './Button.module.css'
 
 export interface ButtonProps {
@@ -43,7 +44,7 @@ const Button = ({
   ariaDescribedBy,
   className: extraClassName,
 }: ButtonProps): ReactElement => {
-  const className = [
+  const className = cx(
     styles.button,
     styles[variant],
     styles[shape],
@@ -51,10 +52,8 @@ const Button = ({
     tone === 'danger' && styles.toneDanger,
     fullWidth && styles.fullWidth,
     loading && styles.loading,
-    extraClassName,
-  ]
-    .filter(Boolean)
-    .join(' ')
+    extraClassName
+  )
 
   return (
     <button

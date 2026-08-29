@@ -1,5 +1,6 @@
 import { FC, ReactNode } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
+import { cx } from '../../utils/cx'
 import { isExternalHref } from './isExternalHref'
 import styles from './Link.module.css'
 
@@ -56,7 +57,7 @@ const Link: FC<LinkProps> = ({
 }) => {
   const isExternal = isExternalHref(to)
 
-  const className = [
+  const className = cx(
     styles.link,
     // Tone and variant are mutually exclusive color sources: tone is a
     // plain-link text color, variant is a button shape with its own
@@ -73,10 +74,8 @@ const Link: FC<LinkProps> = ({
     // No icon to lay out and no button shape to fill — drop inline-flex
     // for a glyph-height box instead (see Link.module.css's .textOnly).
     !icon && !variant && styles.textOnly,
-    externalClassName,
-  ]
-    .filter(Boolean)
-    .join(' ')
+    externalClassName
+  )
 
   const iconClassName = rotateIcon ? ROTATE_ICON_CLASSES[rotateIcon] : styles.icon
 
