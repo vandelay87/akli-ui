@@ -222,11 +222,12 @@ export const iconViewPublic = (
   </svg>
 )
 
-// No explicit width/height — ThemeToggle.module.css's `.glyph svg` rule
-// sizes both (same descendant-selector approach as Image.module.css's
-// `.emptyPlaceholder svg`), since ThemeToggle is this pair's only consumer.
+// width/height match this file's other single-consumer icons (e.g.
+// iconArrowLeft/iconArrowRight below) — ThemeToggle is the only consumer.
 export const iconSun = (
   <svg
+    width="16"
+    height="16"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -249,6 +250,8 @@ export const iconSun = (
 
 export const iconMoon = (
   <svg
+    width="16"
+    height="16"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"

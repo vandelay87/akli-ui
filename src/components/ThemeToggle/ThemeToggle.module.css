@@ -30,10 +30,3 @@
 .glyph {
   display: inline-flex;
 }
-
-/* Icon at half the button's box size — same ratio as Image.module.css's
-   `.emptyPlaceholder svg` (3rem box, 1.5rem icon). --space-4 is 1rem/16px. */
-.glyph svg {
-  width: var(--space-4);
-  height: var(--space-4);
-}
