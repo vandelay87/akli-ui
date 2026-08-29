@@ -75,3 +75,12 @@ jobs:
           for theme in "" dark; do
             STORYBOOK_A11Y_THEME="$theme" pnpm test-storybook --maxWorkers=2
           done
+
+      # @storybook/test-runner (above) only generates tests from
+      # .stories.@(ts|tsx) files, so a standalone MDX docs page with no
+      # backing story file (e.g. .storybook/Accessibility.mdx) is invisible
+      # to it — a render crash there ships past the a11y gate undetected
+      # (see issue #28). This reuses the http-server already running above
+      # against the same build/port.
+      - name: MDX docs render check
+        run: pnpm check:mdx-docs
