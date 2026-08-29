@@ -1,6 +1,7 @@
 import react from '@vitejs/plugin-react'
 import dts from 'unplugin-dts/vite'
 import { defineConfig } from 'vitest/config'
+import pkg from './package.json' with { type: 'json' }
 
 export default defineConfig({
   // Vite's default `base: '/'` root-anchors any non-inlined asset URL
@@ -177,6 +178,26 @@ export default defineConfig({
         fileName: '[name]',
       },
       rollupOptions: {
+        // Without this, peerDependencies (react, react-dom, react-router-dom)
+        // get bundled straight into dist/index.js instead of resolving to the
+        // consumer's own copy at runtime — confirmed by inspecting
+        // dist/index.js, which contained react's actual jsx-runtime source
+        // (Symbol.for('react.transitional.element') etc. — internal markers
+        // only react's own package defines) and react-router-dom's source.
+        // Two React instances (one bundled in here, one from the consumer's
+        // node_modules) means this package's components call useContext
+        // against a dispatcher the consumer's ReactDOM render never
+        // initializes — reproduced empirically as `TypeError: Cannot read
+        // properties of null (reading 'useContext')` in a scratch consumer
+        // app. Vite's build doesn't infer `external` from peerDependencies
+        // automatically, so it's derived from package.json here instead of a
+        // hand-copied literal — same reasoning as cssEntryNames above:
+        // a second, manually-synced list is how a future peer dependency
+        // (added, removed, or renamed) silently drifts out of sync and
+        // reintroduces this exact bug with no build error to catch it.
+        external: Object.keys(pkg.peerDependencies).map(
+          (name) => new RegExp(`^${name}($|/)`)
+        ),
         output: {
           // Must be a function, not a flat string: a flat
           // `'assets/[name]-[hash][extname]'` pattern applies to *every*

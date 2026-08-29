@@ -28,6 +28,14 @@ jobs:
       - name: Build
         run: pnpm build
 
+      # Regression gate for issue #3's tree-shaking spike: asserts importing a
+      # single component/icon from dist/index.js stays within its budget in
+      # .size-limit.json, so a future change that reintroduces cross-component
+      # coupling (e.g. a component eagerly importing another, or a Changesets
+      # release dropping `sideEffects`) fails CI instead of shipping silently.
+      - name: Bundle size
+        run: pnpm check:bundle-size
+
   storybook-a11y:
     runs-on: ubuntu-latest
 
