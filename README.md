@@ -2,7 +2,21 @@
 
 Shared UI component package (`@akli-dev/ui`) and Storybook for [akli.dev](https://akli.dev).
 
+Browse every component, its variants, and its accessibility report at **[storybook.akli.dev](https://storybook.akli.dev)**.
+
 See `docs/prds/` for the planned scope.
+
+## Components
+
+`Button`, `Callout`, `Card`, `Footer`, `Grid`, `Header`, `Image`, `Input`, `Link`, `List`, `Loading`, `ThemeToggle`, `Typography`, plus a shared icon set (`icons` — imported individually, e.g. `IconPlus`). All import from the package's single entry point:
+
+```tsx
+import { Button, Typography } from '@akli-dev/ui'
+```
+
+Full props and live examples for each are in Storybook, not duplicated here — Storybook's autodocs are generated from the same source, so they can't drift out of sync with the actual component the way hand-written docs can.
+
+Written in TypeScript; type declarations ship with the package, no `@types/*` package needed.
 
 ## Installation
 
@@ -59,6 +73,22 @@ export default defineConfig({
 
 It's a no-op if `@akli-dev/ui/fonts.css` was never imported (there's nothing to preload) and only runs during `vite build`, not `vite dev`.
 
+### Theming
+
+Every component reads color/spacing/typography values from `tokens.css`'s CSS custom properties, switching between a light and dark set based on a single attribute: `data-theme="light"` or `data-theme="dark"` on `<html>`.
+
+`ThemeToggle` manages this automatically — on mount it reads `localStorage`, falls back to `prefers-color-scheme`, sets `data-theme` accordingly, and updates both on click. No setup is required beyond rendering it:
+
+```tsx
+import { ThemeToggle } from '@akli-dev/ui'
+
+function App() {
+  return <ThemeToggle />
+}
+```
+
+An SSR consumer that wants to avoid a flash of the wrong theme on first paint can set `data-theme` itself, before hydration, via an inline bootstrap script — `ThemeToggle` detects an existing value and respects it instead of re-deriving one. This is an opt-in optimization, not a requirement.
+
 ### Usage
 
 ```tsx
@@ -90,3 +120,7 @@ From there it's hands-off:
 2. Merging _that_ PR is the actual release: it triggers `npm publish` for the new version, authenticated via npm trusted publishing (OIDC) — no npm token is stored anywhere in this repo.
 
 See `.github/workflows/release.yml` and `.github/scripts/release-publish.sh` for the implementation.
+
+## License
+
+[MIT](./LICENSE)
