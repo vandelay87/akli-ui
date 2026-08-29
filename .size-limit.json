@@ -10,5 +10,23 @@
     "path": "dist/index.js",
     "import": "{ IconPlus }",
     "limit": "0.6 KB"
+  },
+  {
+    "name": "Header (composite/chrome component import)",
+    "path": "dist/index.js",
+    "import": "{ Header }",
+    "limit": "2.5 KB"
+  },
+  {
+    "name": "Typography (text primitive import)",
+    "path": "dist/index.js",
+    "import": "{ Typography }",
+    "limit": "0.65 KB"
+  },
+  {
+    "name": "Image (hook + icon dependent import)",
+    "path": "dist/index.js",
+    "import": "{ Image }",
+    "limit": "2.3 KB"
   }
 ]
