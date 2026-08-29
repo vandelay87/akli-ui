@@ -28,6 +28,10 @@ const config: StorybookConfig = {
     name: '@storybook/react-vite',
     options: {},
   },
+  // Storybook's own favicon/manifest, served from the site root in
+  // storybook-static/ — kept out of the root public/ dir so these never
+  // ship inside the published @akli-dev/ui npm package.
+  staticDirs: ['./public'],
   // No manual alias config here (@components/@hooks) and no `viteFinal`
   // importing vite.config.ts: @storybook/builder-vite already auto-loads
   // and merges this package's own root vite.config.ts (via Vite's
