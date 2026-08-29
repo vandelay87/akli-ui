@@ -23,7 +23,8 @@
     "src/**/*.tsx",
     "vite.config.ts",
     "tests/**/*.ts",
-    ".storybook/**/*.ts"
+    ".storybook/**/*.ts",
+    "scripts/**/*.ts"
   ],
   "exclude": ["node_modules", "dist"]
 }

@@ -53,6 +53,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test-storybook": "test-storybook",
+    "check:mdx-docs": "node scripts/check-mdx-docs-render.ts",
     "changeset": "changeset"
   },
   "peerDependencies": {

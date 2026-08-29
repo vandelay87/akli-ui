@@ -9,7 +9,8 @@
     "src/**/*.tsx",
     "eslint.config.js",
     "tests/**/*.ts",
-    ".storybook/**/*.ts"
+    ".storybook/**/*.ts",
+    "scripts/**/*.ts"
   ],
   "exclude": ["node_modules", "dist", "coverage"]
 }
