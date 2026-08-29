@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Button (single component import)",
+    "path": "dist/index.js",
+    "import": "{ Button }",
+    "limit": "1 KB"
+  },
+  {
+    "name": "IconPlus (single icon import)",
+    "path": "dist/index.js",
+    "import": "{ IconPlus }",
+    "limit": "0.6 KB"
+  }
+]

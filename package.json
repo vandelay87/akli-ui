@@ -54,6 +54,7 @@
     "build-storybook": "storybook build",
     "test-storybook": "test-storybook",
     "check:mdx-docs": "node scripts/check-mdx-docs-render.ts",
+    "check:bundle-size": "size-limit",
     "changeset": "changeset"
   },
   "peerDependencies": {
@@ -71,6 +72,7 @@
     "@changesets/changelog-github": "^1.0.0",
     "@changesets/cli": "^3.0.1",
     "@eslint/js": "^10.0.1",
+    "@size-limit/preset-small-lib": "^13.0.3",
     "@storybook/addon-a11y": "10.5.10",
     "@storybook/addon-docs": "10.5.10",
     "@storybook/react-vite": "10.5.10",
@@ -100,6 +102,7 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.2",
+    "size-limit": "^13.0.3",
     "storybook": "10.5.10",
     "typescript": "^5.9.3",
     "unplugin-dts": "^1.0.3",

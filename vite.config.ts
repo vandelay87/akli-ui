@@ -177,6 +177,22 @@ export default defineConfig({
         fileName: '[name]',
       },
       rollupOptions: {
+        // Without this, react/react-dom/react-router-dom get bundled straight
+        // into dist/index.js instead of resolving to the consumer's own copy
+        // at runtime — confirmed by inspecting dist/index.js, which contained
+        // react's actual jsx-runtime source (Symbol.for('react.transitional.
+        // element') etc. — internal markers only react's own package defines)
+        // and react-router-dom's source. Two React instances (one bundled in
+        // here, one from the consumer's node_modules) means this package's
+        // components call useContext against a dispatcher the consumer's
+        // ReactDOM render never initializes — reproduced empirically as
+        // `TypeError: Cannot read properties of null (reading 'useContext')`
+        // in a scratch consumer app. These three (plus their subpath exports,
+        // e.g. react/jsx-runtime, react-dom/client) are exactly this
+        // package's peerDependencies — Vite's build doesn't infer `external`
+        // from peerDependencies automatically, so it has to be declared here
+        // too.
+        external: [/^react($|\/)/, /^react-dom($|\/)/, 'react-router-dom'],
         output: {
           // Must be a function, not a flat string: a flat
           // `'assets/[name]-[hash][extname]'` pattern applies to *every*
