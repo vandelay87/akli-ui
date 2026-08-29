@@ -80,6 +80,9 @@ export const iconPublish = (
   </svg>
 )
 
+// Image's error-state overlay overrides these via `.errorIcon svg { width;
+// height }` (no className prop to hand this element directly), same
+// override-anyway pattern as iconEdit above.
 export const iconWarning = (
   <svg
     width="24"
