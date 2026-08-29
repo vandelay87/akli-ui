@@ -20,7 +20,6 @@ const AA_NORMAL_TEXT_MIN = 4.5
 // (L1+0.05)/(L2+0.05) ratio) — https://www.w3.org/TR/WCAG21/#contrast-minimum
 
 type Rgb = { r: number; g: number; b: number }
-type Rgba = Rgb & { a: number }
 
 const srgbChannelToLinear = (channel: number): number => {
   const c = channel / 255
@@ -39,26 +38,16 @@ const contrastRatio = (a: Rgb, b: Rgb): number => {
 }
 
 // Linear-interpolates each channel between `a` and `b`, weighted by `weight`
-// (0-1, fraction of `a`). Shared by compositeOver (alpha-compositing a
-// translucent color over an opaque backdrop, weighted by rgba() alpha) and
-// mixOpaqueColors (CSS color-mix() of two opaque tokens, weighted by a
-// percentage) below — both are the same per-channel lerp, just with the
-// weight sourced differently.
+// (0-1, fraction of `a`) — used by mixOpaqueColors below to mirror CSS
+// color-mix()'s per-channel lerp.
 const mix = (a: Rgb, weight: number, b: Rgb): Rgb => ({
   r: a.r * weight + b.r * (1 - weight),
   g: a.g * weight + b.g * (1 - weight),
   b: a.b * weight + b.b * (1 - weight),
 })
 
-// Alpha-composites a translucent color over an opaque backdrop (both of
-// tokens.css's tint backgrounds, --color-success-bg/--color-warning-bg, are
-// declared as rgba() washes, not solid hex, since they're meant to tint
-// whatever surface they sit on).
-const compositeOver = (fg: Rgba, backdrop: Rgb): Rgb => mix(fg, fg.a, backdrop)
-
 // Mirrors `color-mix(in srgb, var(source) percent%, var(into))` for the
-// subset of tokens.css/component consumers that mix two opaque tokens
-// directly rather than layering a translucent -bg token over a backdrop.
+// tokens.css/component pairs that mix two opaque tokens directly.
 const mixOpaqueColors = (source: Rgb, percent: number, into: Rgb): Rgb => mix(source, percent / 100, into)
 
 // ── tokens.css parsing ──────────────────────────────────────────────────
@@ -121,7 +110,6 @@ const resolveRawValue = (declarations: Map<string, string>, tokenName: string): 
 }
 
 const HEX_PATTERN = /^#([0-9a-fA-F]{6})$/
-const RGBA_PATTERN = /^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)\s*(?:,\s*([\d.]+)\s*)?\)$/
 
 const resolveOpaqueColor = (declarations: Map<string, string>, tokenName: string): Rgb => {
   const rawValue = resolveRawValue(declarations, tokenName)
@@ -137,18 +125,6 @@ const resolveOpaqueColor = (declarations: Map<string, string>, tokenName: string
   throw new Error(
     `tokens.css: --${tokenName} resolved to ${JSON.stringify(rawValue)}, expected an opaque #RRGGBB hex value`
   )
-}
-
-const resolveTranslucentColor = (declarations: Map<string, string>, tokenName: string): Rgba => {
-  const rawValue = resolveRawValue(declarations, tokenName)
-  const rgbaMatch = RGBA_PATTERN.exec(rawValue)
-  if (!rgbaMatch) {
-    throw new Error(
-      `tokens.css: --${tokenName} resolved to ${JSON.stringify(rawValue)}, expected an rgb()/rgba() value`
-    )
-  }
-  const [, r, g, b, a] = rgbaMatch
-  return { r: Number(r), g: Number(g), b: Number(b), a: a === undefined ? 1 : Number(a) }
 }
 
 const rootDeclarations = parseDeclarations(extractBlock(tokensCss, ':root {'))
@@ -195,9 +171,6 @@ type ColorMixBackground = {
 type Background =
   // A single named opaque token, e.g. --color-bg.
   | { kind: 'solid'; token: string }
-  // A translucent rgba() wash token (`token`) alpha-composited over an
-  // opaque `backdrop` token — used for tint pairs like --color-success-bg.
-  | { kind: 'composite'; token: string; backdrop: string }
   // A CSS color-mix() of two opaque tokens, e.g. Callout's `.info` background.
   | ({ kind: 'colorMix' } & ColorMixBackground)
 
@@ -219,11 +192,6 @@ const resolveBackground = (declarations: Map<string, string>, background: Backgr
   switch (background.kind) {
     case 'solid':
       return resolveOpaqueColor(declarations, background.token)
-    case 'composite':
-      return compositeOver(
-        resolveTranslucentColor(declarations, background.token),
-        resolveOpaqueColor(declarations, background.backdrop)
-      )
     case 'colorMix':
       return mixOpaqueColors(
         resolveOpaqueColor(declarations, background.source),
@@ -254,11 +222,7 @@ const pairSpecs: PairSpec[] = [
     background: { kind: 'solid', token: 'color-field' },
   },
   {
-    // --color-success-bg (the rgba() wash token) has no actual CSS consumer
-    // in this package — Callout's `.tip` (the only real consumer of
-    // --color-success-on-tint) builds its background via color-mix()
-    // directly, not by layering --color-success-bg over a backdrop (issue
-    // #24). Checked against that real formula, same pattern as
+    // See file-top comment for rationale (issue #24); same pattern as
     // --color-primary-on-tint below.
     label:
       '--color-success-on-tint on Callout .tip background (color-mix(--color-success 6%, --color-surface))',
@@ -266,9 +230,7 @@ const pairSpecs: PairSpec[] = [
     background: { kind: 'colorMix', source: 'color-success', percent: 6, into: 'color-surface' },
   },
   {
-    // Same rationale as --color-success-on-tint above: --color-warning-bg
-    // has no real consumer, Callout's `.warning` uses color-mix() directly
-    // (issue #24).
+    // Same rationale as --color-success-on-tint above (issue #24).
     label:
       '--color-warning-on-tint on Callout .warning background (color-mix(--color-warning 6%, --color-surface))',
     foreground: 'color-warning-on-tint',

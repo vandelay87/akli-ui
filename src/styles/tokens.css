@@ -115,13 +115,10 @@
      own tint" pairing. Consolidates what were 5 identical component-local
      overrides (StatusBadge, Toast, RecipeList, Callout ×2 — issues #267
      and #272) into one shared token. Dark mode never needed the
-     correction, so it just resolves to the existing token there. Verified
-     against Callout's actual `.tip`/`.warning` background formula
-     (color-mix(in srgb, var(--color-success|warning) 6%,
-     var(--color-surface))) — its only real consumer — not the unused
-     --color-success-bg/--color-warning-bg rgba() wash tokens below, which
-     no component in this package actually composites against a backdrop
-     (issue #24). */
+     correction, so it just resolves to the existing token there. Ratios
+     below are verified against Callout's real color-mix() tint
+     background, not the unused --color-*-bg wash tokens (issue #24; see
+     tokens.contrast.test.ts for full rationale). */
   --color-success-on-tint: #1a754d;   /* ~4.70:1 against Callout's .tip tint (color-mix 6% into --color-surface) */
   --color-warning-on-tint: #8c5a08;   /* ~4.86:1 against Callout's .warning tint (color-mix 6% into --color-surface) */
   /* WCAG AA override: --color-primary on Callout's Info variant tint (6%
