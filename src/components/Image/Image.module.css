@@ -100,6 +100,13 @@
   margin-block-end: var(--space-2);
 }
 
+/* Percentage sizing doesn't inherit — color does, so only width/height need
+   to target the svg directly. */
+.errorIcon svg {
+  width: 100%;
+  height: 100%;
+}
+
 .errorContent {
   text-align: center;
 }
