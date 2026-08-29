@@ -1,6 +1,6 @@
 {
   "name": "@akli-dev/ui",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Shared UI components and design tokens for akli.dev apps",
   "type": "module",
   "license": "MIT",
