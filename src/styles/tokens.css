@@ -207,6 +207,12 @@
   --duration-base: 250ms;
   --easing-default: ease;
 
+  /* ── Opacity ──────────────────────────────────────────────── */
+  /* Filled/solid button and link variants dim on hover to this value
+     (the token system has no hover-color tokens to reach for instead) —
+     one source of truth for Button.module.css and Link.module.css. */
+  --opacity-hover-dim: 0.9;
+
   /* ── Breakpoints (reference — use in @media queries) ──────── */
   /* sm:  640px  */
   /* md:  768px  */

@@ -69,6 +69,7 @@ export {
   iconEdit,
   iconPublish,
   iconWarning,
+  iconImage,
   iconDelete,
   iconRetry,
   iconLock,
