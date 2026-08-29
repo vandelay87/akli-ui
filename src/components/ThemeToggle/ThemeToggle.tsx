@@ -1,4 +1,5 @@
 import { useLayoutEffect, useState } from 'react'
+import { iconMoon, iconSun } from '../icons'
 import styles from './ThemeToggle.module.css'
 
 type Theme = 'light' | 'dark'
@@ -78,7 +79,7 @@ const ThemeToggle = () => {
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
     >
       <span className={styles.glyph} aria-hidden="true">
-        {isDark ? '☀' : '☾'}
+        {isDark ? iconSun : iconMoon}
       </span>
     </button>
   )

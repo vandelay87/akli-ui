@@ -16,14 +16,6 @@ export interface LinkProps {
   iconSide?: 'left' | 'right'
   /** Direction the icon nudges on hover. @default 'right' */
   nudge?: 'left' | 'right' | 'up-right' | 'none'
-  /**
-   * Rotates a "↗" icon so it reads as pointing `right` (45deg clockwise)
-   * or `left` (135deg counter-clockwise) instead of diagonally — for CTAs
-   * that want the up-right arrow's visual weight/style pointed a specific
-   * direction. Pair with the matching `nudge` (`right`/`left`) so the
-   * hover animation agrees with which way the icon visually points.
-   */
-  rotateIcon?: 'right' | 'left'
   /** Button/pill shape. Omit for a plain link (default, unchanged). */
   variant?: 'ghost' | 'solid'
   ariaLabel?: string
@@ -37,11 +29,6 @@ const NUDGE_CLASSES: Record<NonNullable<LinkProps['nudge']>, string | undefined>
   none: undefined,
 }
 
-const ROTATE_ICON_CLASSES: Record<NonNullable<LinkProps['rotateIcon']>, string> = {
-  right: styles.iconRotateRight,
-  left: styles.iconRotateLeft,
-}
-
 const Link: FC<LinkProps> = ({
   children,
   to,
@@ -51,7 +38,6 @@ const Link: FC<LinkProps> = ({
   iconSide = 'right',
   nudge = 'right',
   variant,
-  rotateIcon,
   ariaLabel,
   className: externalClassName,
 }) => {
@@ -77,18 +63,16 @@ const Link: FC<LinkProps> = ({
     externalClassName
   )
 
-  const iconClassName = rotateIcon ? ROTATE_ICON_CLASSES[rotateIcon] : styles.icon
-
   const content = icon ? (
     <>
       {iconSide === 'left' && (
-        <span className={iconClassName} aria-hidden="true">
+        <span className={styles.icon} aria-hidden="true">
           {icon}
         </span>
       )}
       {children}
       {iconSide === 'right' && (
-        <span className={iconClassName} aria-hidden="true">
+        <span className={styles.icon} aria-hidden="true">
           {icon}
         </span>
       )}
