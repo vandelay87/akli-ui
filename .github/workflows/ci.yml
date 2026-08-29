@@ -65,8 +65,13 @@ jobs:
       - name: Build Storybook
         run: pnpm build-storybook
 
+      # Runs the a11y gate once per theme against one build/server — see
+      # .storybook/test-runner.ts for how STORYBOOK_A11Y_THEME forces the
+      # theme global. "" is the default (light) theme.
       - name: Storybook accessibility tests
         run: |
           pnpm exec http-server storybook-static --port 6006 --silent &
           pnpm exec wait-on tcp:127.0.0.1:6006 --timeout 60000
-          pnpm test-storybook --maxWorkers=2
+          for theme in "" dark; do
+            STORYBOOK_A11Y_THEME="$theme" pnpm test-storybook --maxWorkers=2
+          done
