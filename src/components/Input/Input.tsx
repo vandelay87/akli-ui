@@ -46,8 +46,8 @@ const Input = ({
   ref,
 }: InputProps) => {
   const fieldClassName = cx(
-    interactions.fieldFocusRing,
     styles.field,
+    interactions.fieldFocusRing,
     invalid && styles.invalid,
     extraClassName
   )

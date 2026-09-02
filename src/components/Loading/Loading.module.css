@@ -27,6 +27,5 @@
 }
 
 /* Uses the global `spin` keyframe (src/styles/animations.css) via the
-   composed `spinner` class, which is already neutered under
-   prefers-reduced-motion at the keyframe level (rotation frozen) — no
-   local override needed. */
+   `spinner` class, which is already neutered under prefers-reduced-motion
+   at the keyframe level (rotation frozen) — no local override needed. */

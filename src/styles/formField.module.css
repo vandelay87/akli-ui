@@ -14,14 +14,11 @@
    `prefers-reduced-motion` override) locally.
 
    Consumers `composes: field from '../../styles/formField.module.css';`
-   here alongside their own separate
-   `composes: fieldFocusRing from '../../styles/interactions.module.css';`
-   (CSS Modules `composes` supports multiple sources) plus whatever stays
-   genuinely per-consumer (line-height/resize/min-height for Textarea,
-   :focus-visible/:disabled overrides for Input, its own :disabled for
-   Textarea, its own transition, etc.) — see each component's own
-   Input.module.css / Textarea.module.css / TagInput.module.css for what
-   stays local and why.
+   here, plus whatever stays genuinely per-consumer (line-height/resize/
+   min-height for Textarea, :focus-visible/:disabled overrides for Input,
+   its own :disabled for Textarea, its own transition, etc.) — see each
+   component's own Input.module.css / Textarea.module.css /
+   TagInput.module.css for what stays local and why.
 
    `--input-bg`/`--input-radius` let a consumer re-theme a specific field
    (e.g. RecipeSearch's surface-tinted pill) by setting custom properties on

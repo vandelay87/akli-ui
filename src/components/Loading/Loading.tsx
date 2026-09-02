@@ -10,7 +10,7 @@ export interface LoadingProps {
 const Loading: FC<LoadingProps> = ({ label = 'Loading…' }) => {
   return (
     <span role="status" aria-live="polite" aria-label={label} className={styles.container}>
-      <span className={cx(interactions.spinner, styles.spinner)} aria-hidden="true" />
+      <span className={cx(styles.spinner, interactions.spinner)} aria-hidden="true" />
       <span className={styles.label} aria-hidden="true">
         {label}
       </span>
