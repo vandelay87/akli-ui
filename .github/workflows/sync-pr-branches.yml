@@ -1,0 +1,29 @@
+name: Sync PR branches
+
+# Merge queue isn't available for repositories owned by a personal account
+# (organization-owned only). This approximates the part of its behavior that
+# matters for the strict required-status-checks setting on main: every open
+# PR gets updated automatically after a merge, instead of sitting behind
+# until someone notices or comments "@dependabot rebase".
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-branches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update every open PR branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr list --repo "${{ github.repository }}" --base main --state open --json number \
+            --jq '.[].number' | while read -r pr; do
+            gh pr update-branch "$pr" --repo "${{ github.repository }}" || true
+          done
