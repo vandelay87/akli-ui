@@ -104,7 +104,7 @@
     "react-router-dom": "^7.18.2",
     "size-limit": "^13.0.3",
     "storybook": "10.5.10",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "unplugin-dts": "^1.0.3",
     "vite": "^8.2.1",
     "vitest": "^4.1.11",
