@@ -4,7 +4,6 @@
    ambient elevation in the design. */
 
 .button {
-  composes: focusRing from '../../styles/interactions.module.css';
   display: inline-flex;
   align-items: center;
   justify-content: center;

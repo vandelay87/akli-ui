@@ -1,4 +1,6 @@
 import { useLayoutEffect, useState } from 'react'
+import interactions from '../../styles/interactions.module.css'
+import { cx } from '../../utils/cx'
 import { iconMoon, iconSun } from '../icons'
 import styles from './ThemeToggle.module.css'
 
@@ -74,7 +76,7 @@ const ThemeToggle = () => {
   return (
     <button
       type="button"
-      className={styles.toggle}
+      className={cx(styles.toggle, interactions.focusRing)}
       onClick={handleClick}
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
     >

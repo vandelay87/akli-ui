@@ -59,7 +59,6 @@
 }
 
 .brand {
-  composes: focusRing from '../../styles/interactions.module.css';
   /* Explicit size/weight/tracking — without these the brand link fell
      back to the ambient 16px body size instead of the design's 15px. */
   font-size: var(--font-size-base);
@@ -84,7 +83,6 @@
 }
 
 .navLink {
-  composes: focusRing from '../../styles/interactions.module.css';
   color: var(--color-text-muted);
   text-decoration: none;
   border-radius: var(--radius-sm);

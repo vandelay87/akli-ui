@@ -37,8 +37,9 @@
    '.../interactions.module.css'`, then e.g. `` `${interactions.focusRing}
    ${styles.button}` ``), which gives Rollup a genuine shared module to
    hoist into its own chunk. See RecipeList/RecipeEditor/UserManagement/
-   Card for the JS-import pattern, and Button/Link/Header for consumers
-   correctly left on `composes:` because they don't hit this. */
+   Card/Button/Link/Header/ThemeToggle for the JS-import pattern — only
+   Loading/Input remain on `composes:`, for the cross-file duplication
+   risk described above. */
 
 /* ── Links — icon nudge ──────────────────────────────────────
    Apply `linkIcon` to the icon element, and one direction class to the

@@ -1,4 +1,5 @@
 import { ReactElement, ReactNode } from 'react'
+import interactions from '../../styles/interactions.module.css'
 import { cx } from '../../utils/cx'
 import styles from './Button.module.css'
 
@@ -46,6 +47,7 @@ const Button = ({
 }: ButtonProps): ReactElement => {
   const className = cx(
     styles.button,
+    interactions.focusRing,
     styles[variant],
     styles[shape],
     styles[size],

@@ -9,7 +9,6 @@
    with. */
 @layer component-defaults {
   .link {
-    composes: focusRing from '../../styles/interactions.module.css';
     display: inline-flex;
     align-items: center;
     gap: var(--space-1);
@@ -118,22 +117,6 @@
 }
 
 /* ── Icon + nudge ────────────────────────────────────────────────
-   Ported from the shared interactions.module.css composables (itself a
-   port of _helpers.css .ds-link/.ds-link-ic) rather than duplicating the
-   transition/transform declarations locally. */
-
-.icon {
-  composes: linkIcon from '../../styles/interactions.module.css';
-}
-
-.nudgeRight {
-  composes: nudgeRight from '../../styles/interactions.module.css';
-}
-
-.nudgeLeft {
-  composes: nudgeLeft from '../../styles/interactions.module.css';
-}
-
-.nudgeUpRight {
-  composes: nudgeUpRight from '../../styles/interactions.module.css';
-}
+   `linkIcon`/`nudgeRight`/`nudgeLeft`/`nudgeUpRight` (interactions.module.css)
+   are composed in JS (see Link.tsx) rather than via local aliases here —
+   see interactions.module.css's own header comment for why. */
