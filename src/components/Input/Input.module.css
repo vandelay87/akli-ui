@@ -21,7 +21,6 @@
    transition stays local (see that file's comment for why). */
 .field {
   composes: field from '../../styles/formField.module.css';
-  composes: fieldFocusRing from '../../styles/interactions.module.css';
   transition: border-color var(--duration-fast) var(--easing-default),
               background-color var(--duration-fast) var(--easing-default);
 }
@@ -49,13 +48,13 @@
   border-color: var(--color-error);
 }
 
-.invalid:focus-visible {
+.field.invalid:focus-visible {
   border-color: var(--color-error);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-error) 15%, transparent);
 }
 
 @supports not (color: color-mix(in srgb, red 50%, transparent)) {
-  .invalid:focus-visible {
+  .field.invalid:focus-visible {
     outline-color: var(--color-error);
     box-shadow: none;
   }

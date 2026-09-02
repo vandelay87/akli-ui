@@ -10,10 +10,12 @@
 }
 
 .spinner {
-  composes: spinner from '../../styles/interactions.module.css';
   display: inline-block;
-  /* Larger + a two-sided arc than the shared 24px/single-edge default —
-     this is the prominent whole-view variant, not the inline/toast one. */
+}
+
+/* Larger + a two-sided arc than the shared 24px/single-edge default —
+   this is the prominent whole-view variant, not the inline/toast one. */
+.container .spinner {
   width: 2rem;
   height: 2rem;
   border-width: var(--border-width-thick);
