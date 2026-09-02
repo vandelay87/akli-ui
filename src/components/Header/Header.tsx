@@ -4,6 +4,7 @@ import { useMeasuredHeightVar } from '@hooks/useMeasuredHeightVar'
 import type { FC } from 'react'
 import { useRef } from 'react'
 import { Link as RouterLink, useLocation } from 'react-router-dom'
+import interactions from '../../styles/interactions.module.css'
 import { cx } from '../../utils/cx'
 import styles from './Header.module.css'
 
@@ -61,7 +62,7 @@ const Header: FC<HeaderProps> = ({
         <RouterLink
           key={link.to}
           to={link.to}
-          className={styles.navLink}
+          className={cx(styles.navLink, interactions.focusRing)}
           aria-current={isLinkActive(pathname, link.to) ? 'page' : undefined}
         >
           {link.label}
@@ -74,7 +75,7 @@ const Header: FC<HeaderProps> = ({
     <header ref={headerRef} className={className}>
       <div className={styles.inner}>
         <div className={styles.left}>
-          <RouterLink to={brandTo} className={styles.brand}>
+          <RouterLink to={brandTo} className={cx(styles.brand, interactions.focusRing)}>
             {brand}
           </RouterLink>
 
