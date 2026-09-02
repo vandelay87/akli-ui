@@ -3,11 +3,6 @@ name: CI
 on:
   pull_request:
     branches: [main]
-  # Required for merge queue: entries are tested against a speculative merge
-  # with the latest main, not the PR's own head — without this trigger, these
-  # checks never run for a queued entry and the merge queue times out waiting
-  # for a required status check that's never reported.
-  merge_group:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
