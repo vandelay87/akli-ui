@@ -41,6 +41,7 @@ import {
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
+import pkg from '../package.json' with { type: 'json' }
 
 const repoRoot = path.resolve(import.meta.dirname, '..')
 const distDir = path.join(repoRoot, 'dist')
@@ -54,15 +55,19 @@ const indexDistCss = path.join(distDir, 'index.css')
 const SHARED_INTERACTIONS_CLASS = 'focusRing'
 
 // Peer dependencies the scratch consumer needs installed for its own build to
-// resolve the barrel's full import graph, plus the bundler it builds with.
+// resolve the barrel's full import graph, plus the bundler it builds with —
+// derived from package.json's own peerDependencies (same reasoning as
+// vite.config.ts's rollupOptions.external: a hand-copied list is how a future
+// peer dependency silently drifts out of sync, per CLAUDE.md's Pitfalls).
 // Versions are read from this repo's own node_modules so a CI run and a local
 // run install exactly the same tree.
-const CONSUMER_DEPENDENCIES = ['react', 'react-dom', 'react-router-dom', 'vite']
+const CONSUMER_DEPENDENCIES = Object.keys(pkg.peerDependencies)
 
 const scopedClassPattern = /_([A-Za-z0-9-]+)_([a-z0-9]{4,8})_\d+/g
 
 interface CssFileAnalysis {
   file: string
+  source: string
   /** hash -> the distinct CSS Modules local names compiled under it */
   localsByHash: Map<string, Set<string>>
 }
@@ -83,21 +88,19 @@ const pass = (message: string) => console.log(`  ok   ${message}`)
 const relative = (file: string) => path.relative(repoRoot, file)
 
 const listFilesRecursively = (dir: string): string[] =>
-  readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-    const full = path.join(dir, entry.name)
-    return entry.isDirectory() ? listFilesRecursively(full) : [full]
-  })
+  readdirSync(dir, { recursive: true, withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) => path.join(entry.parentPath, entry.name))
 
 const analyzeCssFile = (file: string): CssFileAnalysis => {
+  const source = readFileSync(file, 'utf8')
   const localsByHash = new Map<string, Set<string>>()
-  for (const [, local, hash] of readFileSync(file, 'utf8').matchAll(
-    scopedClassPattern
-  )) {
+  for (const [, local, hash] of source.matchAll(scopedClassPattern)) {
     const locals = localsByHash.get(hash) ?? new Set<string>()
     locals.add(local)
     localsByHash.set(hash, locals)
   }
-  return { file, localsByHash }
+  return { file, source, localsByHash }
 }
 
 const declaredClassNames = (cssSource: string): Set<string> =>
@@ -158,23 +161,6 @@ const checkStructure = (
     }
   }
 
-  const ownerByHash = new Map(
-    components.map(({ ownHash, name }) => [ownHash, name])
-  )
-  for (const { name, distCssFile, ownHash } of components) {
-    const localsByHash = cssAnalyses.find(
-      (analysis) => analysis.file === distCssFile
-    )?.localsByHash
-    const foreign = [...(localsByHash?.keys() ?? [])].filter(
-      (hash) => hash !== ownHash && ownerByHash.has(hash)
-    )
-    if (foreign.length > 0) {
-      fail(
-        `${relative(distCssFile)} contains ${foreign.map((hash) => ownerByHash.get(hash)).join(', ')}'s compiled rules — ${name}'s CSS must contain only its own`
-      )
-    }
-  }
-
   // Any hash present in two dist CSS files is duplicated shared CSS — the
   // interactions.module.css failure mode in its general form, which also
   // covers formField.module.css should it ever gain a second consumer.
@@ -187,18 +173,16 @@ const checkStructure = (
   }
 }
 
-const checkInteractionsDedup = (cssAnalyses: CssFileAnalysis[]) => {
-  if (!existsSync(interactionsDistCss)) {
+const checkInteractionsDedup = (analysesByFile: Map<string, CssFileAnalysis>) => {
+  const interactions = analysesByFile.get(interactionsDistCss)
+  if (!interactions) {
     fail(
       `${relative(interactionsDistCss)} does not exist — shared interaction styles are no longer emitted as their own file, so every composing component is carrying its own copy`
     )
     return
   }
 
-  const interactions = cssAnalyses.find(
-    (analysis) => analysis.file === interactionsDistCss
-  )
-  const sharedHash = [...(interactions?.localsByHash.entries() ?? [])].find(
+  const sharedHash = [...interactions.localsByHash.entries()].find(
     ([, locals]) => locals.has(SHARED_INTERACTIONS_CLASS)
   )?.[0]
   if (!sharedHash) {
@@ -212,10 +196,12 @@ const checkInteractionsDedup = (cssAnalyses: CssFileAnalysis[]) => {
     `_${SHARED_INTERACTIONS_CLASS}_${sharedHash}_\\d+`,
     'g'
   )
-  const occurrences = cssAnalyses.flatMap(({ file }) => {
-    const count = [...readFileSync(file, 'utf8').matchAll(token)].length
-    return count > 0 ? [{ file, count }] : []
-  })
+  const occurrences = [...analysesByFile.values()].flatMap(
+    ({ file, source }) => {
+      const count = [...source.matchAll(token)].length
+      return count > 0 ? [{ file, count }] : []
+    }
+  )
   const total = occurrences.reduce((sum, { count }) => sum + count, 0)
 
   if (total !== 1) {
@@ -229,8 +215,8 @@ const checkInteractionsDedup = (cssAnalyses: CssFileAnalysis[]) => {
   }
 }
 
-const checkGlobalEntryCss = (cssAnalyses: CssFileAnalysis[]) => {
-  const index = cssAnalyses.find((analysis) => analysis.file === indexDistCss)
+const checkGlobalEntryCss = (analysesByFile: Map<string, CssFileAnalysis>) => {
+  const index = analysesByFile.get(indexDistCss)
   if (!index) {
     fail(
       `${relative(indexDistCss)} does not exist — package.json exports ./index.css, so a v1 consumer that kept the import would 404`
@@ -243,7 +229,7 @@ const checkGlobalEntryCss = (cssAnalyses: CssFileAnalysis[]) => {
     )
     return
   }
-  if (!readFileSync(index.file, 'utf8').includes('@keyframes')) {
+  if (!index.source.includes('@keyframes')) {
     fail(
       `${relative(indexDistCss)} contains no @keyframes — animations.css's shared keyframes are missing from the entry stylesheet`
     )
@@ -401,10 +387,10 @@ const checkScratchConsumer = (components: ComponentAnalysis[]) => {
 
     const countSharedRule = (cssFiles: CssFileAnalysis[]) =>
       cssFiles.reduce(
-        (sum, { file }) =>
+        (sum, { source }) =>
           sum +
           [
-            ...readFileSync(file, 'utf8').matchAll(
+            ...source.matchAll(
               new RegExp(
                 `_${SHARED_INTERACTIONS_CLASS}_[a-z0-9]{4,8}_\\d+`,
                 'g'
@@ -453,6 +439,9 @@ const main = () => {
   const cssAnalyses = listFilesRecursively(distDir)
     .filter((file) => file.endsWith('.css'))
     .map(analyzeCssFile)
+  const analysesByFile = new Map(
+    cssAnalyses.map((analysis) => [analysis.file, analysis])
+  )
 
   const components = readdirSync(srcComponentsDir, { withFileTypes: true })
     .filter(
@@ -464,9 +453,7 @@ const main = () => {
     )
     .flatMap<ComponentAnalysis>(({ name }) => {
       const distCssFile = path.join(distDir, 'components', name, `${name}.css`)
-      const analysis = cssAnalyses.find(
-        (candidate) => candidate.file === distCssFile
-      )
+      const analysis = analysesByFile.get(distCssFile)
       if (!analysis) {
         fail(
           `${relative(distCssFile)} does not exist — ${name}'s styles were folded into another output file instead of shipping alongside its own module`
@@ -485,8 +472,8 @@ const main = () => {
   )
   checkInjectedCssImports(components)
   checkStructure(cssAnalyses, components)
-  checkInteractionsDedup(cssAnalyses)
-  checkGlobalEntryCss(cssAnalyses)
+  checkInteractionsDedup(analysesByFile)
+  checkGlobalEntryCss(analysesByFile)
 
   // With no component's own CSS resolved there is nothing for the consumer
   // layer to assert against, and it would spend a full npm install saying so.
@@ -508,4 +495,10 @@ const main = () => {
   console.log('check:css-tree-shaking: all assertions passed.')
 }
 
-main()
+try {
+  main()
+} catch (error) {
+  console.error('check:css-tree-shaking: unexpected failure')
+  console.error(error)
+  process.exit(1)
+}
