@@ -56,6 +56,7 @@
     "test-storybook": "test-storybook",
     "check:mdx-docs": "node scripts/check-mdx-docs-render.ts",
     "check:bundle-size": "size-limit",
+    "check:css-tree-shaking": "node scripts/check-css-tree-shaking.ts",
     "changeset": "changeset"
   },
   "peerDependencies": {
