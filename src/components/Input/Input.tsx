@@ -1,4 +1,5 @@
 import type { ChangeEvent, KeyboardEvent, ReactNode, Ref } from 'react'
+import interactions from '../../styles/interactions.module.css'
 import { cx } from '../../utils/cx'
 import styles from './Input.module.css'
 
@@ -44,7 +45,12 @@ const Input = ({
   className: extraClassName,
   ref,
 }: InputProps) => {
-  const fieldClassName = cx(styles.field, invalid && styles.invalid, extraClassName)
+  const fieldClassName = cx(
+    styles.field,
+    interactions.fieldFocusRing,
+    invalid && styles.invalid,
+    extraClassName
+  )
 
   return (
     <div className={styles.wrapper}>
