@@ -42,6 +42,7 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import pkg from '../package.json' with { type: 'json' }
+import { stripModuleCssInfix } from './dist-css-naming.ts'
 
 const repoRoot = path.resolve(import.meta.dirname, '..')
 const distDir = path.join(repoRoot, 'dist')
@@ -50,8 +51,9 @@ const interactionsDistCss = path.join(distDir, 'styles', 'interactions.css')
 const indexDistCss = path.join(distDir, 'index.css')
 
 // The one class in interactions.module.css composed by the most components
-// (Button, Header ×2, ThemeToggle, Link, and — as .fieldFocusRing — Input).
-// If it ever renames, the count assertion below reports 0 rather than passing.
+// (Button, Card, Header ×2, ThemeToggle, Link, and — as .fieldFocusRing —
+// Input). If it ever renames, the count assertion below reports 0 rather
+// than passing.
 const SHARED_INTERACTIONS_CLASS = 'focusRing'
 
 // Peer dependencies the scratch consumer needs installed for its own build to
@@ -452,7 +454,12 @@ const main = () => {
         )
     )
     .flatMap<ComponentAnalysis>(({ name }) => {
-      const distCssFile = path.join(distDir, 'components', name, `${name}.css`)
+      const distCssFile = path.join(
+        distDir,
+        'components',
+        name,
+        stripModuleCssInfix(`${name}.module.css`)
+      )
       const analysis = analysesByFile.get(distCssFile)
       if (!analysis) {
         fail(

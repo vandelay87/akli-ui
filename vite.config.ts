@@ -3,6 +3,7 @@ import dts from 'unplugin-dts/vite'
 import { libInjectCss } from 'vite-plugin-lib-inject-css'
 import { defineConfig } from 'vitest/config'
 import pkg from './package.json' with { type: 'json' }
+import { stripModuleCssInfix } from './scripts/dist-css-naming.ts'
 
 export default defineConfig({
   // Vite's default `base: '/'` root-anchors any non-inlined asset URL
@@ -264,22 +265,10 @@ export default defineConfig({
             if (!name?.endsWith('.css')) return 'assets/[name]-[hash][extname]'
             if (standaloneCssEntryNames.has(name)) return '[name][extname]'
             if (!name.endsWith('.module.css')) return 'index.css'
-            // Drop the `.module` infix (`Button.module.css` ships as
-            // `Button.css`) — not cosmetic. A consumer's own Vite keys CSS
-            // Modules handling off that exact suffix, and for one it sets
-            // `moduleSideEffects: false` on the module it generates
-            // (vite/dist/node/chunks/node.js, the
-            // `modulesCode || inlined ? false : 'no-treeshake'` line in
-            // vite:css-post's transform). libInjectCss's injected import
-            // binds no names, so under that flag the consumer's build
-            // tree-shakes the whole module away and ships none of its CSS —
-            // silently, with a green build and unstyled components.
-            // Reproduced end-to-end in a packed-tarball scratch consumer
-            // before this rename, and fixed by it. Also keeps the shipped
-            // selectors' already-compiled hashes (`_button_88dh1_6`) intact:
-            // re-entering the consumer's own CSS Modules pipeline would
-            // re-hash them and break the pairing with `Button.module.js`.
-            return name.replace(/\.module\.css$/, '.css')
+            // See stripModuleCssInfix's own comment (scripts/dist-css-naming.ts)
+            // for why the `.module` infix has to go, not just what this does —
+            // shared with check-css-tree-shaking.ts so the rule lives in one place.
+            return stripModuleCssInfix(name)
           },
         },
       },
