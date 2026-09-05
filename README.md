@@ -28,13 +28,14 @@ Peer dependencies (install alongside it if the consuming app doesn't already hav
 
 ### Required CSS imports
 
-A working setup needs three CSS imports:
+A working setup needs two CSS imports:
 
 - `@akli-dev/ui/fonts.css` — the self-hosted `@font-face` declarations (Geist, JetBrains Mono, plus a metric-matched `'Geist Fallback'` face).
 - `@akli-dev/ui/tokens.css` — the design tokens (colors, spacing, typography, etc.), including `--font-sans`, `--font-mono`, and the `body` base rule that applies them.
-- `@akli-dev/ui/index.css` — the compiled component styles (`Button`, `Typography`, and every other component's actual CSS Modules output). Skip this one and components render completely unstyled even with the two above in place.
 
-**`fonts.css` must be imported before `tokens.css`**, and both once, at the app's entry point, before first render. `index.css` has no ordering dependency relative to the other two — import it wherever convenient alongside them.
+`@akli-dev/ui/index.css` is optional and no longer required: each component's own compiled JS carries its own CSS import automatically, so importing a component from the package's entry point is enough to style it. The path still exists and is still exported — it now contains only a handful of global keyframe animations rather than per-component styles — so it's safe for a consumer already importing it to leave that import in place, but a new setup doesn't need to add it.
+
+**`fonts.css` must be imported before `tokens.css`**, and both once, at the app's entry point, before first render.
 
 The reason the fonts/tokens order matters: `tokens.css` defines
 
@@ -50,8 +51,11 @@ The reason the fonts/tokens order matters: `tokens.css` defines
 // main.tsx (or wherever the app's entry point is)
 import '@akli-dev/ui/fonts.css'
 import '@akli-dev/ui/tokens.css'
-import '@akli-dev/ui/index.css'
 ```
+
+### Migrating from v1
+
+The only breaking change in v2.0.0 is `index.css` dropping out of the required imports above — no code change needed either way: a v1 consumer's existing `import '@akli-dev/ui/index.css'` keeps resolving, and a fresh setup can skip it entirely.
 
 ### Font preloading (`preloadFonts()`)
 
@@ -95,7 +99,6 @@ An SSR consumer that wants to avoid a flash of the wrong theme on first paint ca
 // main.tsx
 import '@akli-dev/ui/fonts.css'
 import '@akli-dev/ui/tokens.css'
-import '@akli-dev/ui/index.css'
 
 import { Button } from '@akli-dev/ui'
 
