@@ -177,22 +177,29 @@
    then add the field's own border-color if it needs one beyond focus
    (see Input.module.css's `.invalid` for a variant of this same shape).
    Suppresses any composed `.focusRing` outline that might already sit
-   on the same element — must stay the only source of `outline` there. */
-.fieldFocusRing:focus-visible {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: var(--ring);
-}
+   on the same element — must stay the only source of `outline` there.
 
-/* `--ring` uses color-mix(); without support it resolves to an invalid
-   value, silently dropping the box-shadow with no visible focus state
-   at all (outline above is suppressed). Falls back to the same solid
-   outline `.focusRing` uses. */
-@supports not (color: color-mix(in srgb, red 50%, transparent)) {
+   Lives in the low-priority `@layer component-defaults` so a consumer's
+   own unlayered override (e.g. Input's `.invalid:focus-visible`) always
+   wins, regardless of source/bundle order — same mechanism as
+   Typography.module.css/Link.module.css/stateBox.module.css, issue #263. */
+@layer component-defaults {
   .fieldFocusRing:focus-visible {
-    outline: 2px solid var(--color-primary);
-    outline-offset: 2px;
-    box-shadow: none;
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--ring);
+  }
+
+  /* `--ring` uses color-mix(); without support it resolves to an invalid
+     value, silently dropping the box-shadow with no visible focus state
+     at all (outline above is suppressed). Falls back to the same solid
+     outline `.focusRing` uses. */
+  @supports not (color: color-mix(in srgb, red 50%, transparent)) {
+    .fieldFocusRing:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+      box-shadow: none;
+    }
   }
 }
 
@@ -201,22 +208,28 @@
    default — not written here since nothing in scope today uses
    `backdrop-filter` yet (Header is still old neo-brutalist). */
 
-/* ── Spinner ───────────────────────────────────────────────── */
-.spinner {
-  /* 24px === --space-6 */
-  width: var(--space-6);
-  height: var(--space-6);
-  border-radius: var(--radius-full);
-  /* border-width doesn't match --border-width/--border-width-thick; kept
-     literal per _helpers.css spec. */
-  border: 3px solid var(--color-border);
-  border-top-color: var(--color-primary);
-  /* 0.7s not in the duration token scale; kept literal per _helpers.css spec.
-     `global(...)` is required — without it, Vite's CSS Modules transform
-     scopes the `spin` identifier to a hashed local name with no matching
-     @keyframes, silently no-op'ing the animation (spin lives, unscoped, in
-     the plain src/styles/animations.css file, not a .module.css). */
-  animation: global(spin) 0.7s linear infinite;
+/* ── Spinner ─────────────────────────────────────────────────
+   Lives in the low-priority `@layer component-defaults` so a consumer's
+   own unlayered override (e.g. Loading's `.spinner` sizing) always wins,
+   regardless of source/bundle order — same mechanism as
+   Typography.module.css/Link.module.css/stateBox.module.css, issue #263. */
+@layer component-defaults {
+  .spinner {
+    /* 24px === --space-6 */
+    width: var(--space-6);
+    height: var(--space-6);
+    border-radius: var(--radius-full);
+    /* border-width doesn't match --border-width/--border-width-thick; kept
+       literal per _helpers.css spec. */
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-primary);
+    /* 0.7s not in the duration token scale; kept literal per _helpers.css spec.
+       `global(...)` is required — without it, Vite's CSS Modules transform
+       scopes the `spin` identifier to a hashed local name with no matching
+       @keyframes, silently no-op'ing the animation (spin lives, unscoped, in
+       the plain src/styles/animations.css file, not a .module.css). */
+    animation: global(spin) 0.7s linear infinite;
+  }
 }
 
 .spinnerSm {
