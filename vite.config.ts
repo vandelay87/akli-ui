@@ -87,12 +87,17 @@ export default defineConfig({
       // its own import graph is just the `Plugin` type from `vite`.
       'vite-plugin': 'src/vite-plugin.ts',
     }
-    // animations.css's asset name, as Vite derives it from the source
-    // path relative to preserveModulesRoot. Named here so assetFileNames
-    // below can redirect it to the dist-root `index.css` the `exports`
-    // map points at, instead of the `styles/animations.css` every other
-    // per-module CSS asset gets.
-    const legacyIndexCssAssetName = 'styles/animations.css'
+    // Names of entries whose own declared source is a `.css` file (today:
+    // tokens, fonts) — these already get an unhashed dist-root name via the
+    // entry-name branch below and need no redirect. Derived from `entry`'s
+    // own values, not hand-copied, for the same reason the old `cssEntryNames`
+    // was: a literal list is how a future 3rd standalone CSS entry silently
+    // drifts out of sync with no build error, just a wrong dist/ path.
+    const standaloneCssEntryNames = new Set(
+      Object.entries(entry)
+        .filter(([, source]) => source.endsWith('.css'))
+        .map(([key]) => `${key}.css`)
+    )
 
     return {
       // Vite 8's documented default (`'baseline-widely-available'`) targets
@@ -241,45 +246,39 @@ export default defineConfig({
           // `?no-inline`-marked url()s), which needs a cache-busted URL for
           // the separately built preloadFonts() plugin to preload.
           //
-          // Every CSS asset wants the opposite, for two different reasons
-          // that happen to share an answer. `tokens.css`/`fonts.css` are
-          // named in package.json's `exports` map and must keep their
-          // exact, unhashed, dist-root names. The per-module CSS files
-          // preserveModules now emits want to sit next to the module that
-          // imports them, so dist/ mirrors src/ for CSS the same way it
-          // already does for JS and `.d.ts` — and `[name]` already carries
-          // the src-relative directory for those (e.g.
-          // `components/Button/Button.module`). Passing the lib-mode
-          // default (`[name][extname]`, no hash) through unchanged does
-          // both jobs. A hash would buy nothing either way: none of this
-          // CSS is served directly — the consumer's own build re-bundles
-          // and re-hashes it, resolving it through the import statement
-          // libInjectCss injects, which is generated from whatever
-          // filename this hook returns.
+          // Every CSS asset wants no hash, for three different reasons that
+          // happen to share an answer. `tokens.css`/`fonts.css` are named in
+          // package.json's `exports` map and must keep their exact dist-root
+          // names. The one plain (non-`.module.css`) CSS file reached via
+          // `index`'s own JS import graph — animations.css, see the `index`
+          // entry comment above — must land at `index.css` for the same
+          // reason. Every per-module CSS file preserveModules emits wants to
+          // sit next to the module that imports it, mirroring src/ the way
+          // dist/ already does for JS and `.d.ts`. A hash would buy nothing
+          // for any of the three: none of this CSS is served directly — the
+          // consumer's own build re-bundles and re-hashes it, resolving it
+          // through the import statement libInjectCss injects, which is
+          // generated from whatever filename this hook returns.
           assetFileNames: (assetInfo) => {
             const name = (assetInfo.names ?? [assetInfo.name]).find(Boolean)
             if (!name?.endsWith('.css')) return 'assets/[name]-[hash][extname]'
-            if (name === legacyIndexCssAssetName) return 'index.css'
-            // Returned as a literal rather than via `[name]` so the
-            // `.module` infix can be dropped: `Button.module.css` ships as
-            // `Button.css`. Not cosmetic — a consumer's own Vite keys CSS
-            // Modules handling off that exact suffix, and for a
-            // `.module.css` it sets `moduleSideEffects: false` on the
-            // module it generates (vite/dist/node/chunks/node.js, the
+            if (standaloneCssEntryNames.has(name)) return '[name][extname]'
+            if (!name.endsWith('.module.css')) return 'index.css'
+            // Drop the `.module` infix (`Button.module.css` ships as
+            // `Button.css`) — not cosmetic. A consumer's own Vite keys CSS
+            // Modules handling off that exact suffix, and for one it sets
+            // `moduleSideEffects: false` on the module it generates
+            // (vite/dist/node/chunks/node.js, the
             // `modulesCode || inlined ? false : 'no-treeshake'` line in
-            // vite:css-post's transform). The import libInjectCss writes
+            // vite:css-post's transform). libInjectCss's injected import
             // binds no names, so under that flag the consumer's build
-            // tree-shakes the whole module away and emits none of its CSS
-            // — silently, with a green build and unstyled components.
+            // tree-shakes the whole module away and ships none of its CSS —
+            // silently, with a green build and unstyled components.
             // Reproduced end-to-end in a packed-tarball scratch consumer
-            // before this rename, and fixed by it.
-            //
-            // Shipping them as plain `.css` is also what keeps the class
-            // names correct: these files are already-compiled output whose
-            // hashed selectors (`_button_88dh1_6`) have to match the map
-            // baked into the sibling `Button.module.js`. Re-entering the
-            // consumer's CSS Modules pipeline would re-hash the selectors
-            // and break that pairing.
+            // before this rename, and fixed by it. Also keeps the shipped
+            // selectors' already-compiled hashes (`_button_88dh1_6`) intact:
+            // re-entering the consumer's own CSS Modules pipeline would
+            // re-hash them and break the pairing with `Button.module.js`.
             return name.replace(/\.module\.css$/, '.css')
           },
         },
