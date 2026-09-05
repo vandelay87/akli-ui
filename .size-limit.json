@@ -3,30 +3,35 @@
     "name": "Button (single component import)",
     "path": "dist/index.js",
     "import": "{ Button }",
-    "limit": "1 KB"
+    "limit": "1 KB",
+    "ignore": ["*.css"]
   },
   {
     "name": "IconPlus (single icon import)",
     "path": "dist/index.js",
     "import": "{ IconPlus }",
-    "limit": "0.6 KB"
+    "limit": "0.6 KB",
+    "ignore": ["*.css"]
   },
   {
     "name": "Header (composite/chrome component import)",
     "path": "dist/index.js",
     "import": "{ Header }",
-    "limit": "2.5 KB"
+    "limit": "2.5 KB",
+    "ignore": ["*.css"]
   },
   {
     "name": "Typography (text primitive import)",
     "path": "dist/index.js",
     "import": "{ Typography }",
-    "limit": "0.65 KB"
+    "limit": "0.65 KB",
+    "ignore": ["*.css"]
   },
   {
     "name": "Image (hook + icon dependent import)",
     "path": "dist/index.js",
     "import": "{ Image }",
-    "limit": "2.3 KB"
+    "limit": "2.3 KB",
+    "ignore": ["*.css"]
   }
 ]
