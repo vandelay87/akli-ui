@@ -2,6 +2,7 @@ import { render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, it, expect } from 'vitest'
 import { expectNoA11yViolations } from '../../../tests/setup'
+import interactions from '../../styles/interactions.module.css'
 import Link from './Link'
 import styles from './Link.module.css'
 
@@ -153,8 +154,8 @@ describe('Link', () => {
     // hovering anywhere on the link (not just the icon glyph) must trigger
     // the icon's transform — the nudge class has to sit on the link, and
     // the icon's own wrapper must not carry it (or the rule can never match).
-    expect(linkElement).toHaveClass(styles.nudgeLeft)
-    expect(icon.parentElement).not.toHaveClass(styles.nudgeLeft)
+    expect(linkElement).toHaveClass(interactions.nudgeLeft)
+    expect(icon.parentElement).not.toHaveClass(interactions.nudgeLeft)
   })
 
   it('renders an internal link with no detectable axe violations', async () => {

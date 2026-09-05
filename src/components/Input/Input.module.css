@@ -21,7 +21,6 @@
    transition stays local (see that file's comment for why). */
 .field {
   composes: field from '../../styles/formField.module.css';
-  composes: fieldFocusRing from '../../styles/interactions.module.css';
   transition: border-color var(--duration-fast) var(--easing-default),
               background-color var(--duration-fast) var(--easing-default);
 }
@@ -44,7 +43,9 @@
    (mirrors --ring's own color-mix() formula — no token exists for an
    error-colored ring, so the shape is kept literal-but-consistent). Needs
    its own no-color-mix fallback since it overrides `.fieldFocusRing`'s
-   accent-colored one for this state. */
+   accent-colored one for this state. Wins over the composed
+   `interactions.fieldFocusRing` rule via `@layer component-defaults`,
+   not source order — see that file's comment above `.fieldFocusRing`. */
 .invalid {
   border-color: var(--color-error);
 }

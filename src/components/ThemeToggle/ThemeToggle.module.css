@@ -1,7 +1,6 @@
 /* ThemeToggle component styles */
 
 .toggle {
-  composes: focusRing from '../../styles/interactions.module.css';
   display: inline-flex;
   align-items: center;
   justify-content: center;

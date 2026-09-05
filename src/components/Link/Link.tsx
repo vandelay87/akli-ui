@@ -1,5 +1,6 @@
 import { FC, ReactNode } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
+import interactions from '../../styles/interactions.module.css'
 import { cx } from '../../utils/cx'
 import { isExternalHref } from './isExternalHref'
 import styles from './Link.module.css'
@@ -23,9 +24,9 @@ export interface LinkProps {
 }
 
 const NUDGE_CLASSES: Record<NonNullable<LinkProps['nudge']>, string | undefined> = {
-  left: styles.nudgeLeft,
-  right: styles.nudgeRight,
-  'up-right': styles.nudgeUpRight,
+  left: interactions.nudgeLeft,
+  right: interactions.nudgeRight,
+  'up-right': interactions.nudgeUpRight,
   none: undefined,
 }
 
@@ -45,6 +46,7 @@ const Link: FC<LinkProps> = ({
 
   const className = cx(
     styles.link,
+    interactions.focusRing,
     // Tone and variant are mutually exclusive color sources: tone is a
     // plain-link text color, variant is a button shape with its own
     // definitive colors. When variant is set it fully owns color, so the
@@ -66,13 +68,13 @@ const Link: FC<LinkProps> = ({
   const content = icon ? (
     <>
       {iconSide === 'left' && (
-        <span className={styles.icon} aria-hidden="true">
+        <span className={interactions.linkIcon} aria-hidden="true">
           {icon}
         </span>
       )}
       {children}
       {iconSide === 'right' && (
-        <span className={styles.icon} aria-hidden="true">
+        <span className={interactions.linkIcon} aria-hidden="true">
           {icon}
         </span>
       )}

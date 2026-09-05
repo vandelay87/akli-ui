@@ -1,7 +1,9 @@
 import react from '@vitejs/plugin-react'
 import dts from 'unplugin-dts/vite'
+import { libInjectCss } from 'vite-plugin-lib-inject-css'
 import { defineConfig } from 'vitest/config'
 import pkg from './package.json' with { type: 'json' }
+import { stripModuleCssInfix } from './scripts/dist-css-naming.ts'
 
 export default defineConfig({
   // Vite's default `base: '/'` root-anchors any non-inlined asset URL
@@ -16,6 +18,22 @@ export default defineConfig({
   base: './',
   plugins: [
     react(),
+    // Reads each chunk's `viteMetadata.importedCss` (a Vite-internal
+    // property, not a native Rollup/Rolldown one) in generateBundle and
+    // writes a literal `import './X.css'` into that chunk's own compiled
+    // output. Paired with rollupOptions.output.preserveModules below,
+    // that's what makes a consumer's bundler drop a component's CSS
+    // whenever it drops the component — no per-component CSS import for
+    // the consumer to remember, and no way to forget one.
+    //
+    // Floor-pinned to ^2.2.0 in package.json deliberately: preserveModules
+    // support landed in exactly that version, and before it the plugin
+    // silently emitted nothing under preserveModules rather than failing
+    // the build. Confirmed against this repo's Vite 8 / Rolldown 1.2 build
+    // (the plugin's own history is Rollup-based Vite 5) that
+    // `viteMetadata.importedCss` really is populated when it reads it, and
+    // that every injected specifier resolves to a file the build emits.
+    libInjectCss(),
     dts({
       tsconfigPath: './tsconfig.json',
       // Default entryRoot is the longest common ancestor of every file the
@@ -48,25 +66,18 @@ export default defineConfig({
     },
   },
   build: (() => {
-    // Declared outside `build` so `assetFileNames` below can derive its
-    // CSS-entry check from the same object instead of hand-copying its
-    // keys into a second literal — a second, manually-synced list is how a
-    // future 4th CSS entry silently ends up hashed into `assets/` instead
-    // of its declared `exports` map path (no build/type error, just a
-    // 404 for whoever imports it).
     const entry = {
-      // `index`'s JS import graph pulls in every component's own
-      // `.module.css` (plus animations.css, see src/index.ts), which Vite
-      // compiles into a sibling `dist/index.css` — required reading for
-      // consumers, not just a build detail: `dist/index.css` is the
-      // *only* place component styles (e.g. Button's/Typography's actual
-      // class rules) live, so a consumer that skips importing it gets
-      // fully unstyled components even after importing `tokens.css`/
-      // `fonts.css`. It's exported at `@akli-dev/ui/index.css` in
-      // package.json's `exports` map (same flat-string shape as
-      // `./tokens.css`/`./fonts.css`) — a required third import alongside
-      // those two, in any order relative to them (only fonts.css-before-
-      // tokens.css is order-sensitive; index.css has no such dependency).
+      // The component barrel. Its JS import graph still reaches every
+      // component's `.module.css`, but `preserveModules` below now splits
+      // each of those out alongside the module that imports it rather
+      // than collapsing them into one `dist/index.css` — so the only CSS
+      // left at this entry's own level is animations.css's global
+      // keyframes (see src/index.ts's side-effect import). That file is
+      // emitted as `dist/index.css` (see assetFileNames below) to keep
+      // package.json's `./index.css` export resolving: it's no longer a
+      // required import for consumers, since each component's compiled JS
+      // now carries its own CSS import, but a v1 consumer that still has
+      // the line gets a small real file instead of a 404.
       index: 'src/index.ts',
       tokens: 'src/styles/tokens.css',
       fonts: 'src/styles/fonts.css',
@@ -77,18 +88,16 @@ export default defineConfig({
       // its own import graph is just the `Plugin` type from `vite`.
       'vite-plugin': 'src/vite-plugin.ts',
     }
-    // Every entry except `vite-plugin` produces a `dist/<key>.css`
-    // sibling that needs the unhashed-filename treatment in
-    // assetFileNames below — `index` does via its JS import graph (see
-    // its comment above), `tokens`/`fonts` are standalone CSS entries.
-    // Deriving this from `entry`'s own keys means a future 5th entry
-    // (another standalone CSS file, say) is covered automatically; only
-    // a future JS-only entry (like `vite-plugin`) would need adding to
-    // the filter below.
-    const cssEntryNames = new Set(
-      Object.keys(entry)
-        .filter((key) => key !== 'vite-plugin')
-        .map((key) => `${key}.css`)
+    // Names of entries whose own declared source is a `.css` file (today:
+    // tokens, fonts) — these already get an unhashed dist-root name via the
+    // entry-name branch below and need no redirect. Derived from `entry`'s
+    // own values, not hand-copied, for the same reason the old `cssEntryNames`
+    // was: a literal list is how a future 3rd standalone CSS entry silently
+    // drifts out of sync with no build error, just a wrong dist/ path.
+    const standaloneCssEntryNames = new Set(
+      Object.entries(entry)
+        .filter(([, source]) => source.endsWith('.css'))
+        .map(([key]) => `${key}.css`)
     )
 
     return {
@@ -109,9 +118,11 @@ export default defineConfig({
       // cssCodeSplit: false). Since one of the two entries below (tokens.css)
       // is a standalone CSS entry rather than CSS pulled in via a JS import,
       // each entry needs its own independent CSS output — this both satisfies
-      // that constraint and is what we want anyway (dist/index.css for the
-      // component barrel's CSS Modules output, dist/tokens.css for the
-      // tokens.css export subpath, not one merged file).
+      // that constraint and is what we want anyway (dist/tokens.css for the
+      // tokens.css export subpath, not one merged file). Now doubly
+      // required: `importedCss`, the metadata libInjectCss reads, is only
+      // populated when CSS is code-split (the plugin sets this itself, but
+      // leaving it explicit keeps the reason for it visible here).
       cssCodeSplit: true,
       // NOTE: `assetsInlineLimit` (including its function form, which a prior
       // pass configured here to force-exclude .woff2 from inlining) is dead
@@ -173,9 +184,21 @@ export default defineConfig({
         // different problem (associating per-component CSS with per-component
         // JS chunks in a multi-entry component library) than "ship one
         // standalone global stylesheet alongside the JS entry."
+        //
+        // That last clause is still an accurate description of why the
+        // plugin didn't help *this* block — tokens.css/fonts.css remain
+        // standalone CSS entries, unaffected by it — but it is no longer
+        // the whole story: the "different problem" it solves is now the
+        // package's headline behaviour, so it's wired into `plugins`
+        // above (see the preserveModules note in rollupOptions.output).
         entry,
         formats: ['es'],
-        fileName: '[name]',
+        // No `fileName`: rollupOptions.output.entryFileNames below takes
+        // precedence over the entryFileNames Vite derives from it (Vite
+        // spreads the user's `output` last), and under preserveModules
+        // there is no longer a small fixed entry set for a per-entry
+        // filename function to name — every preserved module is emitted
+        // through the same pattern.
       },
       rollupOptions: {
         // Without this, peerDependencies (react, react-dom, react-router-dom)
@@ -191,37 +214,61 @@ export default defineConfig({
         // properties of null (reading 'useContext')` in a scratch consumer
         // app. Vite's build doesn't infer `external` from peerDependencies
         // automatically, so it's derived from package.json here instead of a
-        // hand-copied literal — same reasoning as cssEntryNames above:
-        // a second, manually-synced list is how a future peer dependency
-        // (added, removed, or renamed) silently drifts out of sync and
-        // reintroduces this exact bug with no build error to catch it.
+        // hand-copied literal — a second, manually-synced list is how a
+        // future peer dependency (added, removed, or renamed) silently
+        // drifts out of sync and reintroduces this exact bug with no
+        // build error to catch it.
         external: Object.keys(pkg.peerDependencies).map(
           (name) => new RegExp(`^${name}($|/)`)
         ),
         output: {
+          // Emit one output module per source module instead of
+          // collapsing `index`'s whole import graph into a single
+          // dist/index.js. That's what makes per-component CSS
+          // tree-shaking possible: each `.module.css` becomes its own
+          // chunk with its own CSS asset, and libInjectCss (above) writes
+          // a real `import './X.css'` into the compiled module that owns
+          // it — so a consumer's own tree-shaking drops a component's CSS
+          // for free whenever it drops the component's JS. Rooting at
+          // `src` strips the leading `src/` so dist/ mirrors src/ 1:1,
+          // matching what unplugin-dts's `entryRoot: 'src'` already does
+          // for `.d.ts` output.
+          preserveModules: true,
+          preserveModulesRoot: 'src',
+          // Set here rather than via `build.lib.fileName` (see the note
+          // there): under preserveModules this pattern names *every*
+          // emitted module, not just the four declared entries, and
+          // `[name]` already carries each module's src-relative directory.
+          entryFileNames: '[name].js',
           // Must be a function, not a flat string: a flat
           // `'assets/[name]-[hash][extname]'` pattern applies to *every*
-          // Rollup-emitted asset, which in this build includes not just the
-          // font file but the three CSS *entry* outputs themselves (Rollup
-          // treats build.lib's CSS entries as "assets" too, confirmed by
-          // logging assetInfo here during development — index.css/tokens.css/
-          // fonts.css all pass through this same hook). Those three need to
-          // keep their exact, unhashed, dist-root names — package.json's
-          // `exports` map (and consumers' hard-required `fonts.css`-then-
-          // `tokens.css` import-order docs) point at fixed paths like
-          // `./dist/fonts.css`, not a hashed filename that changes every
-          // build. So: pass the lib-mode default (`[name][extname]`, no
-          // hash) through unchanged for those three, and only apply the
-          // hashed `assets/` pattern to everything else — in practice, only
-          // the font file, reached via fonts.css's `?no-inline`-marked
-          // url()s.
+          // Rollup-emitted asset, and the only one in this build that
+          // wants a content hash is the font file (reached via fonts.css's
+          // `?no-inline`-marked url()s), which needs a cache-busted URL for
+          // the separately built preloadFonts() plugin to preload.
+          //
+          // Every CSS asset wants no hash, for three different reasons that
+          // happen to share an answer. `tokens.css`/`fonts.css` are named in
+          // package.json's `exports` map and must keep their exact dist-root
+          // names. The one plain (non-`.module.css`) CSS file reached via
+          // `index`'s own JS import graph — animations.css, see the `index`
+          // entry comment above — must land at `index.css` for the same
+          // reason. Every per-module CSS file preserveModules emits wants to
+          // sit next to the module that imports it, mirroring src/ the way
+          // dist/ already does for JS and `.d.ts`. A hash would buy nothing
+          // for any of the three: none of this CSS is served directly — the
+          // consumer's own build re-bundles and re-hashes it, resolving it
+          // through the import statement libInjectCss injects, which is
+          // generated from whatever filename this hook returns.
           assetFileNames: (assetInfo) => {
-            const isCssEntry = (assetInfo.names ?? [assetInfo.name]).some(
-              (name) => (name ? cssEntryNames.has(name) : false)
-            )
-            return isCssEntry
-              ? '[name][extname]'
-              : 'assets/[name]-[hash][extname]'
+            const name = (assetInfo.names ?? [assetInfo.name]).find(Boolean)
+            if (!name?.endsWith('.css')) return 'assets/[name]-[hash][extname]'
+            if (standaloneCssEntryNames.has(name)) return '[name][extname]'
+            if (!name.endsWith('.module.css')) return 'index.css'
+            // See stripModuleCssInfix's own comment (scripts/dist-css-naming.ts)
+            // for why the `.module` infix has to go, not just what this does —
+            // shared with check-css-tree-shaking.ts so the rule lives in one place.
+            return stripModuleCssInfix(name)
           },
         },
       },

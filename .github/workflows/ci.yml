@@ -36,6 +36,18 @@ jobs:
       - name: Bundle size
         run: pnpm check:bundle-size
 
+      # Regression gate for docs/prds/css-tree-shaking.md (issues #48/#49):
+      # asserts each component's compiled CSS contains only its own rules and
+      # that src/styles/interactions.module.css's shared rules ship exactly
+      # once, both in this package's own dist/ and in a scratch consumer built
+      # against an `npm pack`ed tarball of it. check:bundle-size above measures
+      # JS only, and the failures this catches — preserveModules dropping out
+      # of vite.config.ts, or a `composes:` reintroduced against a shared CSS
+      # module — all produce a green build and a silently bloated consumer.
+      # Needs network access for the scratch consumer's own npm install.
+      - name: CSS tree-shaking
+        run: pnpm check:css-tree-shaking
+
   storybook-a11y:
     runs-on: ubuntu-latest
 
