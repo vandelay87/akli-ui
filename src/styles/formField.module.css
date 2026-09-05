@@ -26,14 +26,25 @@
    Textarea/TagInput never define either custom property, so the fallback
    (`--color-field` / `--radius-md`) is their only observed value: using the
    same custom-property expression here for all three consumers renders
-   byte-identical to their previous per-file literal values. */
-.field {
-  width: 100%;
-  font-family: var(--font-sans);
-  font-size: var(--font-size-md);
-  color: var(--color-text-strong);
-  background-color: var(--input-bg, var(--color-field));
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--input-radius, var(--radius-md));
-  padding: var(--space-3);
+   byte-identical to their previous per-file literal values.
+
+   Lives in the low-priority `@layer component-defaults` so a consumer's own
+   unlayered override always wins, regardless of source/bundle order — same
+   mechanism as Typography.module.css/Link.module.css/stateBox.module.css/
+   interactions.module.css, issue #263. Without this, this rule's `border`
+   (unlayered) would permanently beat `interactions.module.css`'s layered
+   `.fieldFocusRing:focus-visible` border-color, since an unlayered rule
+   beats a layered one regardless of specificity — silently hiding Input's
+   focus-visible accent border in the non-invalid case. */
+@layer component-defaults {
+  .field {
+    width: 100%;
+    font-family: var(--font-sans);
+    font-size: var(--font-size-md);
+    color: var(--color-text-strong);
+    background-color: var(--input-bg, var(--color-field));
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--input-radius, var(--radius-md));
+    padding: var(--space-3);
+  }
 }
