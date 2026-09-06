@@ -1,4 +1,4 @@
-import { FC, ReactNode } from 'react'
+import { CSSProperties, FC, ReactNode } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
 import interactions from '../../styles/interactions.module.css'
 import { cx } from '../../utils/cx'
@@ -68,18 +68,21 @@ const Link: FC<LinkProps> = ({
     externalClassName
   )
 
-  const iconClassName = rotateIcon ? interactions.linkIconRotateRight : interactions.linkIcon
+  // --link-icon-rotate is consumed by .linkIcon itself (interactions.module.css)
+  // rather than a separate class, so the existing nudge/reduced-motion rules
+  // apply unchanged whether or not rotateIcon is set.
+  const iconStyle = rotateIcon ? ({ '--link-icon-rotate': '45deg' } as CSSProperties) : undefined
 
   const content = icon ? (
     <>
       {iconSide === 'left' && (
-        <span className={iconClassName} aria-hidden="true">
+        <span className={interactions.linkIcon} style={iconStyle} aria-hidden="true">
           {icon}
         </span>
       )}
       {children}
       {iconSide === 'right' && (
-        <span className={iconClassName} aria-hidden="true">
+        <span className={interactions.linkIcon} style={iconStyle} aria-hidden="true">
           {icon}
         </span>
       )}
