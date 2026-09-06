@@ -158,6 +158,39 @@ describe('Link', () => {
     expect(icon.parentElement).not.toHaveClass(interactions.nudgeLeft)
   })
 
+  it('does not set a rotation on the icon by default', () => {
+    render(
+      <MemoryRouter>
+        <Link to="/apps" icon={<span data-testid="icon" />}>
+          Apps
+        </Link>
+      </MemoryRouter>
+    )
+
+    const icon = screen.getByTestId('icon')
+
+    expect(icon.parentElement?.style.getPropertyValue('--link-icon-rotate')).toBe('')
+  })
+
+  it('rotates the icon when rotateIcon is true, without disturbing the link nudge class', () => {
+    render(
+      <MemoryRouter>
+        <Link to="/apps" icon={<span data-testid="icon" />} nudge="right" rotateIcon>
+          Apps
+        </Link>
+      </MemoryRouter>
+    )
+
+    const icon = screen.getByTestId('icon')
+    const linkElement = screen.getByRole('link', { name: /apps/i })
+
+    expect(icon.parentElement?.style.getPropertyValue('--link-icon-rotate')).toBe('45deg')
+    // rotateIcon is a static rotation set via a CSS custom property on the
+    // icon; it must not interfere with the nudge class assignment on the
+    // link element (the hover transform the two are meant to compose with).
+    expect(linkElement).toHaveClass(interactions.nudgeRight)
+  })
+
   it('renders an internal link with no detectable axe violations', async () => {
     const { container } = render(
       <MemoryRouter>

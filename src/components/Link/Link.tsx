@@ -1,4 +1,4 @@
-import { FC, ReactNode } from 'react'
+import { CSSProperties, FC, ReactNode } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
 import interactions from '../../styles/interactions.module.css'
 import { cx } from '../../utils/cx'
@@ -17,6 +17,8 @@ export interface LinkProps {
   iconSide?: 'left' | 'right'
   /** Direction the icon nudges on hover. @default 'right' */
   nudge?: 'left' | 'right' | 'up-right' | 'none'
+  /** Rotates the icon 45deg clockwise, independent of the hover nudge direction. @default false */
+  rotateIcon?: boolean
   /** Button/pill shape. Omit for a plain link (default, unchanged). */
   variant?: 'ghost' | 'solid'
   ariaLabel?: string
@@ -38,6 +40,7 @@ const Link: FC<LinkProps> = ({
   icon,
   iconSide = 'right',
   nudge = 'right',
+  rotateIcon = false,
   variant,
   ariaLabel,
   className: externalClassName,
@@ -65,16 +68,21 @@ const Link: FC<LinkProps> = ({
     externalClassName
   )
 
+  // --link-icon-rotate is consumed by .linkIcon itself (interactions.module.css)
+  // rather than a separate class, so the existing nudge/reduced-motion rules
+  // apply unchanged whether or not rotateIcon is set.
+  const iconStyle = rotateIcon ? ({ '--link-icon-rotate': '45deg' } as CSSProperties) : undefined
+
   const content = icon ? (
     <>
       {iconSide === 'left' && (
-        <span className={interactions.linkIcon} aria-hidden="true">
+        <span className={interactions.linkIcon} style={iconStyle} aria-hidden="true">
           {icon}
         </span>
       )}
       {children}
       {iconSide === 'right' && (
-        <span className={interactions.linkIcon} aria-hidden="true">
+        <span className={interactions.linkIcon} style={iconStyle} aria-hidden="true">
           {icon}
         </span>
       )}
