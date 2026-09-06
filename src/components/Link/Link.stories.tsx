@@ -66,6 +66,16 @@ export const WithIcon: Story = {
   },
 }
 
+export const RotatedIcon: Story = {
+  args: {
+    to: '/apps',
+    children: 'View all',
+    icon: iconArrowRight,
+    nudge: 'right',
+    rotateIcon: true,
+  },
+}
+
 export const IconLeft: Story = {
   args: {
     to: '/archive',
