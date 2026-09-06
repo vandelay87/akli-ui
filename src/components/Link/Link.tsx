@@ -17,6 +17,8 @@ export interface LinkProps {
   iconSide?: 'left' | 'right'
   /** Direction the icon nudges on hover. @default 'right' */
   nudge?: 'left' | 'right' | 'up-right' | 'none'
+  /** Rotates the icon 45deg clockwise, independent of the hover nudge direction. */
+  rotateIcon?: boolean
   /** Button/pill shape. Omit for a plain link (default, unchanged). */
   variant?: 'ghost' | 'solid'
   ariaLabel?: string
@@ -38,6 +40,7 @@ const Link: FC<LinkProps> = ({
   icon,
   iconSide = 'right',
   nudge = 'right',
+  rotateIcon,
   variant,
   ariaLabel,
   className: externalClassName,
@@ -65,16 +68,18 @@ const Link: FC<LinkProps> = ({
     externalClassName
   )
 
+  const iconClassName = rotateIcon ? interactions.linkIconRotateRight : interactions.linkIcon
+
   const content = icon ? (
     <>
       {iconSide === 'left' && (
-        <span className={interactions.linkIcon} aria-hidden="true">
+        <span className={iconClassName} aria-hidden="true">
           {icon}
         </span>
       )}
       {children}
       {iconSide === 'right' && (
-        <span className={interactions.linkIcon} aria-hidden="true">
+        <span className={iconClassName} aria-hidden="true">
           {icon}
         </span>
       )}
