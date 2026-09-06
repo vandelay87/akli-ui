@@ -70,7 +70,11 @@ export const RotatedIcon: Story = {
   args: {
     to: '/apps',
     children: 'View all',
-    icon: iconArrowRight,
+    // rotateIcon expects an up-right glyph (like iconViewPublic's "↗"),
+    // which it rotates 45deg clockwise into pointing right — a plain
+    // rightward arrow (iconArrowRight) rotated the same way would point
+    // down-right instead, the opposite of the intended effect.
+    icon: iconViewPublic,
     nudge: 'right',
     rotateIcon: true,
   },
