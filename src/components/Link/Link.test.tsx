@@ -158,6 +158,51 @@ describe('Link', () => {
     expect(icon.parentElement).not.toHaveClass(interactions.nudgeLeft)
   })
 
+  it('does not apply the rotate class to the icon by default', () => {
+    render(
+      <MemoryRouter>
+        <Link to="/apps" icon={<span data-testid="icon" />}>
+          Apps
+        </Link>
+      </MemoryRouter>
+    )
+
+    const icon = screen.getByTestId('icon')
+
+    expect(icon.parentElement).not.toHaveClass(interactions.linkIconRotateRight)
+  })
+
+  it('applies the rotate class to the icon when rotateIcon is true', () => {
+    render(
+      <MemoryRouter>
+        <Link to="/apps" icon={<span data-testid="icon" />} rotateIcon>
+          Apps
+        </Link>
+      </MemoryRouter>
+    )
+
+    const icon = screen.getByTestId('icon')
+
+    expect(icon.parentElement).toHaveClass(interactions.linkIconRotateRight)
+  })
+
+  it('still applies the nudge direction class to the link when combined with rotateIcon', () => {
+    render(
+      <MemoryRouter>
+        <Link to="/apps" icon={<span data-testid="icon" />} nudge="right" rotateIcon>
+          Apps
+        </Link>
+      </MemoryRouter>
+    )
+
+    const linkElement = screen.getByRole('link', { name: /apps/i })
+
+    // rotateIcon is a static rotation on the icon; it must not interfere
+    // with the nudge class assignment on the link element (the hover
+    // transform the two are meant to compose with).
+    expect(linkElement).toHaveClass(interactions.nudgeRight)
+  })
+
   it('renders an internal link with no detectable axe violations', async () => {
     const { container } = render(
       <MemoryRouter>
