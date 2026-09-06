@@ -1,5 +1,11 @@
 # @akli-dev/ui
 
+## 2.1.0
+
+### Minor Changes
+
+- [#70](https://github.com/vandelay87/akli-ui/pull/70) [`63c0798`](https://github.com/vandelay87/akli-ui/commit/63c0798d4ba871bcafb08926c542e7b6f01dbd7e) Thanks [@vandelay87](https://github.com/vandelay87)! - Add rotateIcon prop to Link, for icon glyphs that need a static rotation independent of the hover nudge direction.
+
 ## 2.0.0
 
 ### Major Changes
