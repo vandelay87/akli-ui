@@ -47,21 +47,32 @@
    src/components/<Name>/ — adjust for the consuming file's actual depth)
      .link  { composes: nudgeRight from '../../styles/interactions.module.css'; }
      .icon  { composes: linkIcon   from '../../styles/interactions.module.css'; } */
+/* --link-icon-rotate lets a consumer (Link.tsx's rotateIcon prop) apply a
+   static rotation without a second class: a CSS Modules descendant
+   selector like `.nudgeRight:hover .linkIcon` only resolves when both
+   classes live in the same source file, so a rotated variant can't be a
+   component-local class in Link.module.css without duplicating every
+   nudge/reduced-motion rule below. Translate listed before rotate in each
+   rule: transform functions apply right-to-left against the element's own
+   box, so rotate resolves first and translate then shifts the
+   already-rotated glyph along the screen axis, keeping the nudge
+   directional instead of dragging it diagonally. */
 .linkIcon {
   display: inline-flex;
   transition: transform var(--duration-base) var(--easing-default);
+  transform: rotate(var(--link-icon-rotate, 0deg));
 }
 
 .nudgeRight:hover .linkIcon {
-  transform: translateX(3px);
+  transform: translateX(3px) rotate(var(--link-icon-rotate, 0deg));
 }
 
 .nudgeLeft:hover .linkIcon {
-  transform: translateX(-3px);
+  transform: translateX(-3px) rotate(var(--link-icon-rotate, 0deg));
 }
 
 .nudgeUpRight:hover .linkIcon {
-  transform: translate(3px, -3px);
+  transform: translate(3px, -3px) rotate(var(--link-icon-rotate, 0deg));
 }
 
 /* ── App card — lift + cover zoom (the signature hover) ──────
@@ -270,10 +281,13 @@
     transition: none;
   }
 
+  /* Cancels the hover nudge itself, not the static --link-icon-rotate —
+     rotation is orientation, not motion, so it stays applied (resolving
+     to a no-op rotate(0deg) when --link-icon-rotate is unset). */
   .nudgeRight:hover .linkIcon,
   .nudgeLeft:hover .linkIcon,
   .nudgeUpRight:hover .linkIcon {
-    transform: none;
+    transform: rotate(var(--link-icon-rotate, 0deg));
   }
 
   .cardLift,
