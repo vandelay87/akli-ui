@@ -67,7 +67,6 @@ export const WithIcon: Story = {
 }
 
 export const RotatedIcon: Story = {
-  name: 'rotateIcon',
   args: {
     to: '/apps',
     children: 'View all',
