@@ -75,6 +75,19 @@ describe('Image', () => {
     expect(link).toHaveAttribute('imagesizes', sizes)
   })
 
+  it('falls back to the default responsive sizes on the preload link when srcSet is set but sizes is omitted', () => {
+    const srcSet =
+      'https://example.com/test-480.jpg 480w, https://example.com/test-800.jpg 800w'
+
+    render(<Image {...defaultProps} priority srcSet={srcSet} />)
+
+    const link = document.head.querySelector('link[rel="preload"]')
+    expect(link).toHaveAttribute(
+      'imagesizes',
+      '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+    )
+  })
+
   it('applies custom aspect ratio and object fit styles', () => {
     const { container } = render(
       <Image
