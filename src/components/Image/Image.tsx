@@ -57,10 +57,14 @@ const Image: FC<ImageProps> = ({
   const imgRef = useRef<HTMLImageElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
+  const effectiveSizes = srcSet
+    ? sizes || '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+    : sizes
+
   usePreloadImage(priority ? src : undefined, {
     fetchPriority: priority ? 'high' : 'auto',
     srcSet,
-    sizes,
+    sizes: effectiveSizes,
   })
 
   useEffect(() => {
@@ -178,12 +182,7 @@ const Image: FC<ImageProps> = ({
           fetchPriority={priority ? 'high' : 'auto'}
           decoding="async"
           srcSet={srcSet}
-          sizes={
-            srcSet
-              ? sizes ||
-                '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
-              : sizes
-          }
+          sizes={effectiveSizes}
         />
       )}
 
