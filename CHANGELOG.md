@@ -1,5 +1,11 @@
 # @akli-dev/ui
 
+## 2.1.1
+
+### Patch Changes
+
+- [#74](https://github.com/vandelay87/akli-ui/pull/74) [`7ffb8c1`](https://github.com/vandelay87/akli-ui/commit/7ffb8c14ee2bcc6abed4a3300b80d14441d34f2b) Thanks [@vandelay87](https://github.com/vandelay87)! - Fix `Image`'s priority preload link to carry the same `srcSet`/`sizes` (including the default responsive fallback) as the rendered `<img>`, so the browser preloads the resource it actually uses instead of logging an unused-preload warning.
+
 ## 2.1.0
 
 ### Minor Changes
