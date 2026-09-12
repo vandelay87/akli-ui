@@ -55,6 +55,26 @@ describe('Image', () => {
     expect(img).toHaveAttribute('loading', 'eager')
   })
 
+  it('forwards srcSet and sizes to the preload link for priority images', () => {
+    const srcSet =
+      'https://example.com/test-480.jpg 480w, https://example.com/test-800.jpg 800w'
+    const sizes = '(max-width: 600px) 480px, 800px'
+
+    render(
+      <Image
+        {...defaultProps}
+        priority
+        srcSet={srcSet}
+        sizes={sizes}
+      />
+    )
+
+    const link = document.head.querySelector('link[rel="preload"]')
+    expect(link).toHaveAttribute('href', defaultProps.src)
+    expect(link).toHaveAttribute('imagesrcset', srcSet)
+    expect(link).toHaveAttribute('imagesizes', sizes)
+  })
+
   it('applies custom aspect ratio and object fit styles', () => {
     const { container } = render(
       <Image
