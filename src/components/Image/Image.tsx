@@ -59,6 +59,8 @@ const Image: FC<ImageProps> = ({
 
   usePreloadImage(priority ? src : undefined, {
     fetchPriority: priority ? 'high' : 'auto',
+    srcSet,
+    sizes,
   })
 
   useEffect(() => {
