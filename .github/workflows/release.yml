@@ -44,7 +44,7 @@ jobs:
       # Setting only the env var is a no-op today (both happen to be the same value)
       # but throws if a custom token is ever added here without also updating this input.
       - name: Create Release Pull Request or Publish
-        uses: changesets/action@v2.1.1
+        uses: changesets/action@v2.1.2
         with:
           publish-script: bash .github/scripts/release-publish.sh
           create-github-releases: false
