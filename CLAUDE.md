@@ -1,10 +1,24 @@
 # akli-ui
 
-Shared UI component package (`@akli-dev/ui`) published to npm, plus its Storybook (deployed at `storybook.akli.dev`). Extracted from `personal-website`, whose CLAUDE.md is a useful reference for shared conventions (theming, PRD workflow) — but this repo is a *library*, not an app: everything here ships to consumers, so changes carry a different weight than an app's internal code.
+Shared UI component package (`@akli-dev/ui`) published to npm, plus its Storybook (deployed at `storybook.akli.dev`). Extracted from `personal-website`, whose CLAUDE.md is a useful reference for shared conventions (theming) — but this repo is a *library*, not an app: everything here ships to consumers, so changes carry a different weight than an app's internal code.
 
-## PRDs
+## Agent skills
 
-Before implementing any new feature, check `docs/prds/` for a relevant PRD. If one exists, read it fully and follow the spec. Do not add features beyond what the PRD describes.
+### Issue tracker
+
+Issues and specs are tracked in this repo's GitHub Issues via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default triage vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+
+### Legacy PRDs
+
+`docs/prds/` holds specs written before the move to issue-based specs. They're no longer updated, but still record the rationale behind the package/Storybook setup and CSS tree-shaking. Read the relevant one before changing those areas.
 
 ## Stack
 
