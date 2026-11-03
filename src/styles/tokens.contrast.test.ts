@@ -66,12 +66,12 @@ const tokensCssPath = join(
 )
 const tokensCss = readFileSync(tokensCssPath, 'utf-8')
 
-const extractBlock = (css: string, selector: string): string => {
-  const selectorIndex = css.indexOf(selector)
+// A pattern, not a literal, so the lookup doesn't depend on formatting
+// (e.g. Prettier's singleQuote rewriting `[data-theme="dark"]`).
+const extractBlock = (css: string, selector: RegExp): string => {
+  const selectorIndex = css.search(selector)
   if (selectorIndex === -1) {
-    throw new Error(
-      `tokens.css: could not find selector ${JSON.stringify(selector)}`
-    )
+    throw new Error(`tokens.css: could not find selector ${selector}`)
   }
   const braceOpen = css.indexOf('{', selectorIndex)
   // None of :root's or [data-theme="dark"]'s declarations contain nested
@@ -143,9 +143,11 @@ const resolveOpaqueColor = (
   )
 }
 
-const rootDeclarations = parseDeclarations(extractBlock(tokensCss, ':root {'))
+const rootDeclarations = parseDeclarations(
+  extractBlock(tokensCss, /:root\s*\{/)
+)
 const darkDeclarations = parseDeclarations(
-  extractBlock(tokensCss, '[data-theme="dark"] {')
+  extractBlock(tokensCss, /\[data-theme=["']dark["']\]\s*\{/)
 )
 
 // ── Documented pairs ─────────────────────────────────────────────────────
