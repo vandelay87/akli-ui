@@ -7,7 +7,7 @@ describe('cx', () => {
     expect(cx('base', 'modifier', 'extra')).toBe('base modifier extra')
   })
 
-  it('drops false values, as produced by the `condition && \'class\'` pattern', () => {
+  it("drops false values, as produced by the `condition && 'class'` pattern", () => {
     expect(cx('base', false)).toBe('base')
   })
 
@@ -19,7 +19,7 @@ describe('cx', () => {
     expect(cx('base', null)).toBe('base')
   })
 
-  it('drops empty-string arguments, as used by Image.tsx\'s className props that default to \'\'', () => {
+  it("drops empty-string arguments, as used by Image.tsx's className props that default to ''", () => {
     expect(cx('base', '')).toBe('base')
   })
 

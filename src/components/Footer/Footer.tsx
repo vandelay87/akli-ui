@@ -12,7 +12,11 @@ export interface FooterProps {
   className?: string
 }
 
-const Footer: FC<FooterProps> = ({ variant = 'public', email, className: extraClassName }) => {
+const Footer: FC<FooterProps> = ({
+  variant = 'public',
+  email,
+  className: extraClassName,
+}) => {
   const className = cx(styles.footer, extraClassName)
   const elsewhereLabelId = useId()
 
@@ -22,11 +26,16 @@ const Footer: FC<FooterProps> = ({ variant = 'public', email, className: extraCl
         {variant === 'admin' ? (
           <>
             <span className={styles.adminLabel}>akli.dev admin</span>
-            {email && <span className={styles.signedIn}>Signed in as {email}</span>}
+            {email && (
+              <span className={styles.signedIn}>Signed in as {email}</span>
+            )}
           </>
         ) : (
           <>
-            <nav aria-labelledby={elsewhereLabelId} className={styles.elsewhere}>
+            <nav
+              aria-labelledby={elsewhereLabelId}
+              className={styles.elsewhere}
+            >
               <span id={elsewhereLabelId} className={styles.elsewhereLabel}>
                 Find me elsewhere
               </span>

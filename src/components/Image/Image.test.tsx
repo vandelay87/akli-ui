@@ -3,7 +3,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { expectNoA11yViolations } from '../../../tests/setup'
 import Image from './Image'
 
-
 describe('Image', () => {
   const defaultProps = {
     src: 'https://example.com/test.jpg',
@@ -60,14 +59,7 @@ describe('Image', () => {
       'https://example.com/test-480.jpg 480w, https://example.com/test-800.jpg 800w'
     const sizes = '(max-width: 600px) 480px, 800px'
 
-    render(
-      <Image
-        {...defaultProps}
-        priority
-        srcSet={srcSet}
-        sizes={sizes}
-      />
-    )
+    render(<Image {...defaultProps} priority srcSet={srcSet} sizes={sizes} />)
 
     const link = document.head.querySelector('link[rel="preload"]')
     expect(link).toHaveAttribute('href', defaultProps.src)

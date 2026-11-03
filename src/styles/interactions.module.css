@@ -120,7 +120,11 @@
 .codeHeaderPanel {
   padding: 8px 10px 8px var(--space-4);
   border-bottom: var(--border-width) solid var(--color-border);
-  background: color-mix(in srgb, var(--color-surface) 60%, var(--color-border) 40%);
+  background: color-mix(
+    in srgb,
+    var(--color-surface) 60%,
+    var(--color-border) 40%
+  );
 }
 
 /* ── Chip hover — tag buttons + suggestion pills ──────────────

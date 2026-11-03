@@ -46,7 +46,10 @@ export interface IconAlertCircleProps {
   ariaHidden?: boolean
 }
 
-export const IconAlertCircle: FC<IconAlertCircleProps> = ({ size, ariaHidden }) => (
+export const IconAlertCircle: FC<IconAlertCircleProps> = ({
+  size,
+  ariaHidden,
+}) => (
   <svg
     width={size}
     height={size}

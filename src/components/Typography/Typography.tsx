@@ -1,4 +1,9 @@
-import type { ComponentPropsWithoutRef, ElementType, FC, ReactNode } from 'react'
+import type {
+  ComponentPropsWithoutRef,
+  ElementType,
+  FC,
+  ReactNode,
+} from 'react'
 
 import { cx } from '../../utils/cx'
 import styles from './Typography.module.css'
@@ -13,7 +18,10 @@ type TypographyVariant =
   | 'label'
   | 'caption'
 
-interface TypographyProps extends Omit<ComponentPropsWithoutRef<'div'>, 'children'> {
+interface TypographyProps extends Omit<
+  ComponentPropsWithoutRef<'div'>,
+  'children'
+> {
   variant: TypographyVariant
   as?: ElementType
   children: ReactNode
@@ -40,7 +48,11 @@ const Typography: FC<TypographyProps> = ({
   const Component = as ?? defaultElements[variant]
   const combinedClassName = cx(styles[variant], className)
 
-  return <Component className={combinedClassName} {...rest}>{children}</Component>
+  return (
+    <Component className={combinedClassName} {...rest}>
+      {children}
+    </Component>
+  )
 }
 
 export default Typography

@@ -16,7 +16,9 @@ describe('Loading', () => {
   it('accepts a custom label', () => {
     render(<Loading label="Loading recipes…" />)
 
-    expect(screen.getByRole('status', { name: /loading recipes/i })).toBeInTheDocument()
+    expect(
+      screen.getByRole('status', { name: /loading recipes/i })
+    ).toBeInTheDocument()
   })
 
   it('renders the spinner with no detectable axe violations', async () => {

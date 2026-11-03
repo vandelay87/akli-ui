@@ -89,6 +89,9 @@ describe('ListItem', () => {
       </List>
     )
 
-    expect(screen.getByRole('listitem')).toHaveAttribute('data-testid', 'grid-item')
+    expect(screen.getByRole('listitem')).toHaveAttribute(
+      'data-testid',
+      'grid-item'
+    )
   })
 })

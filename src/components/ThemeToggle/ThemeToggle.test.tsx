@@ -15,7 +15,9 @@ describe('ThemeToggle self-contained mount (CSR-only, no bootstrap script)', () 
     render(<ThemeToggle />)
 
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
-    expect(screen.getByRole('button', { name: 'Switch to light mode' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Switch to light mode' })
+    ).toBeInTheDocument()
   })
 
   it('with no data-theme and no localStorage value, falls back to a light system preference: sets data-theme="light" and renders "Switch to dark mode"', () => {
@@ -24,7 +26,9 @@ describe('ThemeToggle self-contained mount (CSR-only, no bootstrap script)', () 
     render(<ThemeToggle />)
 
     expect(document.documentElement.getAttribute('data-theme')).toBe('light')
-    expect(screen.getByRole('button', { name: 'Switch to dark mode' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Switch to dark mode' })
+    ).toBeInTheDocument()
   })
 
   it('with no data-theme, prefers the localStorage value over system preference: uses "dark" from localStorage even though the system prefers light', () => {
@@ -34,7 +38,9 @@ describe('ThemeToggle self-contained mount (CSR-only, no bootstrap script)', () 
     render(<ThemeToggle />)
 
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
-    expect(screen.getByRole('button', { name: 'Switch to light mode' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Switch to light mode' })
+    ).toBeInTheDocument()
   })
 
   it('when data-theme is already set on <html> (opt-in bootstrap script already ran), respects it as-is and does not override with a conflicting localStorage value', () => {
@@ -45,7 +51,9 @@ describe('ThemeToggle self-contained mount (CSR-only, no bootstrap script)', () 
     render(<ThemeToggle />)
 
     expect(document.documentElement.getAttribute('data-theme')).toBe('light')
-    expect(screen.getByRole('button', { name: 'Switch to dark mode' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Switch to dark mode' })
+    ).toBeInTheDocument()
   })
 })
 
@@ -85,7 +93,9 @@ describe('ThemeToggle', () => {
 
     render(<ThemeToggle />)
 
-    expect(screen.getByRole('button', { name: 'Switch to dark mode' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Switch to dark mode' })
+    ).toBeInTheDocument()
   })
 
   it('reflects the theme already set on the document root on initial render (no hydration mismatch)', () => {
@@ -96,7 +106,9 @@ describe('ThemeToggle', () => {
 
     render(<ThemeToggle />)
 
-    expect(screen.getByRole('button', { name: 'Switch to light mode' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Switch to light mode' })
+    ).toBeInTheDocument()
   })
 
   it('flips data-theme on the document root and updates its label when clicked', () => {
@@ -107,12 +119,18 @@ describe('ThemeToggle', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Switch to dark mode' }))
 
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
-    expect(screen.getByRole('button', { name: 'Switch to light mode' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Switch to light mode' })
+    ).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Switch to light mode' }))
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Switch to light mode' })
+    )
 
     expect(document.documentElement.getAttribute('data-theme')).toBe('light')
-    expect(screen.getByRole('button', { name: 'Switch to dark mode' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Switch to dark mode' })
+    ).toBeInTheDocument()
   })
 
   it('persists the new theme to the existing "theme" localStorage key (kept, not renamed)', () => {

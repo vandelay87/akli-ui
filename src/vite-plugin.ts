@@ -80,7 +80,8 @@ export const preloadFonts = (): Plugin => {
 
         // `names` is the current (non-deprecated) field; `name` is kept as a
         // fallback for older Rollup/Rolldown builds that only populate it.
-        const originalNames = asset.names.length > 0 ? asset.names : asset.name ? [asset.name] : []
+        const originalNames =
+          asset.names.length > 0 ? asset.names : asset.name ? [asset.name] : []
 
         if (originalNames.some((name) => GEIST_SANS_NAME_PATTERN.test(name))) {
           fontFileName = asset.fileName
@@ -100,9 +101,9 @@ export const preloadFonts = (): Plugin => {
         // bump) — mentioned explicitly so a future maintainer debugging this
         // warning doesn't only chase the "forgot to import" theory.
         this.warn(
-          '@akli-dev/ui/vite-plugin: preloadFonts() could not find the Geist Sans font asset in this build\'s output. ' +
+          "@akli-dev/ui/vite-plugin: preloadFonts() could not find the Geist Sans font asset in this build's output. " +
             "Did you forget to import '@akli-dev/ui/fonts.css'? If it is imported, the shipped font filename may have " +
-            'changed and no longer matches this plugin\'s GEIST_SANS_NAME_PATTERN. No preload link will be injected.',
+            "changed and no longer matches this plugin's GEIST_SANS_NAME_PATTERN. No preload link will be injected."
         )
       }
     },

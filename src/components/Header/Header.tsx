@@ -31,7 +31,9 @@ export interface HeaderProps {
 }
 
 const isLinkActive = (pathname: string, to: string) =>
-  to === '/' ? pathname === '/' : pathname === to || pathname.startsWith(`${to}/`)
+  to === '/'
+    ? pathname === '/'
+    : pathname === to || pathname.startsWith(`${to}/`)
 
 const Header: FC<HeaderProps> = ({
   variant = 'public',
@@ -75,7 +77,10 @@ const Header: FC<HeaderProps> = ({
     <header ref={headerRef} className={className}>
       <div className={styles.inner}>
         <div className={styles.left}>
-          <RouterLink to={brandTo} className={cx(styles.brand, interactions.focusRing)}>
+          <RouterLink
+            to={brandTo}
+            className={cx(styles.brand, interactions.focusRing)}
+          >
             {brand}
           </RouterLink>
 
@@ -85,7 +90,9 @@ const Header: FC<HeaderProps> = ({
         <div className={styles.actions}>
           {variant === 'public' && nav}
 
-          {variant === 'logged-out' && <span className={styles.loggedOutLabel}>Admin</span>}
+          {variant === 'logged-out' && (
+            <span className={styles.loggedOutLabel}>Admin</span>
+          )}
 
           {variant === 'admin' && (
             <>

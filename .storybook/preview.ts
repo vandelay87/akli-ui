@@ -38,8 +38,7 @@ const withTheme: Decorator = (Story, context) => {
 // stories (Footer, Link) don't care which route is current and just omit it.
 const withRouter: Decorator = (Story, context) => {
   const initialEntries = context.parameters.router?.initialEntries as
-    | string[]
-    | undefined
+    string[] | undefined
   return createElement(
     MemoryRouter,
     initialEntries ? { initialEntries } : null,

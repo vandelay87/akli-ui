@@ -29,7 +29,8 @@
   inset-block-start: 0;
 }
 
-@supports (backdrop-filter: blur(1px)) and (color: color-mix(in srgb, red 50%, transparent)) {
+@supports (backdrop-filter: blur(1px)) and
+  (color: color-mix(in srgb, red 50%, transparent)) {
   .sticky {
     background-color: color-mix(in srgb, var(--color-bg) 84%, transparent);
     backdrop-filter: saturate(140%) blur(10px);

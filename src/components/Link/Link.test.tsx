@@ -79,7 +79,9 @@ describe('Link', () => {
     const icon = within(linkElement).getByTestId('icon')
     const text = within(linkElement).getByTestId('text')
 
-    expect(icon.compareDocumentPosition(text) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(
+      icon.compareDocumentPosition(text) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy()
   })
 
   it('positions the icon after the link text when iconSide is "right" (default)', () => {
@@ -95,7 +97,9 @@ describe('Link', () => {
     const icon = within(linkElement).getByTestId('icon')
     const text = within(linkElement).getByTestId('text')
 
-    expect(text.compareDocumentPosition(icon) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(
+      text.compareDocumentPosition(icon) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy()
   })
 
   it('has no underline by default', () => {
@@ -169,13 +173,20 @@ describe('Link', () => {
 
     const icon = screen.getByTestId('icon')
 
-    expect(icon.parentElement?.style.getPropertyValue('--link-icon-rotate')).toBe('')
+    expect(
+      icon.parentElement?.style.getPropertyValue('--link-icon-rotate')
+    ).toBe('')
   })
 
   it('rotates the icon when rotateIcon is true, without disturbing the link nudge class', () => {
     render(
       <MemoryRouter>
-        <Link to="/apps" icon={<span data-testid="icon" />} nudge="right" rotateIcon>
+        <Link
+          to="/apps"
+          icon={<span data-testid="icon" />}
+          nudge="right"
+          rotateIcon
+        >
           Apps
         </Link>
       </MemoryRouter>
@@ -184,7 +195,9 @@ describe('Link', () => {
     const icon = screen.getByTestId('icon')
     const linkElement = screen.getByRole('link', { name: /apps/i })
 
-    expect(icon.parentElement?.style.getPropertyValue('--link-icon-rotate')).toBe('45deg')
+    expect(
+      icon.parentElement?.style.getPropertyValue('--link-icon-rotate')
+    ).toBe('45deg')
     // rotateIcon is a static rotation set via a CSS custom property on the
     // icon; it must not interfere with the nudge class assignment on the
     // link element (the hover transform the two are meant to compose with).

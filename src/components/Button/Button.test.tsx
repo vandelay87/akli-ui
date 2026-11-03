@@ -86,7 +86,9 @@ describe('Button', () => {
   })
 
   it('renders the default button with no detectable axe violations', async () => {
-    const { container } = render(<Button onClick={mockOnClick}>Save changes</Button>)
+    const { container } = render(
+      <Button onClick={mockOnClick}>Save changes</Button>
+    )
 
     await expectNoA11yViolations(container)
   })

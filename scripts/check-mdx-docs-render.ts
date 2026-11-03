@@ -79,12 +79,7 @@ const renderDocsEntry = async (
   await waitForPageReady(page)
 
   return page.evaluate(
-    async ({
-      storyId,
-      timeoutMs,
-      channelPollTimeoutMs,
-      events,
-    }) => {
+    async ({ storyId, timeoutMs, channelPollTimeoutMs, events }) => {
       const channelReady = async () => {
         const start = Date.now()
         while (Date.now() - start < channelPollTimeoutMs) {
@@ -177,7 +172,11 @@ const main = async () => {
   )
 
   const browser = await chromium.launch()
-  let outcomes: { entry: StorybookIndexEntry; result: RenderResult; consoleErrors: string[] }[]
+  let outcomes: {
+    entry: StorybookIndexEntry
+    result: RenderResult
+    consoleErrors: string[]
+  }[]
 
   try {
     outcomes = await Promise.all(
@@ -223,7 +222,9 @@ const main = async () => {
   if (failures.length > 0) {
     console.error(
       `\ncheck:mdx-docs: ${failures.length} of ${entries.length} standalone MDX docs page(s) failed to render:\n` +
-        failures.map((entry) => `  - ${entry.id} (${entry.importPath})`).join('\n')
+        failures
+          .map((entry) => `  - ${entry.id} (${entry.importPath})`)
+          .join('\n')
     )
     process.exit(1)
   }

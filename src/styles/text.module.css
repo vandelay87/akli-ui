@@ -49,7 +49,8 @@
   .pageHero {
     max-width: var(--max-w-reading);
     margin-inline: auto;
-    padding-block: clamp(64px, 11vw, 108px) var(--page-hero-pad-end, var(--space-6));
+    padding-block: clamp(64px, 11vw, 108px)
+      var(--page-hero-pad-end, var(--space-6));
     padding-inline: var(--space-6);
   }
 

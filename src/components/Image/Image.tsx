@@ -131,65 +131,59 @@ const Image: FC<ImageProps> = ({
           aspectRatio: aspectRatio !== 'auto' ? aspectRatio : undefined,
         }}
       >
-      {!isLoaded && !isError && (
-        <div
-          className={cx(styles.placeholderOverlay, placeholder === 'blur' && styles.placeholderOverlayBlur)}
-          aria-hidden="true"
-        >
-          {placeholder === 'blur' && effectiveBlurDataURL ? (
-            <img
-              src={effectiveBlurDataURL}
-              alt=""
-              className={styles.blurImage}
-              aria-hidden="true"
-            />
-          ) : placeholder === 'blur' && !effectiveBlurDataURL ? (
-            <div className={styles.pulsePlaceholder} />
-          ) : (
-            <div className={styles.emptyPlaceholder}>{iconImage}</div>
-          )}
-        </div>
-      )}
-
-      {isError && (
-        <div
-          className={styles.errorOverlay}
-          role="alert"
-          aria-live="polite"
-        >
-          <div className={styles.errorContent}>
-            <div className={styles.errorIcon}>{iconWarning}</div>
-            <p className={styles.errorText}>
-              Failed to load image
-            </p>
+        {!isLoaded && !isError && (
+          <div
+            className={cx(
+              styles.placeholderOverlay,
+              placeholder === 'blur' && styles.placeholderOverlayBlur
+            )}
+            aria-hidden="true"
+          >
+            {placeholder === 'blur' && effectiveBlurDataURL ? (
+              <img
+                src={effectiveBlurDataURL}
+                alt=""
+                className={styles.blurImage}
+                aria-hidden="true"
+              />
+            ) : placeholder === 'blur' && !effectiveBlurDataURL ? (
+              <div className={styles.pulsePlaceholder} />
+            ) : (
+              <div className={styles.emptyPlaceholder}>{iconImage}</div>
+            )}
           </div>
-        </div>
-      )}
+        )}
 
-      {isInView && (
-        <img
-          ref={imgRef}
-          src={currentSrc}
-          alt={alt}
-          className={cx(styles.image, isLoaded && styles.loaded, className)}
-          style={{
-            objectFit,
-            objectPosition,
-          }}
-          onLoad={handleLoad}
-          onError={handleError}
-          loading={priority ? 'eager' : 'lazy'}
-          fetchPriority={priority ? 'high' : 'auto'}
-          decoding="async"
-          srcSet={srcSet}
-          sizes={effectiveSizes}
-        />
-      )}
+        {isError && (
+          <div className={styles.errorOverlay} role="alert" aria-live="polite">
+            <div className={styles.errorContent}>
+              <div className={styles.errorIcon}>{iconWarning}</div>
+              <p className={styles.errorText}>Failed to load image</p>
+            </div>
+          </div>
+        )}
 
+        {isInView && (
+          <img
+            ref={imgRef}
+            src={currentSrc}
+            alt={alt}
+            className={cx(styles.image, isLoaded && styles.loaded, className)}
+            style={{
+              objectFit,
+              objectPosition,
+            }}
+            onLoad={handleLoad}
+            onError={handleError}
+            loading={priority ? 'eager' : 'lazy'}
+            fetchPriority={priority ? 'high' : 'auto'}
+            decoding="async"
+            srcSet={srcSet}
+            sizes={effectiveSizes}
+          />
+        )}
       </div>
-      {caption && (
-        <figcaption className={styles.caption}>{caption}</figcaption>
-      )}
+      {caption && <figcaption className={styles.caption}>{caption}</figcaption>}
     </figure>
   )
 }

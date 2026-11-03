@@ -7,7 +7,9 @@ describe('Callout', () => {
   it('renders tip variant with content text', () => {
     render(<Callout type="tip">Use caching for better performance.</Callout>)
 
-    expect(screen.getByText('Use caching for better performance.')).toBeInTheDocument()
+    expect(
+      screen.getByText('Use caching for better performance.')
+    ).toBeInTheDocument()
   })
 
   it('renders warning variant with content text', () => {
@@ -23,9 +25,7 @@ describe('Callout', () => {
   })
 
   it('each variant has a distinct visual indicator', () => {
-    const { rerender } = render(
-      <Callout type="tip">Tip content</Callout>
-    )
+    const { rerender } = render(<Callout type="tip">Tip content</Callout>)
     const tipElement = screen.getByRole('note')
     const tipHTML = tipElement.innerHTML
 
