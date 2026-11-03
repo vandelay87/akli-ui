@@ -18,7 +18,9 @@ const preVisit: TestRunnerConfig['preVisit'] = async (page) => {
     // @ts-expect-error -- ad hoc guard on the page's global scope, not typed
     globalThis.__a11yThemeSet = true
     // @ts-expect-error -- Storybook's injected preview runtime channel, not typed
-    globalThis.__STORYBOOK_ADDONS_CHANNEL__.emit('updateGlobals', { globals: { theme } })
+    globalThis.__STORYBOOK_ADDONS_CHANNEL__.emit('updateGlobals', {
+      globals: { theme },
+    })
   }, theme)
 }
 

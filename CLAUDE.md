@@ -1,6 +1,6 @@
 # akli-ui
 
-Shared UI component package (`@akli-dev/ui`) published to npm, plus its Storybook (deployed at `storybook.akli.dev`). Extracted from `personal-website`, whose CLAUDE.md is a useful reference for shared conventions (theming) — but this repo is a *library*, not an app: everything here ships to consumers, so changes carry a different weight than an app's internal code.
+Shared UI component package (`@akli-dev/ui`) published to npm, plus its Storybook (deployed at `storybook.akli.dev`). Extracted from `personal-website`, whose CLAUDE.md is a useful reference for shared conventions (theming) — but this repo is a _library_, not an app: everything here ships to consumers, so changes carry a different weight than an app's internal code.
 
 ## Agent skills
 
@@ -38,7 +38,7 @@ Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/ag
 - Use `cx()` (`src/utils/cx.ts`) for conditional className joining — not hand-rolled `.filter(Boolean).join(' ')` or template-literal concatenation.
 - Dark mode via `data-theme="light"|"dark"` on `<html>`, same mechanism as `personal-website`. `ThemeToggle` manages it; see the README's Theming section for the consumer-facing contract.
 - Icons live in `src/components/icons/`, split across two files with different conventions that currently coexist rather than one having fully replaced the other:
-  - `iconGlyphs.tsx` — bare JSX `<svg>` constants, sized either via explicit `width`/`height` on the `<svg>` itself, or left unsized and sized by the *consumer's* CSS via a descendant selector (e.g. `.wrapper svg { width; height }`). Check which pattern an icon already uses before adding a sibling — see the pitfall below before picking blind.
+  - `iconGlyphs.tsx` — bare JSX `<svg>` constants, sized either via explicit `width`/`height` on the `<svg>` itself, or left unsized and sized by the _consumer's_ CSS via a descendant selector (e.g. `.wrapper svg { width; height }`). Check which pattern an icon already uses before adding a sibling — see the pitfall below before picking blind.
   - `icons.tsx` — components typed `FC<SizedIconProps>`, sized via an explicit `size` prop.
   - When adding a new icon with a single, known consumer, match whichever convention that file/component already uses. Don't introduce a third pattern.
 - Shared CSS composables live in `src/styles/interactions.module.css` (`composes: x from '../../styles/interactions.module.css'`), plus `formField.module.css`, `stateBox.module.css`, `text.module.css`. Some of these have no consumer within this package's own `src/` yet — see the pitfall below before assuming that means "delete it."
@@ -67,5 +67,5 @@ Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/ag
 
 Two independent release paths, not one:
 
-- **The npm package** — Changesets-driven. Merging a PR with a changeset opens/updates a "Version Packages" PR; merging *that* triggers `npm publish` via npm Trusted Publishing (OIDC). See the README's Releasing section.
+- **The npm package** — Changesets-driven. Merging a PR with a changeset opens/updates a "Version Packages" PR; merging _that_ triggers `npm publish` via npm Trusted Publishing (OIDC). See the README's Releasing section.
 - **Storybook** — deployed to `storybook.akli.dev` (S3 + CloudFront) on push to `main`, independent of npm releases — see `.github/workflows/deploy-storybook.yml`.

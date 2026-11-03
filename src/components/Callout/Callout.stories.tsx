@@ -17,20 +17,23 @@ type Story = StoryObj<typeof meta>
 export const Tip: Story = {
   args: {
     type: 'tip',
-    children: 'Use the `as` prop to render Typography as a semantic element that differs from its default.',
+    children:
+      'Use the `as` prop to render Typography as a semantic element that differs from its default.',
   },
 }
 
 export const Warning: Story = {
   args: {
     type: 'warning',
-    children: 'Deleting this workspace removes all projects and cannot be undone.',
+    children:
+      'Deleting this workspace removes all projects and cannot be undone.',
   },
 }
 
 export const Info: Story = {
   args: {
     type: 'info',
-    children: 'Dark mode support was added in version 2.0 and requires the tokens.css stylesheet.',
+    children:
+      'Dark mode support was added in version 2.0 and requires the tokens.css stylesheet.',
   },
 }

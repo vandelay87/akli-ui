@@ -29,13 +29,18 @@ export const useMeasuredHeightVar = (
     // element.
     const observer = new ResizeObserver((entries) => {
       const [entry] = entries
-      const height = entry.borderBoxSize?.[0]?.blockSize ?? entry.target.getBoundingClientRect().height
+      const height =
+        entry.borderBoxSize?.[0]?.blockSize ??
+        entry.target.getBoundingClientRect().height
       const roundedHeight = Math.round(height)
 
       if (roundedHeight === lastHeightRef.current) return
 
       lastHeightRef.current = roundedHeight
-      document.documentElement.style.setProperty(propertyName, `${roundedHeight}px`)
+      document.documentElement.style.setProperty(
+        propertyName,
+        `${roundedHeight}px`
+      )
     })
     observer.observe(element)
 

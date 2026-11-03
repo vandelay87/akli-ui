@@ -54,6 +54,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test-storybook": "test-storybook",
+    "check:format": "prettier --check .",
     "check:mdx-docs": "node scripts/check-mdx-docs-render.ts",
     "check:bundle-size": "size-limit",
     "check:css-tree-shaking": "node scripts/check-css-tree-shaking.ts",

@@ -1,0 +1,6 @@
+pnpm-lock.yaml
+CHANGELOG.md
+.changeset/*.md
+.storybook/public/
+# Legacy specs, no longer updated (see CLAUDE.md)
+docs/prds/

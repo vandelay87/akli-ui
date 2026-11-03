@@ -4,15 +4,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;  /* icon-button box — no spacing token matches this exact size */
+  width: 32px; /* icon-button box — no spacing token matches this exact size */
   height: 32px;
   color: var(--color-text-strong);
   background: transparent;
   border: var(--border-width) solid var(--color-border-strong);
   border-radius: var(--radius-full);
   cursor: pointer;
-  transition: background var(--duration-fast) var(--easing-default),
-              border-color var(--duration-fast) var(--easing-default);
+  transition:
+    background var(--duration-fast) var(--easing-default),
+    border-color var(--duration-fast) var(--easing-default);
 }
 
 /* Subtle theme-aware shade on hover — not an accent color */

@@ -35,7 +35,9 @@ describe('Input', () => {
   it('does not set aria-invalid when invalid is false or omitted', () => {
     render(<Input value="" ariaLabel="Email" onChange={vi.fn()} />)
 
-    expect(screen.getByRole('textbox', { name: 'Email' })).not.toHaveAttribute('aria-invalid')
+    expect(screen.getByRole('textbox', { name: 'Email' })).not.toHaveAttribute(
+      'aria-invalid'
+    )
   })
 
   it('disables the input when disabled is passed', () => {
@@ -46,14 +48,26 @@ describe('Input', () => {
 
   it('renders a prefixIcon when passed', () => {
     render(
-      <Input value="" ariaLabel="Search" prefixIcon={<span>search-icon</span>} onChange={vi.fn()} />
+      <Input
+        value=""
+        ariaLabel="Search"
+        prefixIcon={<span>search-icon</span>}
+        onChange={vi.fn()}
+      />
     )
 
     expect(screen.getByText('search-icon')).toBeInTheDocument()
   })
 
   it('renders a suffix when passed', () => {
-    render(<Input value="" ariaLabel="Search" suffix={<button>Clear</button>} onChange={vi.fn()} />)
+    render(
+      <Input
+        value=""
+        ariaLabel="Search"
+        suffix={<button>Clear</button>}
+        onChange={vi.fn()}
+      />
+    )
 
     expect(screen.getByRole('button', { name: 'Clear' })).toBeInTheDocument()
   })
@@ -67,13 +81,20 @@ describe('Input', () => {
   it('produces the expected accessible description via ariaDescribedBy', () => {
     render(
       <>
-        <Input value="" ariaLabel="Email" ariaDescribedBy="email-hint" onChange={vi.fn()} />
+        <Input
+          value=""
+          ariaLabel="Email"
+          ariaDescribedBy="email-hint"
+          onChange={vi.fn()}
+        />
         <span id="email-hint">We will never share your email</span>
       </>
     )
 
     expect(
-      screen.getByRole('textbox', { description: 'We will never share your email' })
+      screen.getByRole('textbox', {
+        description: 'We will never share your email',
+      })
     ).toBeInTheDocument()
   })
 
