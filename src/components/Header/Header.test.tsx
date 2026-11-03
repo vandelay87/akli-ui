@@ -39,27 +39,36 @@ describe('Header', () => {
 
   it('renders the brand link pointing to brandTo', () => {
     renderWithRouter(<Header brand="akli.dev" brandTo="/admin" />)
-    expect(screen.getByRole('link', { name: 'akli.dev' })).toHaveAttribute('href', '/admin')
+    expect(screen.getByRole('link', { name: 'akli.dev' })).toHaveAttribute(
+      'href',
+      '/admin'
+    )
   })
 
   it('renders the ThemeToggle in every variant', () => {
     const variants = ['public', 'admin', 'logged-out'] as const
     variants.forEach((variant) => {
       const { unmount } = renderWithRouter(<Header variant={variant} />)
-      expect(screen.getByRole('button', { name: /switch to (dark|light) mode/i })).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: /switch to (dark|light) mode/i })
+      ).toBeInTheDocument()
       unmount()
     })
   })
 
   it('renders the public variant with links with no detectable axe violations', async () => {
-    const { container } = renderWithRouter(<Header variant="public" links={LINKS} />)
+    const { container } = renderWithRouter(
+      <Header variant="public" links={LINKS} />
+    )
 
     await expectNoA11yViolations(container)
   })
 
   describe('public variant', () => {
     it('renders nav links and marks the active route with aria-current', () => {
-      renderWithRouter(<Header variant="public" links={LINKS} />, { route: '/admin/recipes' })
+      renderWithRouter(<Header variant="public" links={LINKS} />, {
+        route: '/admin/recipes',
+      })
 
       const recipesLink = screen.getByRole('link', { name: 'Recipes' })
       const usersLink = screen.getByRole('link', { name: 'Users' })
@@ -70,7 +79,9 @@ describe('Header', () => {
 
     it('renders no logout button or email', () => {
       renderWithRouter(<Header variant="public" links={LINKS} />)
-      expect(screen.queryByRole('button', { name: /log out/i })).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: /log out/i })
+      ).not.toBeInTheDocument()
     })
   })
 
@@ -78,7 +89,12 @@ describe('Header', () => {
     it('renders the signed-in email and a working Log out button', () => {
       const onLogout = vi.fn()
       renderWithRouter(
-        <Header variant="admin" links={LINKS} email="admin@example.com" onLogout={onLogout} />,
+        <Header
+          variant="admin"
+          links={LINKS}
+          email="admin@example.com"
+          onLogout={onLogout}
+        />,
         { route: '/admin/recipes' }
       )
 
@@ -91,34 +107,62 @@ describe('Header', () => {
     })
 
     it('marks the active route with aria-current', () => {
-      renderWithRouter(<Header variant="admin" links={LINKS} />, { route: '/admin/users' })
+      renderWithRouter(<Header variant="admin" links={LINKS} />, {
+        route: '/admin/users',
+      })
 
-      expect(screen.getByRole('link', { name: 'Users' })).toHaveAttribute('aria-current', 'page')
-      expect(screen.getByRole('link', { name: 'Recipes' })).not.toHaveAttribute('aria-current')
+      expect(screen.getByRole('link', { name: 'Users' })).toHaveAttribute(
+        'aria-current',
+        'page'
+      )
+      expect(screen.getByRole('link', { name: 'Recipes' })).not.toHaveAttribute(
+        'aria-current'
+      )
     })
 
     it('moves aria-current to the newly active link when navigating via click', () => {
-      renderWithRouter(<Header variant="admin" links={LINKS} />, { route: '/admin/recipes' })
+      renderWithRouter(<Header variant="admin" links={LINKS} />, {
+        route: '/admin/recipes',
+      })
 
-      expect(screen.getByRole('link', { name: 'Recipes' })).toHaveAttribute('aria-current', 'page')
-      expect(screen.getByRole('link', { name: 'Users' })).not.toHaveAttribute('aria-current')
+      expect(screen.getByRole('link', { name: 'Recipes' })).toHaveAttribute(
+        'aria-current',
+        'page'
+      )
+      expect(screen.getByRole('link', { name: 'Users' })).not.toHaveAttribute(
+        'aria-current'
+      )
 
       fireEvent.click(screen.getByRole('link', { name: 'Users' }))
 
-      expect(screen.getByRole('link', { name: 'Users' })).toHaveAttribute('aria-current', 'page')
-      expect(screen.getByRole('link', { name: 'Recipes' })).not.toHaveAttribute('aria-current')
+      expect(screen.getByRole('link', { name: 'Users' })).toHaveAttribute(
+        'aria-current',
+        'page'
+      )
+      expect(screen.getByRole('link', { name: 'Recipes' })).not.toHaveAttribute(
+        'aria-current'
+      )
     })
   })
 
   describe('logged-out variant', () => {
     it('renders no nav links and no logout button', () => {
       renderWithRouter(
-        <Header variant="logged-out" links={LINKS} email="admin@example.com" onLogout={vi.fn()} />
+        <Header
+          variant="logged-out"
+          links={LINKS}
+          email="admin@example.com"
+          onLogout={vi.fn()}
+        />
       )
 
       expect(screen.queryByRole('navigation')).not.toBeInTheDocument()
-      expect(screen.queryByRole('link', { name: 'Recipes' })).not.toBeInTheDocument()
-      expect(screen.queryByRole('button', { name: /log out/i })).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('link', { name: 'Recipes' })
+      ).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: /log out/i })
+      ).not.toBeInTheDocument()
     })
   })
 
@@ -130,7 +174,8 @@ describe('Header', () => {
     it('sets --header-height on the document root after mount', () => {
       renderWithRouter(<Header />)
 
-      const headerHeight = document.documentElement.style.getPropertyValue('--header-height')
+      const headerHeight =
+        document.documentElement.style.getPropertyValue('--header-height')
 
       expect(headerHeight).not.toBe('')
       expect(headerHeight).toMatch(/^\d+(\.\d+)?px$/)

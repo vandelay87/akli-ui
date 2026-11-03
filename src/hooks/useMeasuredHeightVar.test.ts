@@ -11,7 +11,10 @@ import { useMeasuredHeightVar } from './useMeasuredHeightVar'
 // separate local mock — the dedup/caching test below needs to fire the same
 // observer instance repeatedly with custom entries, which `fire` supports.
 
-const makeEntry = (blockSize: number, element: Element): Partial<ResizeObserverEntry> => ({
+const makeEntry = (
+  blockSize: number,
+  element: Element
+): Partial<ResizeObserverEntry> => ({
   target: element,
   borderBoxSize: [{ blockSize, inlineSize: 0 } as ResizeObserverSize],
 })
@@ -37,7 +40,9 @@ describe('useMeasuredHeightVar', () => {
       observer.fire(makeEntry(48, element))
     })
 
-    expect(document.documentElement.style.getPropertyValue('--test-height')).toBe('48px')
+    expect(
+      document.documentElement.style.getPropertyValue('--test-height')
+    ).toBe('48px')
   })
 
   it('skips the write when a later firing rounds to the same height (caching)', () => {
@@ -47,7 +52,10 @@ describe('useMeasuredHeightVar', () => {
     renderHook(() => useMeasuredHeightVar(ref, '--test-height'))
 
     const [observer] = MockResizeObserver.instances
-    const setPropertySpy = vi.spyOn(document.documentElement.style, 'setProperty')
+    const setPropertySpy = vi.spyOn(
+      document.documentElement.style,
+      'setProperty'
+    )
 
     act(() => {
       observer.fire(makeEntry(48, element))
@@ -63,14 +71,18 @@ describe('useMeasuredHeightVar', () => {
       observer.fire(makeEntry(60, element))
     })
     expect(setPropertySpy).toHaveBeenCalledTimes(2)
-    expect(document.documentElement.style.getPropertyValue('--test-height')).toBe('60px')
+    expect(
+      document.documentElement.style.getPropertyValue('--test-height')
+    ).toBe('60px')
   })
 
   it('disconnects the observer on unmount', () => {
     const element = document.createElement('div')
     const ref = { current: element }
 
-    const { unmount } = renderHook(() => useMeasuredHeightVar(ref, '--test-height'))
+    const { unmount } = renderHook(() =>
+      useMeasuredHeightVar(ref, '--test-height')
+    )
     const [observer] = MockResizeObserver.instances
 
     unmount()

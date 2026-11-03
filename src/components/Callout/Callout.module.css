@@ -49,7 +49,8 @@
 }
 
 .tip {
-  border: var(--border-width) solid color-mix(in srgb, var(--color-success) 24%, var(--color-border));
+  border: var(--border-width) solid
+    color-mix(in srgb, var(--color-success) 24%, var(--color-border));
   background: color-mix(in srgb, var(--color-success) 6%, var(--color-surface));
 }
 
@@ -64,7 +65,8 @@
 }
 
 .warning {
-  border: var(--border-width) solid color-mix(in srgb, var(--color-warning) 24%, var(--color-border));
+  border: var(--border-width) solid
+    color-mix(in srgb, var(--color-warning) 24%, var(--color-border));
   background: color-mix(in srgb, var(--color-warning) 6%, var(--color-surface));
 }
 
@@ -78,7 +80,8 @@
 }
 
 .info {
-  border: var(--border-width) solid color-mix(in srgb, var(--color-primary) 24%, var(--color-border));
+  border: var(--border-width) solid
+    color-mix(in srgb, var(--color-primary) 24%, var(--color-border));
   background: color-mix(in srgb, var(--color-primary) 6%, var(--color-surface));
 }
 

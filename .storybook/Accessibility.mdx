@@ -15,22 +15,22 @@ can re-check anything.
 
 ## Quick reference
 
-| Component | Consumer must supply | Notable auto behavior |
-| --- | --- | --- |
-| Button | `ariaLabel` for icon-only usage | native `<button>`; `aria-busy`/disabled while `loading` |
-| Typography | correct heading order/nesting; a deliberate `as` when overriding | none — plain semantic HTML |
-| Link | `ariaLabel` for ambiguous link text; own "opens in new tab" cue if needed | icon auto-`aria-hidden`; external → `target="_blank" rel="noreferrer"` |
-| Input | an associated `<label>` (external — none is rendered internally) | `aria-invalid` from `invalid`; prefix icon auto-`aria-hidden` |
-| Card | nothing extra when relying on the `onClick` → `<button>` upgrade | real `<button type="button">` when `onClick` is set and `as` isn't overridden |
-| Callout | avoid rendering two same-`type` Callouts on one page (id collision, see below) | `role="note"` + `aria-labelledby` to the type label |
-| Grid | be aware content is wrapped as a list | renders as `<ul role="list">` / `<li role="listitem">` (via `List`) |
-| Image | a real `alt` (required by the type) | decorative placeholder/blur states auto-`aria-hidden`; load errors auto-announce (`role="alert"`) |
-| Loading | nothing | `role="status"` + `aria-live="polite"` + single, non-duplicated announcement |
-| List / ListItem | nothing | restores `role="list"`/`role="listitem"` lost to `list-style: none` |
-| Header | nothing for standard usage | nav `aria-label` and active-link `aria-current="page"` are automatic |
-| Footer | nothing for standard usage | nav `aria-labelledby` wired to a `useId()`-based unique id |
-| ThemeToggle | nothing — no `aria-label` prop even exists | self-computes an accurate, state-dependent `aria-label` |
-| icons (`iconGlyphs.tsx`, `icons.tsx`) | an accessible name if used standalone and meaningful | most (not all — see below) glyphs are `aria-hidden="true"` by default |
+| Component                             | Consumer must supply                                                           | Notable auto behavior                                                                             |
+| ------------------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| Button                                | `ariaLabel` for icon-only usage                                                | native `<button>`; `aria-busy`/disabled while `loading`                                           |
+| Typography                            | correct heading order/nesting; a deliberate `as` when overriding               | none — plain semantic HTML                                                                        |
+| Link                                  | `ariaLabel` for ambiguous link text; own "opens in new tab" cue if needed      | icon auto-`aria-hidden`; external → `target="_blank" rel="noreferrer"`                            |
+| Input                                 | an associated `<label>` (external — none is rendered internally)               | `aria-invalid` from `invalid`; prefix icon auto-`aria-hidden`                                     |
+| Card                                  | nothing extra when relying on the `onClick` → `<button>` upgrade               | real `<button type="button">` when `onClick` is set and `as` isn't overridden                     |
+| Callout                               | avoid rendering two same-`type` Callouts on one page (id collision, see below) | `role="note"` + `aria-labelledby` to the type label                                               |
+| Grid                                  | be aware content is wrapped as a list                                          | renders as `<ul role="list">` / `<li role="listitem">` (via `List`)                               |
+| Image                                 | a real `alt` (required by the type)                                            | decorative placeholder/blur states auto-`aria-hidden`; load errors auto-announce (`role="alert"`) |
+| Loading                               | nothing                                                                        | `role="status"` + `aria-live="polite"` + single, non-duplicated announcement                      |
+| List / ListItem                       | nothing                                                                        | restores `role="list"`/`role="listitem"` lost to `list-style: none`                               |
+| Header                                | nothing for standard usage                                                     | nav `aria-label` and active-link `aria-current="page"` are automatic                              |
+| Footer                                | nothing for standard usage                                                     | nav `aria-labelledby` wired to a `useId()`-based unique id                                        |
+| ThemeToggle                           | nothing — no `aria-label` prop even exists                                     | self-computes an accurate, state-dependent `aria-label`                                           |
+| icons (`iconGlyphs.tsx`, `icons.tsx`) | an accessible name if used standalone and meaningful                           | most (not all — see below) glyphs are `aria-hidden="true"` by default                             |
 
 ---
 
@@ -39,7 +39,7 @@ can re-check anything.
 `src/components/Button/Button.tsx`
 
 - **Labelling.** `children` is a required prop, so Button always renders
-  *some* visible content inside a `<span>`. For an icon-only button, pass
+  _some_ visible content inside a `<span>`. For an icon-only button, pass
   the icon itself as `children` (not `iconLeft`/`iconRight`, which are for
   icons alongside separate visible text) and supply `ariaLabel` — since the
   exported icon glyphs are themselves `aria-hidden="true"`, an icon-only
@@ -90,7 +90,7 @@ responsibility — Typography does not warn or correct for either.
   the consumer never has to hide it themselves.
 - **Consumer responsibility not covered.** When `to` resolves as external
   (`isExternalHref`), Link automatically adds `target="_blank"
-  rel="noreferrer"`, but adds no visual or accessible "opens in a new tab"
+rel="noreferrer"`, but adds no visual or accessible "opens in a new tab"
   indicator. If that matters for your users, add it yourself (visually
   hidden text in `children`, or fold it into `ariaLabel`).
 - **Keyboard.** Renders a native `<a>` (react-router `Link` or a plain
@@ -126,7 +126,7 @@ responsibility — Typography does not warn or correct for either.
 `src/components/Card/Card.tsx`
 
 - **Keyboard — real button semantics for free.** `const Component = as ??
-  (onClick ? 'button' : 'div')`: when `onClick` is set and `as` is not
+(onClick ? 'button' : 'div')`: when `onClick` is set and `as` is not
   explicitly overridden, Card renders a genuine `<button type="button">`
   (not a `<div>` with a click handler and an ARIA role bolted on) — Enter/
   Space activation, correct tab order, and disabled/focus semantics are
@@ -134,7 +134,7 @@ responsibility — Typography does not warn or correct for either.
   (a `:focus-visible` treatment) and an `asButton` style class in that
   case.
 - **Consumer responsibility.** `as` always wins over the `onClick` fallback
-  — if you pass both `as="a"` (or any non-button element) *and* `onClick`,
+  — if you pass both `as="a"` (or any non-button element) _and_ `onClick`,
   Card will **not** upgrade it to a button, and you take on full
   responsibility for that element's accessible interactivity (e.g. a
   non-`<a href>` element with a click handler needs its own `role`,
@@ -153,7 +153,7 @@ responsibility — Typography does not warn or correct for either.
 - **A real, verified gap to know about.** The `aria-labelledby` target id is
   a static template literal, `` `callout-${type}` `` — **not** generated
   with React's `useId()` (contrast this with `Footer`, below, which does
-  use `useId()` for an analogous case). Two `Callout`s of the *same*
+  use `useId()` for an analogous case). Two `Callout`s of the _same_
   `type` rendered on the same page will produce duplicate DOM ids; per
   HTML, duplicate ids are invalid, and `aria-labelledby` resolution in
   that situation is undefined/browser-dependent, so a second same-type
@@ -216,7 +216,7 @@ informative enough in context; no other consumer action is required.
 `ListItem`'s `<li>`) are always applied — per the source comment, this
 exists specifically to counter a real Safari/VoiceOver behavior where
 `list-style: none` (commonly applied by callers via `className`) strips
-the *implicit* list semantics browsers normally infer from `<ul>`/`<li>`.
+the _implicit_ list semantics browsers normally infer from `<ul>`/`<li>`.
 In both components the `role` prop is spread last, so a consumer's own
 passed-through props can never accidentally override it. No consumer
 action needed — just use `List`/`ListItem` instead of raw `<ul>`/`<li>`
@@ -233,7 +233,7 @@ and correct list semantics are guaranteed regardless of styling.
   `aria-current="page"` automatically, updating as navigation happens.
 - **Labelling.** The brand/wordmark and nav links are plain visible text
   rendered via react-router `Link`s — no separate accessible-name
-  handling needed since the visible text *is* the accessible name. The
+  handling needed since the visible text _is_ the accessible name. The
   admin "Log out" `Button` has visible text as its label, so it doesn't
   need (and doesn't get) an `ariaLabel`. `ThemeToggle` is rendered inside
   Header and supplies its own label — see below.
@@ -247,7 +247,7 @@ and correct list semantics are guaranteed regardless of styling.
 - **ARIA auto-applied.** In the `public` variant, the social-links `<nav>`
   gets `aria-labelledby` wired to a visible "Find me elsewhere" label,
   using an id from React's `useId()` — correctly unique per `Footer`
-  instance (this is the pattern `Callout`, above, does *not* use, and
+  instance (this is the pattern `Callout`, above, does _not_ use, and
   which the id-collision caveat there specifically doesn't apply to
   here). Social links render through `Link`, so external ones
   automatically get `target="_blank" rel="noreferrer"` per Link's own
@@ -266,7 +266,7 @@ and correct list semantics are guaranteed regardless of styling.
 is no prop to override it** — `ThemeToggleProps` doesn't exist; the
 component takes no props at all. Its `aria-label` is computed internally
 every render from current state — `isDark ? 'Switch to light mode' :
-'Switch to dark mode'` — so it always accurately describes the *action*
+'Switch to dark mode'` — so it always accurately describes the _action_
 the click performs, not just the current state, and updates automatically
 as the theme changes. The sun/moon glyph is in an `aria-hidden="true"`
 `<span>`, so it never leaks into the accessible name. It renders a native

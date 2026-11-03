@@ -47,7 +47,11 @@ export type { InputProps } from './components/Input/Input'
 export { default as Card } from './components/Card'
 export type { CardProps } from './components/Card/Card'
 export { default as Header } from './components/Header'
-export type { HeaderLink, HeaderProps, HeaderVariant } from './components/Header/Header'
+export type {
+  HeaderLink,
+  HeaderProps,
+  HeaderVariant,
+} from './components/Header/Header'
 export { default as Footer } from './components/Footer'
 export type { FooterProps } from './components/Footer/Footer'
 export { default as ThemeToggle } from './components/ThemeToggle'

@@ -27,7 +27,9 @@ const srgbChannelToLinear = (channel: number): number => {
 }
 
 const relativeLuminance = ({ r, g, b }: Rgb): number =>
-  0.2126 * srgbChannelToLinear(r) + 0.7152 * srgbChannelToLinear(g) + 0.0722 * srgbChannelToLinear(b)
+  0.2126 * srgbChannelToLinear(r) +
+  0.7152 * srgbChannelToLinear(g) +
+  0.0722 * srgbChannelToLinear(b)
 
 const contrastRatio = (a: Rgb, b: Rgb): number => {
   const lumA = relativeLuminance(a)
@@ -48,7 +50,8 @@ const mix = (a: Rgb, weight: number, b: Rgb): Rgb => ({
 
 // Mirrors `color-mix(in srgb, var(source) percent%, var(into))` for the
 // tokens.css/component pairs that mix two opaque tokens directly.
-const mixOpaqueColors = (source: Rgb, percent: number, into: Rgb): Rgb => mix(source, percent / 100, into)
+const mixOpaqueColors = (source: Rgb, percent: number, into: Rgb): Rgb =>
+  mix(source, percent / 100, into)
 
 // ── tokens.css parsing ──────────────────────────────────────────────────
 // Reads the real file and extracts each theme's custom-property
@@ -57,13 +60,18 @@ const mixOpaqueColors = (source: Rgb, percent: number, into: Rgb): Rgb => mix(so
 // regression guard: it reflects whatever tokens.css currently says, not a
 // copy frozen at the time this test was written.
 
-const tokensCssPath = join(dirname(fileURLToPath(import.meta.url)), 'tokens.css')
+const tokensCssPath = join(
+  dirname(fileURLToPath(import.meta.url)),
+  'tokens.css'
+)
 const tokensCss = readFileSync(tokensCssPath, 'utf-8')
 
 const extractBlock = (css: string, selector: string): string => {
   const selectorIndex = css.indexOf(selector)
   if (selectorIndex === -1) {
-    throw new Error(`tokens.css: could not find selector ${JSON.stringify(selector)}`)
+    throw new Error(
+      `tokens.css: could not find selector ${JSON.stringify(selector)}`
+    )
   }
   const braceOpen = css.indexOf('{', selectorIndex)
   // None of :root's or [data-theme="dark"]'s declarations contain nested
@@ -89,12 +97,17 @@ const VAR_REFERENCE_PATTERN = /^var\(--([a-zA-Z0-9-]+)\)$/
 // Resolves a token's raw value, following var(--x) references within the
 // same theme block (e.g. --color-text-faint-on-field: var(--color-text-faint)
 // in light mode, --color-success-on-tint: var(--color-success) in dark mode).
-const resolveRawValue = (declarations: Map<string, string>, tokenName: string): string => {
+const resolveRawValue = (
+  declarations: Map<string, string>,
+  tokenName: string
+): string => {
   const seen = new Set<string>()
   let current = tokenName
   for (;;) {
     if (seen.has(current)) {
-      throw new Error(`tokens.css: circular var() reference resolving --${tokenName}`)
+      throw new Error(
+        `tokens.css: circular var() reference resolving --${tokenName}`
+      )
     }
     seen.add(current)
     const rawValue = declarations.get(current)
@@ -111,7 +124,10 @@ const resolveRawValue = (declarations: Map<string, string>, tokenName: string): 
 
 const HEX_PATTERN = /^#([0-9a-fA-F]{6})$/
 
-const resolveOpaqueColor = (declarations: Map<string, string>, tokenName: string): Rgb => {
+const resolveOpaqueColor = (
+  declarations: Map<string, string>,
+  tokenName: string
+): Rgb => {
   const rawValue = resolveRawValue(declarations, tokenName)
   const hexMatch = HEX_PATTERN.exec(rawValue)
   if (hexMatch) {
@@ -128,7 +144,9 @@ const resolveOpaqueColor = (declarations: Map<string, string>, tokenName: string
 }
 
 const rootDeclarations = parseDeclarations(extractBlock(tokensCss, ':root {'))
-const darkDeclarations = parseDeclarations(extractBlock(tokensCss, '[data-theme="dark"] {'))
+const darkDeclarations = parseDeclarations(
+  extractBlock(tokensCss, '[data-theme="dark"] {')
+)
 
 // ── Documented pairs ─────────────────────────────────────────────────────
 // Every pair below corresponds to a "WCAG AA override" comment (or, for
@@ -188,7 +206,10 @@ type DocumentedPair = Omit<PairSpec, 'label'> & {
 // Resolves a pair's background to a concrete opaque Rgb, per Background's
 // `kind`. Exhaustive over the union (TypeScript flags a missing case as a
 // non-returning branch), so no `!` assertions are needed anywhere here.
-const resolveBackground = (declarations: Map<string, string>, background: Background): Rgb => {
+const resolveBackground = (
+  declarations: Map<string, string>,
+  background: Background
+): Rgb => {
   switch (background.kind) {
     case 'solid':
       return resolveOpaqueColor(declarations, background.token)
@@ -227,14 +248,24 @@ const pairSpecs: PairSpec[] = [
     label:
       '--color-success-on-tint on Callout .tip background (color-mix(--color-success 6%, --color-surface))',
     foreground: 'color-success-on-tint',
-    background: { kind: 'colorMix', source: 'color-success', percent: 6, into: 'color-surface' },
+    background: {
+      kind: 'colorMix',
+      source: 'color-success',
+      percent: 6,
+      into: 'color-surface',
+    },
   },
   {
     // Same rationale as --color-success-on-tint above (issue #24).
     label:
       '--color-warning-on-tint on Callout .warning background (color-mix(--color-warning 6%, --color-surface))',
     foreground: 'color-warning-on-tint',
-    background: { kind: 'colorMix', source: 'color-warning', percent: 6, into: 'color-surface' },
+    background: {
+      kind: 'colorMix',
+      source: 'color-warning',
+      percent: 6,
+      into: 'color-surface',
+    },
   },
   {
     // Unlike --color-success-on-tint/--color-warning-on-tint above, there is
@@ -242,9 +273,15 @@ const pairSpecs: PairSpec[] = [
     // only tint consumer is Callout's `.info`) — so this pair is checked
     // against the actual color-mix() formula `.info` uses, via `colorMix`,
     // rather than an approximated composited rgba backdrop.
-    label: '--color-primary-on-tint on .info background (color-mix(--color-primary 6%, --color-surface))',
+    label:
+      '--color-primary-on-tint on .info background (color-mix(--color-primary 6%, --color-surface))',
     foreground: 'color-primary-on-tint',
-    background: { kind: 'colorMix', source: 'color-primary', percent: 6, into: 'color-surface' },
+    background: {
+      kind: 'colorMix',
+      source: 'color-primary',
+      percent: 6,
+      into: 'color-surface',
+    },
   },
 ]
 
@@ -263,12 +300,15 @@ const documentedPairs: DocumentedPair[] = pairSpecs.flatMap((spec) =>
 )
 
 describe('tokens.css contrast ratios', () => {
-  it.each(documentedPairs)('$name meets the WCAG AA normal-text minimum (4.5:1)', (pair) => {
-    const fg = resolveOpaqueColor(pair.declarations, pair.foreground)
-    const bg = resolveBackground(pair.declarations, pair.background)
+  it.each(documentedPairs)(
+    '$name meets the WCAG AA normal-text minimum (4.5:1)',
+    (pair) => {
+      const fg = resolveOpaqueColor(pair.declarations, pair.foreground)
+      const bg = resolveBackground(pair.declarations, pair.background)
 
-    const ratio = contrastRatio(fg, bg)
+      const ratio = contrastRatio(fg, bg)
 
-    expect(ratio).toBeGreaterThanOrEqual(AA_NORMAL_TEXT_MIN)
-  })
+      expect(ratio).toBeGreaterThanOrEqual(AA_NORMAL_TEXT_MIN)
+    }
+  )
 })

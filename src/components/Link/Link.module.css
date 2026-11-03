@@ -34,7 +34,8 @@
   .ghost {
     color: var(--color-text);
     border: var(--border-width) solid var(--color-border-strong);
-    transition: border-color var(--duration-fast) var(--easing-default),
+    transition:
+      border-color var(--duration-fast) var(--easing-default),
       color var(--duration-fast) var(--easing-default);
   }
 

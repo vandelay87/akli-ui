@@ -21,8 +21,9 @@
    transition stays local (see that file's comment for why). */
 .field {
   composes: field from '../../styles/formField.module.css';
-  transition: border-color var(--duration-fast) var(--easing-default),
-              background-color var(--duration-fast) var(--easing-default);
+  transition:
+    border-color var(--duration-fast) var(--easing-default),
+    background-color var(--duration-fast) var(--easing-default);
 }
 
 .field:focus-visible {
