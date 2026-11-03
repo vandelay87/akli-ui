@@ -19,6 +19,11 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      # Nothing else enforces .prettierrc — without this, 60 files drifted
+      # from it unnoticed. `pnpm format` fixes a failure.
+      - name: Format
+        run: pnpm check:format
+
       - name: Typecheck
         run: pnpm typecheck
 

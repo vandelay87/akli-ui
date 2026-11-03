@@ -175,7 +175,9 @@ const checkStructure = (
   }
 }
 
-const checkInteractionsDedup = (analysesByFile: Map<string, CssFileAnalysis>) => {
+const checkInteractionsDedup = (
+  analysesByFile: Map<string, CssFileAnalysis>
+) => {
   const interactions = analysesByFile.get(interactionsDistCss)
   if (!interactions) {
     fail(

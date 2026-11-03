@@ -253,7 +253,9 @@ describe('Typography', () => {
       expect(
         screen.getByRole('heading', { level: 3, name: 'Overridden heading' })
       ).toBeInTheDocument()
-      expect(screen.queryByRole('heading', { level: 1 })).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('heading', { level: 1 })
+      ).not.toBeInTheDocument()
     })
 
     it('body variant does not appear as a heading', () => {

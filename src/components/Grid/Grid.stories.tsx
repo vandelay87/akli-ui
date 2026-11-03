@@ -75,6 +75,8 @@ export const AutoFitMinWidth: Story = {
 export const SingleChild: Story = {
   args: {
     columns: 3,
-    children: <Card fill>Only one item — Grid falls back to a single ListItem.</Card>,
+    children: (
+      <Card fill>Only one item — Grid falls back to a single ListItem.</Card>
+    ),
   },
 }

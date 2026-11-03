@@ -20,7 +20,9 @@ const axe = configureAxe({ rules: { 'color-contrast': { enabled: false } } })
 // Shared assertion for "renders with no detectable axe violations", used
 // across every component test file so the axe configuration (and the
 // color-contrast exclusion above) lives in exactly one place.
-export const expectNoA11yViolations = async (container: Element): Promise<void> => {
+export const expectNoA11yViolations = async (
+  container: Element
+): Promise<void> => {
   expect(await axe(container)).toHaveNoViolations()
 }
 
@@ -43,14 +45,20 @@ export class MockIntersectionObserver {
   constructor(callback: IntersectionObserverCallback) {
     this.observe = vi.fn((element: Element) => {
       callback(
-        [{ isIntersecting: true, target: element } as IntersectionObserverEntry],
+        [
+          {
+            isIntersecting: true,
+            target: element,
+          } as IntersectionObserverEntry,
+        ],
         {} as IntersectionObserver
       )
     })
   }
 }
 
-window.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver
+window.IntersectionObserver =
+  MockIntersectionObserver as unknown as typeof IntersectionObserver
 
 // jsdom does not implement ResizeObserver either. useMeasuredHeightVar
 // (`new ResizeObserver(...)`, used by Header) throws under jsdom without
@@ -78,12 +86,18 @@ export class MockResizeObserver {
     this.callback = callback
     MockResizeObserver.instances.push(this)
     this.observe = vi.fn((element: Element) => {
-      callback([{ target: element } as ResizeObserverEntry], this as unknown as ResizeObserver)
+      callback(
+        [{ target: element } as ResizeObserverEntry],
+        this as unknown as ResizeObserver
+      )
     })
   }
 
   fire(entry: Partial<ResizeObserverEntry>) {
-    this.callback([entry as ResizeObserverEntry], this as unknown as ResizeObserver)
+    this.callback(
+      [entry as ResizeObserverEntry],
+      this as unknown as ResizeObserver
+    )
   }
 }
 

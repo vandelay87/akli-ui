@@ -6,7 +6,8 @@ import styles from './ThemeToggle.module.css'
 
 type Theme = 'light' | 'dark'
 
-const isTheme = (value: string | null): value is Theme => value === 'light' || value === 'dark'
+const isTheme = (value: string | null): value is Theme =>
+  value === 'light' || value === 'dark'
 
 const resolveInitialTheme = (): Theme => {
   // localStorage/matchMedia access can throw in privacy-restricted contexts
@@ -17,7 +18,9 @@ const resolveInitialTheme = (): Theme => {
     const stored = localStorage.getItem('theme')
     if (isTheme(stored)) return stored
 
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark'
+      : 'light'
   } catch {
     return 'light'
   }

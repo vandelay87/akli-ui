@@ -20,7 +20,9 @@ export const Default: Story = {
     children: (
       <>
         <Typography variant="heading4">Storage usage</Typography>
-        <Typography variant="body">You&rsquo;ve used 12.4 GB of your 20 GB plan.</Typography>
+        <Typography variant="body">
+          You&rsquo;ve used 12.4 GB of your 20 GB plan.
+        </Typography>
       </>
     ),
   },
@@ -32,7 +34,9 @@ export const Fill: Story = {
     children: (
       <>
         <Typography variant="heading4">Team members</Typography>
-        <Typography variant="body">8 people have access to this workspace.</Typography>
+        <Typography variant="body">
+          8 people have access to this workspace.
+        </Typography>
       </>
     ),
   },
@@ -44,7 +48,10 @@ export const Hover: Story = {
     children: (
       <>
         <Typography variant="heading4">Recent activity</Typography>
-        <Typography variant="body">Hover to see the subtle surface wash used for hoverable, non-clickable cards.</Typography>
+        <Typography variant="body">
+          Hover to see the subtle surface wash used for hoverable, non-clickable
+          cards.
+        </Typography>
       </>
     ),
   },
@@ -60,7 +67,9 @@ export const AsButton: Story = {
     children: (
       <>
         <Typography variant="heading4">Upgrade to Pro</Typography>
-        <Typography variant="body">Unlock unlimited projects and priority support.</Typography>
+        <Typography variant="body">
+          Unlock unlimited projects and priority support.
+        </Typography>
       </>
     ),
   },
@@ -70,6 +79,10 @@ export const CustomPadding: Story = {
   args: {
     padding: 'var(--space-3)',
     radius: 'var(--radius-md)',
-    children: <Typography variant="caption">Compact card with custom padding and radius.</Typography>,
+    children: (
+      <Typography variant="caption">
+        Compact card with custom padding and radius.
+      </Typography>
+    ),
   },
 }

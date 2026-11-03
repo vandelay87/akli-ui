@@ -1,13 +1,21 @@
 /* Shared keyframe animations */
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-150%); }
-  100% { transform: translateX(150%); }
+  0% {
+    transform: translateX(-150%);
+  }
+  100% {
+    transform: translateX(150%);
+  }
 }
 
 /* Background-position sweep variant — used by src/styles/interactions.module.css
@@ -15,19 +23,30 @@
    from `shimmer` above (which animates transform on an overlay pseudo-element)
    because it drives background-position on a gradient background instead. */
 @keyframes shimmerSweep {
-  to { background-position: -200% 0; }
+  to {
+    background-position: -200% 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   @keyframes spin {
-    from, to { transform: none; }
+    from,
+    to {
+      transform: none;
+    }
   }
 
   @keyframes shimmer {
-    0%, 100% { transform: none; }
+    0%,
+    100% {
+      transform: none;
+    }
   }
 
   @keyframes shimmerSweep {
-    from, to { background-position: 0 0; }
+    from,
+    to {
+      background-position: 0 0;
+    }
   }
 }

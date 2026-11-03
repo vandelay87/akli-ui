@@ -16,7 +16,9 @@ describe('Footer', () => {
     it('renders a nav landmark accessibly named "Find me elsewhere"', () => {
       renderFooter()
 
-      expect(screen.getByRole('navigation', { name: 'Find me elsewhere' })).toBeInTheDocument()
+      expect(
+        screen.getByRole('navigation', { name: 'Find me elsewhere' })
+      ).toBeInTheDocument()
     })
 
     it('renders a list of 3 links with correct hrefs inside the nav', () => {
@@ -31,7 +33,9 @@ describe('Footer', () => {
         'href',
         'https://github.com/vandelay87'
       )
-      expect(within(nav).getByRole('link', { name: 'LinkedIn' })).toHaveAttribute(
+      expect(
+        within(nav).getByRole('link', { name: 'LinkedIn' })
+      ).toHaveAttribute(
         'href',
         'https://www.linkedin.com/in/akli-aissat-b08119115/'
       )
@@ -71,7 +75,9 @@ describe('Footer', () => {
     it('renders "Signed in as {email}" when an email is passed', () => {
       renderFooter({ variant: 'admin', email: 'akliaissat@outlook.com' })
 
-      expect(screen.getByText('Signed in as akliaissat@outlook.com')).toBeInTheDocument()
+      expect(
+        screen.getByText('Signed in as akliaissat@outlook.com')
+      ).toBeInTheDocument()
     })
 
     it('does not render the "Signed in as" line when no email is passed', () => {
@@ -83,7 +89,9 @@ describe('Footer', () => {
     it('does not render the public nav or its links', () => {
       renderFooter({ variant: 'admin' })
 
-      expect(screen.queryByRole('navigation', { name: 'Find me elsewhere' })).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('navigation', { name: 'Find me elsewhere' })
+      ).not.toBeInTheDocument()
       expect(screen.queryByRole('link')).not.toBeInTheDocument()
     })
   })

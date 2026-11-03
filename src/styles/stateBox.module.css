@@ -66,7 +66,11 @@
      expression twice per page — generalizes a pattern UserManagement's
      own pre-extraction CSS had already independently discovered. */
   .error {
-    --state-box-error-border: color-mix(in srgb, var(--color-error) 30%, var(--color-border));
+    --state-box-error-border: color-mix(
+      in srgb,
+      var(--color-error) 30%,
+      var(--color-border)
+    );
     border: var(--border-width) solid var(--state-box-error-border);
     background: var(--color-error-bg);
     padding: clamp(48px, 8vw, 80px) 24px;

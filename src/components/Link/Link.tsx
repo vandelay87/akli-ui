@@ -25,7 +25,10 @@ export interface LinkProps {
   className?: string
 }
 
-const NUDGE_CLASSES: Record<NonNullable<LinkProps['nudge']>, string | undefined> = {
+const NUDGE_CLASSES: Record<
+  NonNullable<LinkProps['nudge']>,
+  string | undefined
+> = {
   left: interactions.nudgeLeft,
   right: interactions.nudgeRight,
   'up-right': interactions.nudgeUpRight,
@@ -71,18 +74,28 @@ const Link: FC<LinkProps> = ({
   // --link-icon-rotate is consumed by .linkIcon itself (interactions.module.css)
   // rather than a separate class, so the existing nudge/reduced-motion rules
   // apply unchanged whether or not rotateIcon is set.
-  const iconStyle = rotateIcon ? ({ '--link-icon-rotate': '45deg' } as CSSProperties) : undefined
+  const iconStyle = rotateIcon
+    ? ({ '--link-icon-rotate': '45deg' } as CSSProperties)
+    : undefined
 
   const content = icon ? (
     <>
       {iconSide === 'left' && (
-        <span className={interactions.linkIcon} style={iconStyle} aria-hidden="true">
+        <span
+          className={interactions.linkIcon}
+          style={iconStyle}
+          aria-hidden="true"
+        >
           {icon}
         </span>
       )}
       {children}
       {iconSide === 'right' && (
-        <span className={interactions.linkIcon} style={iconStyle} aria-hidden="true">
+        <span
+          className={interactions.linkIcon}
+          style={iconStyle}
+          aria-hidden="true"
+        >
           {icon}
         </span>
       )}
