@@ -5,7 +5,10 @@
 // storybook-static/index.json for entries tagged `unattached-mdx` — Storybook's
 // own marker for exactly this case — and, for each, drives a Playwright page
 // through Storybook's public channel protocol (the same one test-runner and
-// the Storybook UI use) to render it and observe a pass/fail event.
+// the Storybook UI use) to render it and observe a pass/fail event. A page
+// that renders but still shows GFM syntax as literal text (a pipe table left
+// as a paragraph, because remark-gfm dropped out of the MDX pipeline, see
+// issue #90) fails too.
 
 import process from 'node:process'
 import { waitForPageReady } from '@storybook/test-runner'
@@ -37,6 +40,7 @@ interface RenderResult {
     | 'storyThrewException'
     | 'storyErrored'
     | 'storyMissing'
+    | 'rawGfmTable'
     | 'no-channel'
     | 'timeout'
   errorMessage?: string
@@ -47,6 +51,11 @@ const RENDER_TIMEOUT_MS = Number(
   process.env.MDX_DOCS_RENDER_TIMEOUT_MS ?? 15_000
 )
 const CHANNEL_POLL_TIMEOUT_MS = 5_000
+const RAW_TABLE_EXCERPT_CHARS = 80
+
+// A GFM table's delimiter row, e.g. `| --- | :--: |`. Only an unparsed table
+// leaves one of these in a rendered paragraph's text.
+const GFM_TABLE_DELIMITER_ROW = /\|\s*:?-{3,}:?\s*\|/
 
 const isUnattachedMdxDocsEntry = (entry: StorybookIndexEntry): boolean =>
   entry.type === 'docs' && entry.tags.includes('unattached-mdx')
@@ -156,6 +165,35 @@ const renderDocsEntry = async (
   )
 }
 
+const findRawGfmTables = (page: Page): Promise<string[]> =>
+  page.$$eval(
+    '#storybook-docs p',
+    (paragraphs, { delimiterRow, excerptChars }) =>
+      paragraphs
+        .map((paragraph) => paragraph.textContent ?? '')
+        .filter((text) => delimiterRow.test(text))
+        .map((text) => text.trim().slice(0, excerptChars)),
+    {
+      delimiterRow: GFM_TABLE_DELIMITER_ROW,
+      excerptChars: RAW_TABLE_EXCERPT_CHARS,
+    }
+  )
+
+const checkDocsEntry = async (
+  page: Page,
+  storyId: string
+): Promise<RenderResult> => {
+  const rendered = await renderDocsEntry(page, storyId)
+  if (rendered.outcome !== 'docsRendered') return rendered
+
+  const rawTables = await findRawGfmTables(page)
+  if (rawTables.length === 0) return rendered
+  return {
+    outcome: 'rawGfmTable',
+    errorMessage: `GFM table left as literal text (is remark-gfm enabled?): ${rawTables.join(' / ')}`,
+  }
+}
+
 const main = async () => {
   const index = await fetchIndex()
   const entries = Object.values(index.entries).filter(isUnattachedMdxDocsEntry)
@@ -189,7 +227,7 @@ const main = async () => {
         page.on('pageerror', (error) => consoleErrors.push(error.message))
 
         try {
-          const result = await renderDocsEntry(page, entry.id)
+          const result = await checkDocsEntry(page, entry.id)
           return { entry, result, consoleErrors }
         } finally {
           await page.close()
@@ -221,7 +259,7 @@ const main = async () => {
 
   if (failures.length > 0) {
     console.error(
-      `\ncheck:mdx-docs: ${failures.length} of ${entries.length} standalone MDX docs page(s) failed to render:\n` +
+      `\ncheck:mdx-docs: ${failures.length} of ${entries.length} standalone MDX docs page(s) failed to render cleanly:\n` +
         failures
           .map((entry) => `  - ${entry.id} (${entry.importPath})`)
           .join('\n')

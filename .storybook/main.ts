@@ -1,4 +1,5 @@
 import type { StorybookConfig } from '@storybook/react-vite'
+import remarkGfm from 'remark-gfm'
 
 // Story files live co-located with their component, matching this repo's
 // existing Component.tsx / Component.test.tsx / Component.module.css
@@ -21,7 +22,19 @@ const config: StorybookConfig = {
     // itself (see node_modules/storybook/README.md) — there is no
     // separate `@storybook/addon-essentials` for this version. Only docs
     // and a11y remain opt-in addons.
-    '@storybook/addon-docs',
+    //
+    // MDX (v2+) dropped GitHub-Flavored Markdown, so without remark-gfm a
+    // pipe table in an .mdx page (e.g. Accessibility.mdx's Quick
+    // reference) compiles to one paragraph of literal `|` text. See
+    // issue #90; `check:mdx-docs` fails if that ever happens again.
+    {
+      name: '@storybook/addon-docs',
+      options: {
+        mdxPluginOptions: {
+          mdxCompileOptions: { remarkPlugins: [remarkGfm] },
+        },
+      },
+    },
     '@storybook/addon-a11y',
   ],
   framework: {
