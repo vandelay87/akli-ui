@@ -33,7 +33,7 @@ Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/ag
 ## Conventions
 
 - Components live in `src/components/<Name>/<Name>.tsx` with a co-located `<Name>.module.css`, `<Name>.test.tsx`, `<Name>.stories.tsx`, and a barrel `index.ts`.
-- A folder under `src/components/` is one concept, named in PascalCase, and may export several components (`List/` exports `List` and `ListItem`; `Icons/` exports every Glyph and Sized icon).
+- A folder under `src/components/` is one concept, named in PascalCase, and may export several components or elements (`List/` exports `List` and `ListItem`; `Icons/` exports every Glyph and Sized icon). File names inside such a folder may differ from the folder name (see Icons below).
 - Path aliases: `@components/`, `@hooks/` only — narrower than `personal-website`'s set, since this package has no pages/contexts/api layer.
 - The public API is a single barrel export (`src/index.ts` → `@akli-dev/ui`), not per-component subpaths — deliberately settled in issue #3's tree-shaking spike. Every new component/icon/type meant for consumers gets added there explicitly; nothing is public by default.
 - Use `cx()` (`src/utils/cx.ts`) for conditional className joining — not hand-rolled `.filter(Boolean).join(' ')` or template-literal concatenation.
