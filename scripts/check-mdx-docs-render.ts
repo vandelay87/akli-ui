@@ -51,9 +51,11 @@ const RENDER_TIMEOUT_MS = Number(
   process.env.MDX_DOCS_RENDER_TIMEOUT_MS ?? 15_000
 )
 const CHANNEL_POLL_TIMEOUT_MS = 5_000
+const RAW_TABLE_EXCERPT_CHARS = 80
 
 // A GFM table's delimiter row, e.g. `| --- | :--: |`. Only an unparsed table
-// leaves one of these in a rendered paragraph's text.
+// leaves one of these in a rendered paragraph's text. A string, not a RegExp,
+// so it can be passed into page.evaluate and rebuilt there.
 const GFM_TABLE_DELIMITER_ROW = String.raw`\|\s*:?-{3,}:?\s*\|`
 
 const isUnattachedMdxDocsEntry = (entry: StorybookIndexEntry): boolean =>
@@ -165,13 +167,34 @@ const renderDocsEntry = async (
 }
 
 const findRawGfmTables = (page: Page): Promise<string[]> =>
-  page.evaluate((delimiterRow) => {
-    const pattern = new RegExp(delimiterRow)
-    return Array.from(document.querySelectorAll('#storybook-docs p'))
-      .map((paragraph) => paragraph.textContent ?? '')
-      .filter((text) => pattern.test(text))
-      .map((text) => text.trim().slice(0, 80))
-  }, GFM_TABLE_DELIMITER_ROW)
+  page.evaluate(
+    ({ delimiterRow, excerptChars }) => {
+      const pattern = new RegExp(delimiterRow)
+      return Array.from(document.querySelectorAll('#storybook-docs p'))
+        .map((paragraph) => paragraph.textContent ?? '')
+        .filter((text) => pattern.test(text))
+        .map((text) => text.trim().slice(0, excerptChars))
+    },
+    {
+      delimiterRow: GFM_TABLE_DELIMITER_ROW,
+      excerptChars: RAW_TABLE_EXCERPT_CHARS,
+    }
+  )
+
+const checkDocsEntry = async (
+  page: Page,
+  storyId: string
+): Promise<RenderResult> => {
+  const rendered = await renderDocsEntry(page, storyId)
+  if (rendered.outcome !== 'docsRendered') return rendered
+
+  const rawTables = await findRawGfmTables(page)
+  if (rawTables.length === 0) return rendered
+  return {
+    outcome: 'rawGfmTable',
+    errorMessage: `GFM table left as literal text (is remark-gfm enabled?): ${rawTables.join(' / ')}`,
+  }
+}
 
 const main = async () => {
   const index = await fetchIndex()
@@ -206,18 +229,7 @@ const main = async () => {
         page.on('pageerror', (error) => consoleErrors.push(error.message))
 
         try {
-          const rendered = await renderDocsEntry(page, entry.id)
-          if (rendered.outcome !== 'docsRendered') {
-            return { entry, result: rendered, consoleErrors }
-          }
-          const rawTables = await findRawGfmTables(page)
-          const result: RenderResult =
-            rawTables.length === 0
-              ? rendered
-              : {
-                  outcome: 'rawGfmTable',
-                  errorMessage: `GFM table left as literal text (is remark-gfm enabled?): ${rawTables.join(' / ')}`,
-                }
+          const result = await checkDocsEntry(page, entry.id)
           return { entry, result, consoleErrors }
         } finally {
           await page.close()
