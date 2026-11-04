@@ -351,6 +351,7 @@ export const iconUploadCloud = (
     strokeWidth={1.6}
     strokeLinecap="round"
     strokeLinejoin="round"
+    aria-hidden="true"
   >
     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
     <polyline points="17 8 12 3 7 8" />
@@ -369,6 +370,7 @@ export const iconAddImage = (
     strokeWidth={1.8}
     strokeLinecap="round"
     strokeLinejoin="round"
+    aria-hidden="true"
   >
     <rect x="3" y="3" width="18" height="18" rx="2" />
     <circle cx="9" cy="9" r="2" />
@@ -392,6 +394,7 @@ export const iconReplace = (
     strokeWidth={2}
     strokeLinecap="round"
     strokeLinejoin="round"
+    aria-hidden="true"
   >
     <path d="M12 20h9" />
     <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" />
