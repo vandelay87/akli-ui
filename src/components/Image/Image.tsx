@@ -1,7 +1,7 @@
 import { usePreloadImage } from '@hooks/usePreloadImage'
 import { useState, useEffect, useRef, FC, ImgHTMLAttributes } from 'react'
 import { cx } from '../../utils/cx'
-import { iconImage, iconWarning } from '../icons'
+import { iconImage, iconWarning } from '../Icons'
 import styles from './Image.module.css'
 
 const generateBlurDataURL = (baseSrc: string) =>

@@ -64,8 +64,8 @@ export { default as Loading } from './components/Loading'
 export type { LoadingProps } from './components/Loading/Loading'
 export { default as List, ListItem } from './components/List'
 export type { ListProps, ListItemProps } from './components/List/List'
-export { IconPlus, IconPreview, IconAlertCircle } from './components/icons'
-export type { SizedIconProps, IconAlertCircleProps } from './components/icons'
+export { IconPlus, IconPreview, IconAlertCircle } from './components/Icons'
+export type { SizedIconProps, IconAlertCircleProps } from './components/Icons'
 export {
   iconChevronUp,
   iconChevronDown,
@@ -89,4 +89,4 @@ export {
   iconMoon,
   iconArrowLeft,
   iconArrowRight,
-} from './components/icons'
+} from './components/Icons'
