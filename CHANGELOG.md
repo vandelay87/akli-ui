@@ -1,5 +1,11 @@
 # @akli-dev/ui
 
+## 2.1.2
+
+### Patch Changes
+
+- [#84](https://github.com/vandelay87/akli-ui/pull/84) [`c614ba1`](https://github.com/vandelay87/akli-ui/commit/c614ba18445591118d146953c49411f6bdc3d1e1) Thanks [@vandelay87](https://github.com/vandelay87)! - Mark the `iconUploadCloud`, `iconAddImage`, and `iconReplace` glyphs `aria-hidden="true"`, matching every other glyph, so screen readers skip them as decorative.
+
 ## 2.1.1
 
 ### Patch Changes
