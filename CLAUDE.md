@@ -33,11 +33,12 @@ Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/ag
 ## Conventions
 
 - Components live in `src/components/<Name>/<Name>.tsx` with a co-located `<Name>.module.css`, `<Name>.test.tsx`, `<Name>.stories.tsx`, and a barrel `index.ts`.
+- A folder under `src/components/` is one concept, named in PascalCase, and may export several components or elements (`List/` exports `List` and `ListItem`; `Icons/` exports every Glyph and Sized icon). File names inside such a folder may differ from the folder name (see Icons below).
 - Path aliases: `@components/`, `@hooks/` only — narrower than `personal-website`'s set, since this package has no pages/contexts/api layer.
 - The public API is a single barrel export (`src/index.ts` → `@akli-dev/ui`), not per-component subpaths — deliberately settled in issue #3's tree-shaking spike. Every new component/icon/type meant for consumers gets added there explicitly; nothing is public by default.
 - Use `cx()` (`src/utils/cx.ts`) for conditional className joining — not hand-rolled `.filter(Boolean).join(' ')` or template-literal concatenation.
 - Dark mode via `data-theme="light"|"dark"` on `<html>`, same mechanism as `personal-website`. `ThemeToggle` manages it; see the README's Theming section for the consumer-facing contract.
-- Icons live in `src/components/icons/`, split across two files with different conventions that currently coexist rather than one having fully replaced the other:
+- Icons live in `src/components/Icons/`, split across two files with different conventions that currently coexist rather than one having fully replaced the other:
   - `iconGlyphs.tsx` — bare JSX `<svg>` constants, sized either via explicit `width`/`height` on the `<svg>` itself, or left unsized and sized by the _consumer's_ CSS via a descendant selector (e.g. `.wrapper svg { width; height }`). Check which pattern an icon already uses before adding a sibling — see the pitfall below before picking blind.
   - `icons.tsx` — components typed `FC<SizedIconProps>`, sized via an explicit `size` prop.
   - When adding a new icon with a single, known consumer, match whichever convention that file/component already uses. Don't introduce a third pattern.
