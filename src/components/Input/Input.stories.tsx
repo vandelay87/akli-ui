@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
 
-import { iconNotFound, iconRemove } from '../icons'
+import { iconNotFound, iconRemove } from '../Icons'
 import Input, { InputProps } from './Input'
 
 // Input is a controlled component (`value` + `onChange`), so every story

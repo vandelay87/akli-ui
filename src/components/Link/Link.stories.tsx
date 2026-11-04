@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { iconArrowLeft, iconArrowRight, iconViewPublic } from '../icons'
+import { iconArrowLeft, iconArrowRight, iconViewPublic } from '../Icons'
 import Link from './Link'
 
 // Link renders a react-router-dom <RouterLink> for internal `to` values, so

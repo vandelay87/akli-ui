@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { IconPlus } from '../icons'
+import { IconPlus } from '../Icons'
 import Button from './Button'
 
 const meta = {

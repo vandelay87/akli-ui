@@ -1,7 +1,7 @@
 import { useLayoutEffect, useState } from 'react'
 import interactions from '../../styles/interactions.module.css'
 import { cx } from '../../utils/cx'
-import { iconMoon, iconSun } from '../icons'
+import { iconMoon, iconSun } from '../Icons'
 import styles from './ThemeToggle.module.css'
 
 type Theme = 'light' | 'dark'
