@@ -54,9 +54,8 @@ const CHANNEL_POLL_TIMEOUT_MS = 5_000
 const RAW_TABLE_EXCERPT_CHARS = 80
 
 // A GFM table's delimiter row, e.g. `| --- | :--: |`. Only an unparsed table
-// leaves one of these in a rendered paragraph's text. A string, not a RegExp,
-// so it can be passed into page.evaluate and rebuilt there.
-const GFM_TABLE_DELIMITER_ROW = String.raw`\|\s*:?-{3,}:?\s*\|`
+// leaves one of these in a rendered paragraph's text.
+const GFM_TABLE_DELIMITER_ROW = /\|\s*:?-{3,}:?\s*\|/
 
 const isUnattachedMdxDocsEntry = (entry: StorybookIndexEntry): boolean =>
   entry.type === 'docs' && entry.tags.includes('unattached-mdx')
@@ -167,14 +166,13 @@ const renderDocsEntry = async (
 }
 
 const findRawGfmTables = (page: Page): Promise<string[]> =>
-  page.evaluate(
-    ({ delimiterRow, excerptChars }) => {
-      const pattern = new RegExp(delimiterRow)
-      return Array.from(document.querySelectorAll('#storybook-docs p'))
+  page.$$eval(
+    '#storybook-docs p',
+    (paragraphs, { delimiterRow, excerptChars }) =>
+      paragraphs
         .map((paragraph) => paragraph.textContent ?? '')
-        .filter((text) => pattern.test(text))
-        .map((text) => text.trim().slice(0, excerptChars))
-    },
+        .filter((text) => delimiterRow.test(text))
+        .map((text) => text.trim().slice(0, excerptChars)),
     {
       delimiterRow: GFM_TABLE_DELIMITER_ROW,
       excerptChars: RAW_TABLE_EXCERPT_CHARS,
