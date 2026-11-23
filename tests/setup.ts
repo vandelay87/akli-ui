@@ -26,45 +26,10 @@ export const expectNoA11yViolations = async (
   expect(await axe(container)).toHaveNoViolations()
 }
 
-// jsdom does not implement IntersectionObserver. Image.tsx's lazy-loading
-// effect (`new IntersectionObserver(...)`) throws under jsdom without this,
-// which Image.test.tsx's default (lazy, non-priority) render path hits
-// immediately — this isn't optional test-authoring infra, the component
-// can't mount in jsdom at all without it. Ported (trimmed) from
-// personal-website's tests/setup.ts, which registers this globally for the
-// same reason; ResizeObserver's mock was left out since nothing in this
-// package's components use it (confirmed via grep).
-export class MockIntersectionObserver {
-  observe: ReturnType<typeof vi.fn>
-  unobserve = vi.fn()
-  disconnect = vi.fn()
-  root = null
-  rootMargin = ''
-  thresholds = []
-
-  constructor(callback: IntersectionObserverCallback) {
-    this.observe = vi.fn((element: Element) => {
-      callback(
-        [
-          {
-            isIntersecting: true,
-            target: element,
-          } as IntersectionObserverEntry,
-        ],
-        {} as IntersectionObserver
-      )
-    })
-  }
-}
-
-window.IntersectionObserver =
-  MockIntersectionObserver as unknown as typeof IntersectionObserver
-
-// jsdom does not implement ResizeObserver either. useMeasuredHeightVar
+// jsdom does not implement ResizeObserver. useMeasuredHeightVar
 // (`new ResizeObserver(...)`, used by Header) throws under jsdom without
-// this, same situation as IntersectionObserver above. Ported (trimmed) from
-// personal-website's tests/setup.ts, which registers this globally for the
-// same reason.
+// this. Ported (trimmed) from personal-website's tests/setup.ts, which
+// registers this globally for the same reason.
 //
 // Auto-fires its callback once, synchronously, from `observe()` — sufficient
 // for consumers that just need "don't throw, fire once" (e.g. Header.test.tsx,
@@ -115,7 +80,7 @@ window.ResizeObserver = MockResizeObserver as unknown as typeof ResizeObserver
 // of the test failing on an assertion.
 //
 // Exported as a parameterized function rather than registered globally like
-// IntersectionObserver/ResizeObserver above, since callers need different
+// ResizeObserver above, since callers need different
 // `matches` results per test (ThemeToggle.test.tsx varies it across cases;
 // Header.test.tsx always passes `false`, since none of its assertions depend
 // on which theme value ThemeToggle resolves to).
