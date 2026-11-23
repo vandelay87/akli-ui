@@ -35,36 +35,6 @@
 }
 
 /* ── Shimmer placeholder ─────────────────────────────────── */
-.pulsePlaceholder {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  background: var(--color-surface);
-  overflow: hidden;
-}
-
-.pulsePlaceholder::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 25%,
-    rgb(255 255 255 / 0.15) 50%,
-    transparent 75%
-  );
-  animation: global(shimmer) 2s ease-in-out infinite;
-}
-
-[data-theme='dark'] .pulsePlaceholder::after {
-  background: linear-gradient(
-    90deg,
-    transparent 25%,
-    rgb(255 255 255 / 0.06) 50%,
-    transparent 75%
-  );
-}
-
 /* ── Empty placeholder (icon centered) ───────────────────── */
 .emptyPlaceholder {
   width: 3rem;

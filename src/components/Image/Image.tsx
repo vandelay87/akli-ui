@@ -50,6 +50,9 @@ type LoadStatus = {
   phase: 'loading' | 'loaded' | 'error'
 }
 
+const toLoaded = (status: LoadStatus): LoadStatus =>
+  status.phase === 'loaded' ? status : { ...status, phase: 'loaded' }
+
 type ImageFrameProps = Omit<
   ImageProps,
   'aspectRatio' | 'containerClassName' | 'caption' | 'maxWidth'
@@ -58,8 +61,7 @@ type ImageFrameProps = Omit<
 const ImageFrame: FC<ImageFrameProps> = ({
   src,
   alt,
-  priority = false,
-  sizes,
+  priority,
   objectFit = 'cover',
   objectPosition = 'center',
   placeholder = 'empty',
@@ -67,9 +69,8 @@ const ImageFrame: FC<ImageFrameProps> = ({
   fallbackSrc,
   onLoad,
   onError,
-  className = '',
+  className,
   lazy = true,
-  srcSet,
   style,
   ...imgProps
 }) => {
@@ -81,12 +82,12 @@ const ImageFrame: FC<ImageFrameProps> = ({
 
   useEffect(() => {
     if (imgRef.current?.complete && imgRef.current.naturalWidth > 0) {
-      setStatus((current) => ({ ...current, phase: 'loaded' }))
+      setStatus(toLoaded)
     }
   }, [])
 
   const handleLoad: ReactEventHandler<HTMLImageElement> = (event) => {
-    setStatus((current) => ({ ...current, phase: 'loaded' }))
+    setStatus(toLoaded)
     onLoad?.(event)
   }
 
@@ -100,9 +101,6 @@ const ImageFrame: FC<ImageFrameProps> = ({
   }
 
   const currentSrc = status.source === 'fallback' ? fallbackSrc : src
-  const effectiveBlurDataURL =
-    blurDataURL ||
-    (placeholder === 'blur' ? generateBlurDataURL(src) : undefined)
 
   return (
     <>
@@ -114,15 +112,13 @@ const ImageFrame: FC<ImageFrameProps> = ({
           )}
           aria-hidden="true"
         >
-          {placeholder === 'blur' && effectiveBlurDataURL ? (
+          {placeholder === 'blur' ? (
             <img
-              src={effectiveBlurDataURL}
+              src={blurDataURL || generateBlurDataURL(src)}
               alt=""
               className={styles.blurImage}
               aria-hidden="true"
             />
-          ) : placeholder === 'blur' ? (
-            <div className={styles.pulsePlaceholder} />
           ) : (
             <div className={styles.emptyPlaceholder}>{iconImage}</div>
           )}
@@ -154,8 +150,6 @@ const ImageFrame: FC<ImageFrameProps> = ({
         loading={priority || !lazy ? 'eager' : 'lazy'}
         fetchPriority={priority ? 'high' : 'auto'}
         decoding="async"
-        srcSet={srcSet}
-        sizes={sizes}
       />
     </>
   )
@@ -164,7 +158,7 @@ const ImageFrame: FC<ImageFrameProps> = ({
 const Image: FC<ImageProps> = ({
   priority = false,
   aspectRatio = 'auto',
-  containerClassName = '',
+  containerClassName,
   caption,
   maxWidth,
   ...frameProps
