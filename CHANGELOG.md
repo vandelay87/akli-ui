@@ -1,5 +1,11 @@
 # @akli-dev/ui
 
+## 2.2.0
+
+### Minor Changes
+
+- [#95](https://github.com/vandelay87/akli-ui/pull/95) [`7b30154`](https://github.com/vandelay87/akli-ui/commit/7b301542726cbf1f59d750e587c1696658e62dea) Thanks [@vandelay87](https://github.com/vandelay87)! - `Image` now forwards undeclared native `<img>` props (`id`, `width`, `height`, `data-*`, …) and merges a `style` prop with its own object-fit styles. `onLoad` and `onError` receive the native event. A changed `src` now resets the image to its loading state instead of keeping the previous image or error. The blur placeholder URL is valid for a `src` that already has a query string. Lazy images render immediately with native `loading="lazy"` instead of waiting for an IntersectionObserver, and `lazy={false}` now renders `loading="eager"`.
+
 ## 2.1.2
 
 ### Patch Changes
