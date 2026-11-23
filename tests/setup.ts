@@ -28,9 +28,8 @@ export const expectNoA11yViolations = async (
 
 // jsdom does not implement ResizeObserver. useMeasuredHeightVar
 // (`new ResizeObserver(...)`, used by Header) throws under jsdom without
-// this. Ported (trimmed) from
-// personal-website's tests/setup.ts, which registers this globally for the
-// same reason.
+// this. Ported (trimmed) from personal-website's tests/setup.ts, which
+// registers this globally for the same reason.
 //
 // Auto-fires its callback once, synchronously, from `observe()` — sufficient
 // for consumers that just need "don't throw, fire once" (e.g. Header.test.tsx,

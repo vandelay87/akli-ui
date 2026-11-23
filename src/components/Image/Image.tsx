@@ -45,7 +45,7 @@ export interface ImageProps extends Omit<
   maxWidth?: string
 }
 
-type Status = {
+type LoadStatus = {
   source: 'src' | 'fallback'
   phase: 'loading' | 'loaded' | 'error'
 }
@@ -73,7 +73,7 @@ const ImageFrame: FC<ImageFrameProps> = ({
   style,
   ...imgProps
 }) => {
-  const [status, setStatus] = useState<Status>({
+  const [status, setStatus] = useState<LoadStatus>({
     source: 'src',
     phase: 'loading',
   })
@@ -121,7 +121,7 @@ const ImageFrame: FC<ImageFrameProps> = ({
               className={styles.blurImage}
               aria-hidden="true"
             />
-          ) : placeholder === 'blur' && !effectiveBlurDataURL ? (
+          ) : placeholder === 'blur' ? (
             <div className={styles.pulsePlaceholder} />
           ) : (
             <div className={styles.emptyPlaceholder}>{iconImage}</div>
@@ -162,13 +162,14 @@ const ImageFrame: FC<ImageFrameProps> = ({
 }
 
 const Image: FC<ImageProps> = ({
+  priority = false,
   aspectRatio = 'auto',
   containerClassName = '',
   caption,
   maxWidth,
   ...frameProps
 }) => {
-  const { src, priority = false, srcSet, sizes } = frameProps
+  const { src, srcSet, sizes } = frameProps
   const effectiveSizes = srcSet ? sizes || DEFAULT_RESPONSIVE_SIZES : sizes
 
   usePreloadImage(priority ? src : undefined, {
@@ -191,7 +192,12 @@ const Image: FC<ImageProps> = ({
           aspectRatio: aspectRatio !== 'auto' ? aspectRatio : undefined,
         }}
       >
-        <ImageFrame key={src} {...frameProps} sizes={effectiveSizes} />
+        <ImageFrame
+          key={src}
+          {...frameProps}
+          priority={priority}
+          sizes={effectiveSizes}
+        />
       </div>
       {caption && <figcaption className={styles.caption}>{caption}</figcaption>}
     </figure>

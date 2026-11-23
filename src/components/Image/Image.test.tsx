@@ -57,6 +57,9 @@ describe('Image', () => {
     const img = screen.getByAltText('Test Image')
     expect(img).toHaveAttribute('src', next)
     expect(img.className).not.toMatch(/loaded/)
+    expect(
+      img.parentElement?.querySelector('[aria-hidden="true"]')
+    ).toBeInTheDocument()
   })
 
   it('clears the error state when src changes', () => {
@@ -161,6 +164,15 @@ describe('Image', () => {
     expect(screen.getByAltText('Test Image')).toHaveAttribute('loading', 'lazy')
   })
 
+  it('renders an eager <img> when lazy is false', () => {
+    render(<Image {...defaultProps} lazy={false} />)
+
+    expect(screen.getByAltText('Test Image')).toHaveAttribute(
+      'loading',
+      'eager'
+    )
+  })
+
   it('applies custom aspect ratio and object fit styles', () => {
     const { container } = render(
       <Image
@@ -184,6 +196,19 @@ describe('Image', () => {
     const { container } = render(
       <Image {...defaultProps} priority caption="A test image caption" />
     )
+
+    await expectNoA11yViolations(container)
+  })
+
+  it('renders the loading placeholder with no detectable axe violations', async () => {
+    const { container } = render(<Image {...defaultProps} placeholder="blur" />)
+
+    await expectNoA11yViolations(container)
+  })
+
+  it('renders the error state with no detectable axe violations', async () => {
+    const { container } = render(<Image {...defaultProps} />)
+    fireEvent.error(screen.getByAltText('Test Image'))
 
     await expectNoA11yViolations(container)
   })
