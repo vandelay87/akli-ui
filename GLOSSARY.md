@@ -11,3 +11,21 @@ _Avoid_: icon constant, raw icon
 **Sized icon**:
 An icon rendered with an explicit size chosen by the caller.
 _Avoid_: icon component
+
+## Theming
+
+**Theme**:
+The colour scheme a page is shown in: light or dark.
+_Avoid_: mode, colour mode
+
+**Saved theme**:
+The theme a visitor last chose explicitly, kept between visits.
+_Avoid_: preference, persisted theme, stored theme
+
+**System theme**:
+The theme the visitor's operating system asks for.
+_Avoid_: preference, OS theme
+
+**Theme bootstrap**:
+The step that applies the theme before the page first paints, so a visitor never sees the wrong one flash.
+_Avoid_: theme script, no-flash script

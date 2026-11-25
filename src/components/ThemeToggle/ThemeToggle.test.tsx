@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { expectNoA11yViolations, mockMatchMedia } from '../../../tests/setup'
 import ThemeToggle from './ThemeToggle'
 
@@ -143,5 +143,28 @@ describe('ThemeToggle', () => {
     expect(localStorage.getItem('theme')).toBe('dark')
     // The design reference's `akli-theme` key is an explicit non-adoption per the PRD.
     expect(localStorage.getItem('akli-theme')).toBeNull()
+  })
+
+  it('still switches the theme when storage is blocked', () => {
+    document.documentElement.setAttribute('data-theme', 'light')
+    const setItem = vi
+      .spyOn(Storage.prototype, 'setItem')
+      .mockImplementation(() => {
+        throw new Error('storage blocked')
+      })
+
+    render(<ThemeToggle />)
+
+    expect(() =>
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Switch to dark mode' })
+      )
+    ).not.toThrow()
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
+    expect(
+      screen.getByRole('button', { name: 'Switch to light mode' })
+    ).toBeInTheDocument()
+
+    setItem.mockRestore()
   })
 })
