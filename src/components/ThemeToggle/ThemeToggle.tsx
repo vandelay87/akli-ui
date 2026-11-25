@@ -14,14 +14,13 @@ import styles from './ThemeToggle.module.css'
  * Self-contained by default: on mount it applies the saved theme, falling
  * back to the system theme. SSR consumers can inline `themeBootstrapScript`
  * in `<head>` to apply the theme before first paint; ThemeToggle then keeps
- * the `data-theme` already on `<html>`.
+ * the `data-theme` already on `<html>`. The theme is read after hydration,
+ * so server and client markup agree on the first render.
  */
 const ThemeToggle = () => {
   const [theme, setTheme] = useState<Theme>('light')
 
   useLayoutEffect(() => {
-    // Read after hydration, not in a useState initializer: the server always
-    // renders 'light', and a theme bootstrap may already have set data-theme.
     const initialTheme = getInitialTheme()
     applyTheme(initialTheme)
     // eslint-disable-next-line react-hooks/set-state-in-effect

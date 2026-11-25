@@ -1,6 +1,6 @@
 export type Theme = 'light' | 'dark'
 
-const ATTRIBUTE = 'data-theme'
+const THEME_ATTRIBUTE = 'data-theme'
 const STORAGE_KEY = 'theme'
 const SYSTEM_DARK_QUERY = '(prefers-color-scheme: dark)'
 
@@ -13,7 +13,7 @@ const isTheme = (value: string | null): value is Theme =>
  * then light. Never throws, even where storage is blocked.
  */
 export const getInitialTheme = (): Theme => {
-  const attribute = document.documentElement.getAttribute(ATTRIBUTE)
+  const attribute = document.documentElement.getAttribute(THEME_ATTRIBUTE)
   if (isTheme(attribute)) return attribute
 
   try {
@@ -27,7 +27,7 @@ export const getInitialTheme = (): Theme => {
 }
 
 export const applyTheme = (theme: Theme): void => {
-  document.documentElement.setAttribute(ATTRIBUTE, theme)
+  document.documentElement.setAttribute(THEME_ATTRIBUTE, theme)
 }
 
 /**
@@ -39,7 +39,7 @@ export const saveTheme = (theme: Theme): void => {
   try {
     localStorage.setItem(STORAGE_KEY, theme)
   } catch {
-    return
+    // Blocked storage: applied for this visit, not remembered.
   }
 }
 
@@ -50,7 +50,7 @@ export const saveTheme = (theme: Theme): void => {
 export const themeBootstrapScript = `(function () {
   var root = document.documentElement
   var isTheme = function (value) { return value === 'light' || value === 'dark' }
-  if (isTheme(root.getAttribute(${JSON.stringify(ATTRIBUTE)}))) return
+  if (isTheme(root.getAttribute(${JSON.stringify(THEME_ATTRIBUTE)}))) return
   var theme = 'light'
   try {
     var saved = localStorage.getItem(${JSON.stringify(STORAGE_KEY)})
@@ -58,5 +58,5 @@ export const themeBootstrapScript = `(function () {
       ? saved
       : window.matchMedia(${JSON.stringify(SYSTEM_DARK_QUERY)}).matches ? 'dark' : 'light'
   } catch (error) {}
-  root.setAttribute(${JSON.stringify(ATTRIBUTE)}, theme)
+  root.setAttribute(${JSON.stringify(THEME_ATTRIBUTE)}, theme)
 })()`

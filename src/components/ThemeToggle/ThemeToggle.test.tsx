@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { expectNoA11yViolations, mockMatchMedia } from '../../../tests/setup'
 import ThemeToggle from './ThemeToggle'
 
@@ -58,6 +58,10 @@ describe('ThemeToggle self-contained mount (CSR-only, no bootstrap script)', () 
 })
 
 describe('ThemeToggle', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   beforeEach(() => {
     localStorage.clear()
     document.documentElement.removeAttribute('data-theme')
@@ -147,11 +151,9 @@ describe('ThemeToggle', () => {
 
   it('still switches the theme when storage is blocked', () => {
     document.documentElement.setAttribute('data-theme', 'light')
-    const setItem = vi
-      .spyOn(Storage.prototype, 'setItem')
-      .mockImplementation(() => {
-        throw new Error('storage blocked')
-      })
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('storage blocked')
+    })
 
     render(<ThemeToggle />)
 
@@ -164,7 +166,5 @@ describe('ThemeToggle', () => {
     expect(
       screen.getByRole('button', { name: 'Switch to light mode' })
     ).toBeInTheDocument()
-
-    setItem.mockRestore()
   })
 })
