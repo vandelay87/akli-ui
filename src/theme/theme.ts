@@ -1,8 +1,8 @@
 export type Theme = 'light' | 'dark'
 
-const THEME_ATTRIBUTE = 'data-theme'
-const STORAGE_KEY = 'theme'
-const SYSTEM_DARK_QUERY = '(prefers-color-scheme: dark)'
+export const THEME_ATTRIBUTE = 'data-theme'
+export const STORAGE_KEY = 'theme'
+export const SYSTEM_DARK_QUERY = '(prefers-color-scheme: dark)'
 
 const isTheme = (value: string | null): value is Theme =>
   value === 'light' || value === 'dark'
@@ -27,7 +27,10 @@ export const getInitialTheme = (): Theme => {
 }
 
 export const applyTheme = (theme: Theme): void => {
-  document.documentElement.setAttribute(THEME_ATTRIBUTE, theme)
+  const root = document.documentElement
+  if (root.getAttribute(THEME_ATTRIBUTE) !== theme) {
+    root.setAttribute(THEME_ATTRIBUTE, theme)
+  }
 }
 
 /**
@@ -42,21 +45,3 @@ export const saveTheme = (theme: Theme): void => {
     // Blocked storage: applied for this visit, not remembered.
   }
 }
-
-/**
- * An inline script for an SSR consumer's `<head>`, so the theme is applied
- * before first paint. Runs the same resolution as `getInitialTheme`.
- */
-export const themeBootstrapScript = `(function () {
-  var root = document.documentElement
-  var isTheme = function (value) { return value === 'light' || value === 'dark' }
-  if (isTheme(root.getAttribute(${JSON.stringify(THEME_ATTRIBUTE)}))) return
-  var theme = 'light'
-  try {
-    var saved = localStorage.getItem(${JSON.stringify(STORAGE_KEY)})
-    theme = isTheme(saved)
-      ? saved
-      : window.matchMedia(${JSON.stringify(SYSTEM_DARK_QUERY)}).matches ? 'dark' : 'light'
-  } catch (error) {}
-  root.setAttribute(${JSON.stringify(THEME_ATTRIBUTE)}, theme)
-})()`

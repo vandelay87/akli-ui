@@ -2,7 +2,11 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import type { ReactElement } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
-import { expectNoA11yViolations, mockMatchMedia } from '../../../tests/setup'
+import {
+  expectNoA11yViolations,
+  mockMatchMedia,
+  resetTheme,
+} from '../../../tests/setup'
 import Header from './Header'
 
 const renderWithRouter = (ui: ReactElement, { route = '/' } = {}) => {
@@ -23,11 +27,10 @@ const LINKS = [
 // ThemeToggle resolves to (they match `/switch to (dark|light) mode/i`), so
 // a single fixed `matches` value is fine here — this is a minimal
 // browser-API shim for the missing jsdom feature, not a mock of ThemeToggle
-// itself. localStorage/data-theme are also reset each test so no run leaks
-// state into the next.
+// itself. The theme is also reset each test so no run leaks state into the
+// next.
 beforeEach(() => {
-  localStorage.clear()
-  document.documentElement.removeAttribute('data-theme')
+  resetTheme()
   mockMatchMedia(false)
 })
 

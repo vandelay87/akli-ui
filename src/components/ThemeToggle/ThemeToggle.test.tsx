@@ -1,12 +1,15 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { expectNoA11yViolations, mockMatchMedia } from '../../../tests/setup'
+import {
+  expectNoA11yViolations,
+  mockMatchMedia,
+  resetTheme,
+} from '../../../tests/setup'
 import ThemeToggle from './ThemeToggle'
 
 describe('ThemeToggle self-contained mount (CSR-only, no bootstrap script)', () => {
   beforeEach(() => {
-    localStorage.clear()
-    document.documentElement.removeAttribute('data-theme')
+    resetTheme()
   })
 
   it('with no data-theme and no localStorage value, falls back to a dark system preference: sets data-theme="dark" and renders "Switch to light mode"', () => {
@@ -63,8 +66,7 @@ describe('ThemeToggle', () => {
   })
 
   beforeEach(() => {
-    localStorage.clear()
-    document.documentElement.removeAttribute('data-theme')
+    resetTheme()
     // Unlike personal-website's original ThemeToggle (which this test block
     // is ported from), this repo's version also reads `prefers-color-scheme`
     // via `window.matchMedia` as a fallback when neither data-theme nor
@@ -157,11 +159,7 @@ describe('ThemeToggle', () => {
 
     render(<ThemeToggle />)
 
-    expect(() =>
-      fireEvent.click(
-        screen.getByRole('button', { name: 'Switch to dark mode' })
-      )
-    ).not.toThrow()
+    fireEvent.click(screen.getByRole('button', { name: 'Switch to dark mode' }))
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
     expect(
       screen.getByRole('button', { name: 'Switch to light mode' })

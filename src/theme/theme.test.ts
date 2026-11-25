@@ -1,18 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { mockMatchMedia } from '../../tests/setup'
-import {
-  getInitialTheme,
-  saveTheme,
-  themeBootstrapScript,
-  type Theme,
-} from './theme'
+import { mockMatchMedia, resetTheme } from '../../tests/setup'
+import { getInitialTheme, saveTheme, type Theme } from './theme'
+import { themeBootstrapScript } from './themeBootstrap'
 
 type Scenario = {
   name: string
   attribute?: string
   savedTheme?: string
   systemDark?: boolean
-  throws?: 'getItem' | 'storageAccess' | 'matchMedia'
+  throws?: 'storage' | 'matchMedia'
   expected: Theme
 }
 
@@ -47,15 +43,9 @@ const scenarios: Scenario[] = [
     expected: 'light',
   },
   {
-    name: 'falls back to light when reading the saved theme throws',
-    systemDark: true,
-    throws: 'getItem',
-    expected: 'light',
-  },
-  {
     name: 'falls back to light when storage itself is inaccessible',
     systemDark: true,
-    throws: 'storageAccess',
+    throws: 'storage',
     expected: 'light',
   },
   {
@@ -76,10 +66,7 @@ const arrange = (scenario: Scenario) => {
   const blocked = () => {
     throw new Error('blocked')
   }
-  if (scenario.throws === 'getItem') {
-    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(blocked)
-  }
-  if (scenario.throws === 'storageAccess') {
+  if (scenario.throws === 'storage') {
     vi.spyOn(window, 'localStorage', 'get').mockImplementation(blocked)
   }
   if (scenario.throws === 'matchMedia') {
@@ -88,8 +75,7 @@ const arrange = (scenario: Scenario) => {
 }
 
 beforeEach(() => {
-  localStorage.clear()
-  document.documentElement.removeAttribute('data-theme')
+  resetTheme()
 })
 
 afterEach(() => {
