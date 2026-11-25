@@ -55,6 +55,8 @@ export type {
 export { default as Footer } from './components/Footer'
 export type { FooterProps } from './components/Footer/Footer'
 export { default as ThemeToggle } from './components/ThemeToggle'
+export { themeBootstrapScript } from './theme/themeBootstrap'
+export type { Theme } from './theme/theme'
 export { default as Callout } from './components/Callout'
 export type { CalloutProps } from './components/Callout/Callout'
 export { default as Grid } from './components/Grid'

@@ -68,6 +68,11 @@ export class MockResizeObserver {
 
 window.ResizeObserver = MockResizeObserver as unknown as typeof ResizeObserver
 
+export const resetTheme = (): void => {
+  localStorage.clear()
+  document.documentElement.removeAttribute('data-theme')
+}
+
 // jsdom does not implement `window.matchMedia` (confirmed empirically: a
 // throwaway assertion of `typeof window.matchMedia` under this project's
 // jsdom environment returns 'undefined', not 'function'). Shaped like the

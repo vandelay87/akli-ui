@@ -1,6 +1,7 @@
 import type { Decorator, Preview } from '@storybook/react-vite'
 import { createElement } from 'react'
 import { MemoryRouter } from 'react-router-dom'
+import { applyTheme, type Theme } from '../src/theme/theme'
 
 // Runs against this package's *source*, not the published dist/ bundle —
 // see README.md's "Required CSS imports" for the equivalent consumer-facing
@@ -20,10 +21,8 @@ import '../src/styles/animations.css'
 import '../src/styles/fonts.css'
 import '../src/styles/tokens.css'
 
-// Mirrors ThemeToggle.tsx / tokens.css: theme is expressed purely as
-// `data-theme="light" | "dark"` on <html>, nothing else.
 const withTheme: Decorator = (Story, context) => {
-  document.documentElement.setAttribute('data-theme', context.globals.theme)
+  applyTheme(context.globals.theme as Theme)
   return Story()
 }
 

@@ -91,7 +91,13 @@ function App() {
 }
 ```
 
-An SSR consumer that wants to avoid a flash of the wrong theme on first paint can set `data-theme` itself, before hydration, via an inline bootstrap script — `ThemeToggle` detects an existing value and respects it instead of re-deriving one. This is an opt-in optimization, not a requirement.
+An SSR consumer can avoid a flash of the wrong theme on first paint by inlining `themeBootstrapScript` in `<head>`. It applies the saved theme (falling back to the system theme) before the page renders, using the same rules as `ThemeToggle`, which then keeps the theme already on `<html>`. This is optional:
+
+```tsx
+import { themeBootstrapScript } from '@akli-dev/ui'
+
+const head = `<script>${themeBootstrapScript}</script>`
+```
 
 ### Usage
 
