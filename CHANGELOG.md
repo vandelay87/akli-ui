@@ -1,5 +1,11 @@
 # @akli-dev/ui
 
+## 2.4.1
+
+### Patch Changes
+
+- [#104](https://github.com/vandelay87/akli-ui/pull/104) [`1b947d8`](https://github.com/vandelay87/akli-ui/commit/1b947d80313c667794b6e062819fca01f0c40f89) Thanks [@vandelay87](https://github.com/vandelay87)! - `bootstrapTheme()` now injects its script as the first element of `<head>` regardless of plugin order. Previously, listing `preloadFonts()` (or any other plugin that prepends to `<head>`) after it pushed the font preload above the theme bootstrap.
+
 ## 2.4.0
 
 ### Minor Changes
