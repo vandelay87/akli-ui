@@ -100,16 +100,7 @@ export default [
       ],
       // Shared assertion helpers wrap `expect(...)`, so the rule can't see the
       // assertion unless told about them.
-      'vitest/expect-expect': [
-        'error',
-        {
-          assertFunctionNames: [
-            'expect',
-            'expectNoA11yViolations',
-            'expectThemeBootstrapFirstInHead',
-          ],
-        },
-      ],
+      'vitest/expect-expect': ['error', { assertFunctionNames: ['expect*'] }],
     },
   },
 ]

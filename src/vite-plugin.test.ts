@@ -2,7 +2,7 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { build, createServer, type Rolldown } from 'vite'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { themeBootstrapScript } from './theme/themeBootstrap'
 import { bootstrapTheme } from './vite-plugin'
 
@@ -30,12 +30,12 @@ const expectThemeBootstrapFirstInHead = (html: string): void => {
 describe('bootstrapTheme()', () => {
   let root: string
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     root = await mkdtemp(join(tmpdir(), 'akli-ui-bootstrap-theme-'))
     await writeFile(join(root, 'index.html'), indexHtml)
   })
 
-  afterEach(async () => {
+  afterAll(async () => {
     await rm(root, { recursive: true, force: true })
   })
 
@@ -77,31 +77,29 @@ describe('bootstrapTheme()', () => {
 describe('vite-plugin entry', () => {
   it('imports nothing from the component barrel or any component', async () => {
     const [output] = (await build({
-      configFile: false,
+      configFile: 'vite.config.ts',
       logLevel: 'silent',
-      build: {
-        write: false,
-        lib: {
-          entry: { 'vite-plugin': 'src/vite-plugin.ts' },
-          formats: ['es'],
-        },
-        rollupOptions: {
-          external: [/^vite($|\/)/],
-          output: {
-            preserveModules: true,
-            preserveModulesRoot: 'src',
-            entryFileNames: '[name].js',
-          },
-        },
-      },
+      build: { write: false },
     })) as Rolldown.RolldownOutput[]
 
-    const modules = output.output
-      .filter((file): file is Rolldown.OutputChunk => file.type === 'chunk')
-      .map((chunk) => chunk.fileName)
+    const chunks = new Map(
+      output.output
+        .filter((file): file is Rolldown.OutputChunk => file.type === 'chunk')
+        .map((chunk) => [chunk.fileName, chunk])
+    )
+    const reachable = new Set<string>()
+    const visit = (fileName: string): void => {
+      if (reachable.has(fileName)) return
+      reachable.add(fileName)
+      chunks.get(fileName)?.imports.forEach(visit)
+    }
+    visit('vite-plugin.js')
 
-    expect(modules).toContain('vite-plugin.js')
-    expect(modules).not.toContain('index.js')
-    expect(modules.filter((name) => name.startsWith('components/'))).toEqual([])
+    expect(chunks.has('vite-plugin.js')).toBe(true)
+    expect(
+      [...reachable].filter(
+        (name) => name === 'index.js' || name.startsWith('components/')
+      )
+    ).toEqual([])
   })
 })
