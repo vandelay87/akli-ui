@@ -98,11 +98,17 @@ export default [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_|^mock' },
       ],
-      // `expectNoA11yViolations` (tests/setup.ts) wraps `expect(...).toHaveNoViolations()`
-      // in a shared helper, so the rule can't see the assertion unless told about it.
+      // Shared assertion helpers wrap `expect(...)`, so the rule can't see the
+      // assertion unless told about them.
       'vitest/expect-expect': [
         'error',
-        { assertFunctionNames: ['expect', 'expectNoA11yViolations'] },
+        {
+          assertFunctionNames: [
+            'expect',
+            'expectNoA11yViolations',
+            'expectThemeBootstrapFirstInHead',
+          ],
+        },
       ],
     },
   },

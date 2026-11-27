@@ -1,26 +1,12 @@
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { build, type Rolldown } from 'vite'
+import { build, createServer, type Rolldown } from 'vite'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { themeBootstrapScript } from './theme/themeBootstrap'
 import { bootstrapTheme } from './vite-plugin'
 
-describe('bootstrapTheme()', () => {
-  let root: string
-
-  beforeEach(async () => {
-    root = await mkdtemp(join(tmpdir(), 'akli-ui-bootstrap-theme-'))
-  })
-
-  afterEach(async () => {
-    await rm(root, { recursive: true, force: true })
-  })
-
-  it('injects the theme bootstrap as the first element in <head>', async () => {
-    await writeFile(
-      join(root, 'index.html'),
-      `<!doctype html>
+const indexHtml = `<!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
@@ -29,8 +15,31 @@ describe('bootstrapTheme()', () => {
   </head>
   <body></body>
 </html>`
-    )
 
+const expectThemeBootstrapFirstInHead = (html: string): void => {
+  const document = new DOMParser().parseFromString(html, 'text/html')
+  const scripts = [...document.head.querySelectorAll('script')].filter(
+    (script) => !script.src
+  )
+
+  expect(scripts).toHaveLength(1)
+  expect(document.head.firstElementChild).toBe(scripts[0])
+  expect(scripts[0].textContent).toBe(themeBootstrapScript)
+}
+
+describe('bootstrapTheme()', () => {
+  let root: string
+
+  beforeEach(async () => {
+    root = await mkdtemp(join(tmpdir(), 'akli-ui-bootstrap-theme-'))
+    await writeFile(join(root, 'index.html'), indexHtml)
+  })
+
+  afterEach(async () => {
+    await rm(root, { recursive: true, force: true })
+  })
+
+  it('injects the theme bootstrap first in <head> during vite build', async () => {
     const output = (await build({
       root,
       configFile: false,
@@ -42,15 +51,26 @@ describe('bootstrapTheme()', () => {
     const html = output.output.find(
       (file): file is Rolldown.OutputAsset => file.fileName === 'index.html'
     )
-    const document = new DOMParser().parseFromString(
-      String(html?.source),
-      'text/html'
-    )
-    const scripts = document.querySelectorAll('script')
 
-    expect(scripts).toHaveLength(1)
-    expect(document.head.firstElementChild).toBe(scripts[0])
-    expect(scripts[0].textContent).toBe(themeBootstrapScript)
+    expectThemeBootstrapFirstInHead(String(html?.source))
+  })
+
+  it('injects the theme bootstrap first in <head> during vite dev', async () => {
+    const server = await createServer({
+      root,
+      configFile: false,
+      logLevel: 'silent',
+      server: { middlewareMode: true },
+      plugins: [bootstrapTheme()],
+    })
+
+    try {
+      expectThemeBootstrapFirstInHead(
+        await server.transformIndexHtml('/', indexHtml)
+      )
+    } finally {
+      await server.close()
+    }
   })
 })
 

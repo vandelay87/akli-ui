@@ -91,9 +91,9 @@ function App() {
 }
 ```
 
-To avoid a flash of the wrong theme on first paint, a consumer can run the theme bootstrap script in `<head>`. It applies the saved theme (falling back to the system theme) before the page renders, using the same rules as `ThemeToggle`, which then keeps the theme already on `<html>`. This is optional.
+To avoid a flash of the wrong theme on first paint, a consumer can run the theme bootstrap in `<head>`. It applies the saved theme (falling back to the system theme) before the page renders, using the same rules as `ThemeToggle`, which then keeps the theme already on `<html>`. This is optional.
 
-The recommended setup for Vite consumers is `bootstrapTheme()` from `@akli-dev/ui/vite-plugin`, which inlines the script as the first element of `index.html`'s `<head>` in both `vite dev` and `vite build`:
+The recommended setup for Vite consumers is `bootstrapTheme()` from `@akli-dev/ui/vite-plugin`, which inlines `themeBootstrapScript` as the first element of `index.html`'s `<head>` in both `vite dev` and `vite build`:
 
 ```ts
 import react from '@vitejs/plugin-react'

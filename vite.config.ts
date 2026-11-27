@@ -84,9 +84,7 @@ export default defineConfig({
       // Node-side entry: consumed from a *consuming app's* own
       // vite.config.ts (via `@akli-dev/ui/vite-plugin`), never imported
       // from src/index.ts or any component, so it shares this build's
-      // config (target/format) without pulling in any React/DOM code —
-      // its own import graph is the `Plugin` type from `vite` plus
-      // src/theme/themeBootstrap.ts (a plain string).
+      // config (target/format) without pulling in any React/DOM code.
       'vite-plugin': 'src/vite-plugin.ts',
     }
     // Names of entries whose own declared source is a `.css` file (today:

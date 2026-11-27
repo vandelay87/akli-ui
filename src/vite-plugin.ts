@@ -1,16 +1,15 @@
 // Node-side entry, not a browser entry: this file runs inside a *consuming*
 // app's own `vite.config.ts` (added to that app's `plugins` array), never in
 // the browser bundle produced by `src/index.ts`. It deliberately imports
-// nothing from `src/index.ts` or any component — only the `Plugin` type from
-// `vite` and the theme bootstrap string — so it stays free of React/DOM code
-// and can be built as its own clean, minimal entry (see the `vite-plugin`
-// entry in vite.config.ts).
+// nothing from `src/index.ts` or any component, so it stays free of React/DOM
+// code and can be built as its own clean, minimal entry (see the
+// `vite-plugin` entry in vite.config.ts).
 //
-// The rest of this header covers preloadFonts(). See docs/prds/akli-ui-package-and-storybook.md (Technical Considerations →
-// Performance) for the full "why": `@akli-dev/ui` ships its font inside
-// `dist/fonts.css` as a `url(...)` reference, not an inlined asset. When a
-// consumer imports `@akli-dev/ui/fonts.css`, *their* build re-processes that
-// `url()` and copies/re-hashes the font file into *their* own
+// preloadFonts(): see docs/prds/akli-ui-package-and-storybook.md (Technical
+// Considerations → Performance) for the full "why": `@akli-dev/ui` ships its
+// font inside `dist/fonts.css` as a `url(...)` reference, not an inlined
+// asset. When a consumer imports `@akli-dev/ui/fonts.css`, *their* build
+// re-processes that `url()` and copies/re-hashes the font file into *their* own
 // `dist/assets/...`. Only that consumer's build knows the resulting hashed
 // filename — so a `<link rel="preload">` pointing at it can't be hardcoded
 // anywhere in this package. This plugin finds the real filename via Rollup's
