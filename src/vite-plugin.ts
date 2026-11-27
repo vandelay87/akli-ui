@@ -152,13 +152,16 @@ export const preloadFonts = (): Plugin => {
 export const bootstrapTheme = (): Plugin => ({
   name: '@akli-dev/ui:bootstrap-theme',
 
-  transformIndexHtml() {
-    return [
-      {
-        tag: 'script',
-        children: themeBootstrapScript,
-        injectTo: 'head-prepend',
-      },
-    ]
+  transformIndexHtml: {
+    order: 'post',
+    handler() {
+      return [
+        {
+          tag: 'script',
+          children: themeBootstrapScript,
+          injectTo: 'head-prepend',
+        },
+      ]
+    },
   },
 })

@@ -1,10 +1,10 @@
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { build, createServer, type Rolldown } from 'vite'
+import { build, createServer, type Plugin, type Rolldown } from 'vite'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { themeBootstrapScript } from './theme/themeBootstrap'
-import { bootstrapTheme } from './vite-plugin'
+import { bootstrapTheme, preloadFonts } from './vite-plugin'
 
 const indexHtml = `<!doctype html>
 <html>
@@ -15,6 +15,25 @@ const indexHtml = `<!doctype html>
   </head>
   <body></body>
 </html>`
+
+const buildIndexHtml = async (
+  root: string,
+  plugins: Plugin[]
+): Promise<string> => {
+  const output = (await build({
+    root,
+    configFile: false,
+    logLevel: 'silent',
+    plugins,
+    build: { write: false, assetsInlineLimit: 0 },
+  })) as Rolldown.RolldownOutput
+
+  const html = output.output.find(
+    (file): file is Rolldown.OutputAsset => file.fileName === 'index.html'
+  )
+
+  return String(html?.source)
+}
 
 const expectThemeBootstrapFirstInHead = (html: string): void => {
   const document = new DOMParser().parseFromString(html, 'text/html')
@@ -40,19 +59,35 @@ describe('bootstrapTheme()', () => {
   })
 
   it('injects the theme bootstrap first in <head> during vite build', async () => {
-    const output = (await build({
-      root,
-      configFile: false,
-      logLevel: 'silent',
-      plugins: [bootstrapTheme()],
-      build: { write: false },
-    })) as Rolldown.RolldownOutput
-
-    const html = output.output.find(
-      (file): file is Rolldown.OutputAsset => file.fileName === 'index.html'
+    expectThemeBootstrapFirstInHead(
+      await buildIndexHtml(root, [bootstrapTheme()])
     )
+  })
 
-    expectThemeBootstrapFirstInHead(String(html?.source))
+  it('stays first in <head> when preloadFonts() is listed after it', async () => {
+    const fontRoot = await mkdtemp(join(tmpdir(), 'akli-ui-bootstrap-theme-'))
+
+    try {
+      await writeFile(join(fontRoot, 'geist-sans-latin-variable.woff2'), 'font')
+      await writeFile(
+        join(fontRoot, 'fonts.css'),
+        "@font-face { font-family: 'Geist'; src: url('./geist-sans-latin-variable.woff2') format('woff2'); }"
+      )
+      await writeFile(
+        join(fontRoot, 'index.html'),
+        indexHtml.replace('data:text/css,', './fonts.css')
+      )
+
+      const html = await buildIndexHtml(fontRoot, [
+        bootstrapTheme(),
+        preloadFonts(),
+      ])
+
+      expect(html).toContain('rel="preload"')
+      expectThemeBootstrapFirstInHead(html)
+    } finally {
+      await rm(fontRoot, { recursive: true, force: true })
+    }
   })
 
   it('injects the theme bootstrap first in <head> during vite dev', async () => {
