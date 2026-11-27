@@ -1,5 +1,11 @@
 # @akli-dev/ui
 
+## 2.4.0
+
+### Minor Changes
+
+- [#101](https://github.com/vandelay87/akli-ui/pull/101) [`bae69eb`](https://github.com/vandelay87/akli-ui/commit/bae69eb32c88af3bdf3b2e9ca11a293a8b661af6) Thanks [@vandelay87](https://github.com/vandelay87)! - Add `bootstrapTheme()` to `@akli-dev/ui/vite-plugin`, which inlines `themeBootstrapScript` as the first element of the consumer's `index.html` `<head>` in both `vite dev` and `vite build`.
+
 ## 2.3.0
 
 ### Minor Changes
