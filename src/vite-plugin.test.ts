@@ -10,7 +10,7 @@ const indexHtml = `<!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
-    <link rel="stylesheet" href="data:text/css," />
+    <link rel="stylesheet" href="./fonts.css" />
     <title>Consumer</title>
   </head>
   <body></body>
@@ -52,6 +52,11 @@ describe('bootstrapTheme()', () => {
   beforeAll(async () => {
     root = await mkdtemp(join(tmpdir(), 'akli-ui-bootstrap-theme-'))
     await writeFile(join(root, 'index.html'), indexHtml)
+    await writeFile(
+      join(root, 'fonts.css'),
+      "@font-face { font-family: 'Geist'; src: url('./geist-sans-latin-variable.woff2') format('woff2'); }"
+    )
+    await writeFile(join(root, 'geist-sans-latin-variable.woff2'), 'font')
   })
 
   afterAll(async () => {
@@ -65,29 +70,10 @@ describe('bootstrapTheme()', () => {
   })
 
   it('stays first in <head> when preloadFonts() is listed after it', async () => {
-    const fontRoot = await mkdtemp(join(tmpdir(), 'akli-ui-bootstrap-theme-'))
+    const html = await buildIndexHtml(root, [bootstrapTheme(), preloadFonts()])
 
-    try {
-      await writeFile(join(fontRoot, 'geist-sans-latin-variable.woff2'), 'font')
-      await writeFile(
-        join(fontRoot, 'fonts.css'),
-        "@font-face { font-family: 'Geist'; src: url('./geist-sans-latin-variable.woff2') format('woff2'); }"
-      )
-      await writeFile(
-        join(fontRoot, 'index.html'),
-        indexHtml.replace('data:text/css,', './fonts.css')
-      )
-
-      const html = await buildIndexHtml(fontRoot, [
-        bootstrapTheme(),
-        preloadFonts(),
-      ])
-
-      expect(html).toContain('rel="preload"')
-      expectThemeBootstrapFirstInHead(html)
-    } finally {
-      await rm(fontRoot, { recursive: true, force: true })
-    }
+    expect(html).toContain('rel="preload"')
+    expectThemeBootstrapFirstInHead(html)
   })
 
   it('injects the theme bootstrap first in <head> during vite dev', async () => {

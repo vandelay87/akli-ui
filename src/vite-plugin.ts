@@ -126,10 +126,9 @@ export const preloadFonts = (): Plugin => {
             href: `${normalizedBase}${fontFileName}`,
           },
           // 'head-prepend' (Vite's own default for injected tags) puts the
-          // preload as early in <head> as possible (after only
-          // bootstrapTheme()'s script), which is the point of preloading at
-          // all — the browser should discover and start fetching the font
-          // before it otherwise would.
+          // preload as early in <head> as possible, which is the point of
+          // preloading at all — the browser should discover and start
+          // fetching the font before it otherwise would.
           injectTo: 'head-prepend',
         },
       ]
