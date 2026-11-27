@@ -2,10 +2,11 @@
 // app's own `vite.config.ts` (added to that app's `plugins` array), never in
 // the browser bundle produced by `src/index.ts`. It deliberately imports
 // nothing from `src/index.ts` or any component — only the `Plugin` type from
-// `vite` — so it stays free of React/DOM code and can be built as its own
-// clean, minimal entry (see the `vite-plugin` entry in vite.config.ts).
+// `vite` and the theme bootstrap string — so it stays free of React/DOM code
+// and can be built as its own clean, minimal entry (see the `vite-plugin`
+// entry in vite.config.ts).
 //
-// See docs/prds/akli-ui-package-and-storybook.md (Technical Considerations →
+// The rest of this header covers preloadFonts(). See docs/prds/akli-ui-package-and-storybook.md (Technical Considerations →
 // Performance) for the full "why": `@akli-dev/ui` ships its font inside
 // `dist/fonts.css` as a `url(...)` reference, not an inlined asset. When a
 // consumer imports `@akli-dev/ui/fonts.css`, *their* build re-processes that
@@ -17,6 +18,7 @@
 // manifest) and injects the preload tag into the consumer's built
 // `index.html` via Vite's `transformIndexHtml` hook.
 import type { Plugin } from 'vite'
+import { themeBootstrapScript } from './theme/themeBootstrap'
 
 // Matches the *original* (pre-hash) asset name Vite/Rollup preserves in an
 // OutputAsset's `names` array — e.g. "geist-sans-latin-variable.woff2" — not
@@ -133,3 +135,30 @@ export const preloadFonts = (): Plugin => {
     },
   }
 }
+
+/**
+ * Vite plugin for consuming apps: inlines `themeBootstrapScript` as the first
+ * element of `index.html`'s `<head>`, so the saved or system theme is applied
+ * before first paint. Runs in both `vite dev` and `vite build`.
+ *
+ * ```ts
+ * import { bootstrapTheme } from '@akli-dev/ui/vite-plugin'
+ *
+ * export default defineConfig({
+ *   plugins: [react(), bootstrapTheme()],
+ * })
+ * ```
+ */
+export const bootstrapTheme = (): Plugin => ({
+  name: '@akli-dev/ui:bootstrap-theme',
+
+  transformIndexHtml() {
+    return [
+      {
+        tag: 'script',
+        children: themeBootstrapScript,
+        injectTo: 'head-prepend',
+      },
+    ]
+  },
+})

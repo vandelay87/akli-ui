@@ -91,7 +91,21 @@ function App() {
 }
 ```
 
-An SSR consumer can avoid a flash of the wrong theme on first paint by inlining `themeBootstrapScript` in `<head>`. It applies the saved theme (falling back to the system theme) before the page renders, using the same rules as `ThemeToggle`, which then keeps the theme already on `<html>`. This is optional:
+To avoid a flash of the wrong theme on first paint, a consumer can run the theme bootstrap script in `<head>`. It applies the saved theme (falling back to the system theme) before the page renders, using the same rules as `ThemeToggle`, which then keeps the theme already on `<html>`. This is optional.
+
+The recommended setup for Vite consumers is `bootstrapTheme()` from `@akli-dev/ui/vite-plugin`, which inlines the script as the first element of `index.html`'s `<head>` in both `vite dev` and `vite build`:
+
+```ts
+import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
+import { bootstrapTheme, preloadFonts } from '@akli-dev/ui/vite-plugin'
+
+export default defineConfig({
+  plugins: [react(), bootstrapTheme(), preloadFonts()],
+})
+```
+
+A consumer that doesn't use Vite can inline the exported `themeBootstrapScript` itself, for example during server rendering:
 
 ```tsx
 import { themeBootstrapScript } from '@akli-dev/ui'
